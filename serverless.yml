@@ -1,0 +1,28 @@
+service: project-memory
+
+provider:
+  name: aws
+  runtime: nodejs6.10
+  stage: dev
+  region: us-east-1
+
+functions:
+  graphql:
+    handler: src/serverless-index.graphQLHandler
+    events:
+      - http:
+          path: /
+          method: post
+          cors: true
+      - http:
+          path: /
+          method: get
+
+plugins:
+  - serverless-webpack
+  - serverless-offline
+custom:
+  serverless-offline:
+    port: 4000
+  webpack:
+    includeModules: true

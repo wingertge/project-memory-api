@@ -1,0 +1,35 @@
+type Review {
+    id: ID!
+    nextReviewAt: Date
+    box: Int!
+    card: Card!
+    user: User!
+    reviewedFields: [ReviewFields]
+    correct: Boolean
+}
+
+input ReviewFilterInput {
+    limit: Int
+    offset: Int
+    deck: ID
+    toBeReviewedBy: Date
+    sortBy: ReviewSortOptions
+    sortDirection: SortDirection
+    box: Int
+}
+
+enum ReviewFields {
+    meaning
+    pronunciation
+    translation
+}
+
+enum ReviewSortOptions {
+    reviewDate
+    box
+}
+
+input ReviewInput {
+    date: Date
+    cardID: ID
+}

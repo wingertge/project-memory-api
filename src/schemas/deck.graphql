@@ -1,0 +1,43 @@
+type Deck {
+    id: ID!
+    name: String!
+    owner: User!
+    language: Language!
+    nativeLanguage: Language!
+    cards(filter: CardFilterInput): [Card]
+    cardCount: Int!
+    subscribers(filter: SubscriberFilterInput): [User]
+    subscriberCount: Int!
+    rating: Int!
+    isLikedBy(userID: ID!): Boolean!
+}
+
+input DeckFilterInput {
+    limit: Int
+    sortBy: DeckSortBy
+    sortDirection: SortDirection
+    search: String
+    owner: ID
+    languages: [ID]
+    nativeLanguage: ID
+    cardContained: ID
+}
+
+input SubscriberFilterInput {
+    limit: Int
+}
+
+enum DeckSortBy {
+    name
+    cardCount
+    rating
+    subscribers
+}
+
+input DeckInput {
+    name: String
+    owner: String
+    language: ID
+    nativeLanguage: ID
+    cards: [CardInput]
+}

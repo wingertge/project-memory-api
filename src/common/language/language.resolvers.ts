@@ -1,0 +1,36 @@
+import {Resolvers} from "../../generated/graphql"
+import project from "../project"
+import DBLanguage from "./language.model"
+import DBUser from "../user/user.model"
+import {AuthenticationError} from "apollo-server"
+import debug from "debug"
+
+const log = debug("api:resolvers:language")
+log.log = console.log.bind(console)
+
+
+const resolvers: Resolvers = {
+    Query: {
+        languages: async (a, b, c, info) => {
+            const langs = await project(DBLanguage, DBLanguage.find({}), info).exec()
+            log(langs && langs.map(l => l.toGraph()))
+            return (langs && langs.map(l => l.toGraph())) as any
+        },
+        language: async (a, {languageCode}, b, info) => {
+            const lang = await project(DBLanguage, DBLanguage.findOne({languageCode}), info).exec()
+            return (lang && lang.toGraph()) as any
+        }
+    },
+    Mutation: {
+        addLanguageToUser: async (_, {id, input}, {user}, info) => {
+            if(!user || user.id !== id)
+                throw new AuthenticationError("You're not authorized to do that")
+            log(input)
+            const dbUser = await project(DBUser, DBUser.findByIdAndUpdate(id, {$push: {languages: input}}, {new: true}), info).exec()
+            log(dbUser!.toGraph())
+            return dbUser as any
+        }
+    }
+}
+
+export default resolvers

@@ -1,0 +1,53 @@
+# import User, UserInput, UserFilterInput from "./user.graphql"
+# import Language from "./language.graphql"
+# import Card, CardInput from "./card.graphql"
+# import Deck from "./deck.graphql"
+# import Review, ReviewInput, ReviewFilterInput from "./review.graphql"
+
+schema {
+    query: Query
+    mutation: Mutation
+}
+
+type Query {
+    users(filter: UserFilterInput): [User]
+    user(id: ID): User
+
+    languages: [Language]
+    language(languageCode: String!): Language
+
+    decks(filter: DeckFilterInput): [Deck]
+    deck(id: ID!): Deck
+
+    review(id: ID!): Review
+}
+
+type Mutation {
+    authenticate(code: ID!): AuthResult
+    logout: Boolean
+
+    initUser(id: ID!): User
+    editUser(id: ID!, input: UserInput!): User
+    deleteUser(id: ID!): User
+
+    addLanguageToUser(id: ID!, input: ID!): User
+
+    addDeck(input: DeckInput!): User
+    updateDeck(id: ID!, input: DeckInput!): Deck
+    deleteDeck(id: ID!): Deck
+    changeSubscriptionStatus(id: ID!, deckID: ID!, value: Boolean!): User
+    changeLikeStatus(id: ID!, userID: ID!, value: Boolean): Deck
+
+    createCard(input: CardInput!): Deck
+    editCard(id: ID!, input: CardInput!): Card
+    deleteCards(deck: ID!, ids: [ID]!): Deck
+
+    submitReview(id: ID!, correct: Boolean!, field: ReviewFields!): Review
+}
+
+enum SortDirection {
+    asc
+    desc
+}
+
+scalar Date

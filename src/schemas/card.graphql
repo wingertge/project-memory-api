@@ -1,0 +1,29 @@
+type Card {
+    id: ID!
+    translation: String!
+    meaning: String!
+    pronunciation: String
+    audioUrl: String
+    deck: Deck
+}
+
+input CardInput {
+    translation: String
+    meaning: String
+    pronunciation: String
+    audioUrl: String
+    deck: ID
+}
+
+input CardFilterInput {
+    limit: Int
+    offset: Int
+    sortDirection: SortDirection
+    sortBy: CardSortingOptions
+}
+
+enum CardSortingOptions {
+    meaning
+    pronunciation
+    translation
+}

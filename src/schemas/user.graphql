@@ -1,0 +1,51 @@
+type User {
+    sub: ID
+    id: ID!
+    email: String
+    name: String
+    username: String!
+    picture: String!
+    gender: String!
+    locale: String
+    identities: [Identity]
+    isSocial: Boolean!
+    nativeLanguage: Language
+    languages: [Language]
+    ownedDecks: [Deck]
+    subscribedDecks: [Deck]
+    reviewQueue(filter: ReviewFilterInput): [Review]
+    reviewsCount(filter: ReviewFilterInput): Int
+    nextReview: Review
+    lessonQueue(filter: ReviewFilterInput): [Review]
+    lessonsCount: Int
+
+    introStep: Int
+}
+
+type Identity {
+    userId: ID!
+    provider: String!
+    connection: String!
+    isSocial: Boolean!
+}
+
+input UserFilterInput {
+    limit: Int
+}
+
+input UserInput {
+    name: String
+    username: String
+    email: String
+    password: String
+    oldPassword: String
+    introStep: Int
+    nativeLanguage: ID
+}
+
+type AuthResult {
+    accessToken: String!
+    idToken: String!
+    tokenType: String!
+    expiresIn: Int!
+}
