@@ -15,7 +15,7 @@ input ReviewFilterInput {
     toBeReviewedBy: Date
     sortBy: ReviewSortOptions
     sortDirection: SortDirection
-    box: Int
+    boxes: [Int]
 }
 
 enum ReviewFields {

@@ -34,7 +34,7 @@ const resolvers: Resolvers = {
             filter = filter || {}
             if(filter.deck) conditions.deck = filter.deck
             if(filter.toBeReviewedBy) conditions.nextReviewAt = {$lt: filter.toBeReviewedBy}
-            if(filter.box) conditions.box = filter.box
+            if(filter.boxes) conditions.box = {$in: filter.boxes}
             else conditions.box = {$gt: 0}
 
             let query = project(DBReview, DBReview.find(conditions), info)
@@ -49,7 +49,7 @@ const resolvers: Resolvers = {
             filter = filter || {}
             if(filter.deck) conditions.deck = filter.deck
             if(filter.toBeReviewedBy) conditions.nextReviewAt = {$lt: filter.toBeReviewedBy}
-            if(filter.box) conditions.box = filter.box
+            if(filter.boxes) conditions.box = {$in: filter.boxes}
             else conditions.box = {$gt: 0}
 
             return await DBReview.count(conditions)
@@ -91,9 +91,9 @@ const resolvers: Resolvers = {
             const reviewedFields = review.reviewedFields
             log(reviewedFields)
             if(reviewedFields.length === 3 || (reviewedFields.length === 2 && !hasPronunciation)) {
-                const nextReviewAt = scheduleNextReview(review.box + 1)
+                const nextReviewAt = scheduleNextReview(review.correct ? review.box + 1 : review.box - 1)
                 log(nextReviewAt)
-                return await project(DBReview, DBReview.findByIdAndUpdate(id, {$set: {reviewedFields: [], nextReviewAt: scheduleNextReview(review.box + 1), correct: true}, $inc: {box: 1}}, {new: true}), info)
+                return await project(DBReview, DBReview.findByIdAndUpdate(id, {$set: {reviewedFields: [], nextReviewAt, correct: true}, $inc: {box: review.correct ? 1 : -1}}, {new: true}), info)
             }
             return (await project(DBReview, DBReview.findById(id), info)) as any
         }

@@ -26,7 +26,7 @@ const schema = new Schema({
         ref: "Card"
     },
     user: {
-        type: String,
+        type: ObjectId,
         ref: "User"
     },
     reviewedFields: [String],
@@ -51,5 +51,7 @@ schema.pre<DbReview>("insertMany", saveFun)
 
 schema.pre<DbReview>("remove", removeFun)
 schema.pre<DbReview>("deleteMany", removeFun)
+
+schema.index("user")
 
 export default model<DbReview>("Review", schema)

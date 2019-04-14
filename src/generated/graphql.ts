@@ -116,6 +116,7 @@ export type Mutation = {
   readonly editUser?: Maybe<User>;
   readonly deleteUser?: Maybe<User>;
   readonly addLanguageToUser?: Maybe<User>;
+  readonly removeLanguageFromUser?: Maybe<User>;
   readonly addDeck?: Maybe<User>;
   readonly updateDeck?: Maybe<Deck>;
   readonly deleteDeck?: Maybe<Deck>;
@@ -147,6 +148,11 @@ export type MutationDeleteUserArgs = {
 export type MutationAddLanguageToUserArgs = {
   id: Scalars["ID"];
   input: Scalars["ID"];
+};
+
+export type MutationRemoveLanguageFromUserArgs = {
+  id: Scalars["ID"];
+  language: Scalars["ID"];
 };
 
 export type MutationAddDeckArgs = {
@@ -235,6 +241,7 @@ export type Review = {
   readonly card: Card;
   readonly user: User;
   readonly reviewedFields?: Maybe<ReadonlyArray<Maybe<ReviewFields>>>;
+  readonly correct?: Maybe<Scalars["Boolean"]>;
 };
 
 export type ReviewFields = "meaning" | "pronunciation" | "translation";
@@ -246,10 +253,10 @@ export type ReviewFilterInput = {
   readonly toBeReviewedBy?: Maybe<Scalars["Date"]>;
   readonly sortBy?: Maybe<ReviewSortOptions>;
   readonly sortDirection?: Maybe<SortDirection>;
-  readonly box?: Maybe<Scalars["Int"]>;
+  readonly boxes?: Maybe<ReadonlyArray<Maybe<Scalars["Int"]>>>;
 };
 
-export type ReviewSortOptions = "reviewDate";
+export type ReviewSortOptions = "reviewDate" | "box";
 
 export type SortDirection = "asc" | "desc";
 
@@ -534,6 +541,12 @@ export type MutationResolvers<Context = AppContext, ParentType = Mutation> = {
     Context,
     MutationAddLanguageToUserArgs
   >;
+  removeLanguageFromUser?: Resolver<
+    Maybe<User>,
+    ParentType,
+    Context,
+    MutationRemoveLanguageFromUserArgs
+  >;
   addDeck?: Resolver<Maybe<User>, ParentType, Context, MutationAddDeckArgs>;
   updateDeck?: Resolver<
     Maybe<Deck>,
@@ -615,6 +628,7 @@ export type ReviewResolvers<Context = AppContext, ParentType = Review> = {
     ParentType,
     Context
   >;
+  correct?: Resolver<Maybe<Scalars["Boolean"]>, ParentType, Context>;
 };
 
 export type UserResolvers<Context = AppContext, ParentType = User> = {

@@ -25,8 +25,11 @@ export interface DbUser extends Base {
 }
 
 const userSchema = new Schema({
-    _id: String,
-    introStep: Number,
+    introStep: {
+        type: Number,
+        default: 0,
+        required: true
+    },
     email: {
         type: String,
         required: true

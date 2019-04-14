@@ -76,7 +76,7 @@ interface User {
 }
 
 const convertUser = (user: any): User => ({
-    id: user["https://project-memory.com/uuid"]
+    id: user["https://project-memory.com/id"]
 })
 
 const server = new ApolloServer({

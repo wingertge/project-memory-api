@@ -16,6 +16,7 @@ const resolvers: Resolvers = {
         user: async (_, {id}, {user}, info) => {
             if(!user)
                 return null
+            log("id: " + id)
             log(fieldsMap(info))
             log("Starting Query")
             const dbUser = await project(DBUser, DBUser.findById(id), info).exec()

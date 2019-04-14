@@ -41,7 +41,7 @@ const schema = new Schema({
         required: true
     },
     cards: [{
-        type: String,
+        type: ObjectId,
         ref: "Card",
         required: true
     }],
@@ -51,7 +51,7 @@ const schema = new Schema({
         default: 0
     },
     subscribers: [{
-        type: String,
+        type: ObjectId,
         ref: "User",
         required: true
     }],
@@ -63,7 +63,7 @@ const schema = new Schema({
     ratings: [{
         upvote: Boolean,
         user: {
-            type: String,
+            type: ObjectId,
             ref: "User"
         }
     }],
@@ -72,7 +72,7 @@ const schema = new Schema({
         default: 0
     },
     owner: {
-        type: String,
+        type: ObjectId,
         ref: "User",
         required: true
     }
@@ -92,5 +92,7 @@ schema.pre("deleteMany", deleteFun)
 schema.method("toGraph", function(this: any) {
     return JSON.parse(JSON.stringify(this))
 })
+
+schema.index("owner")
 
 export default model<DbDeck>("Deck", schema)

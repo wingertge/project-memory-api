@@ -29,6 +29,13 @@ const resolvers: Resolvers = {
             const dbUser = await project(DBUser, DBUser.findByIdAndUpdate(id, {$push: {languages: input}}, {new: true}), info).exec()
             log(dbUser!.toGraph())
             return dbUser as any
+        },
+        removeLanguageFromUser: async (_, {id, language}, {user}, info) => {
+            if(!user || user.id !== id)
+                throw new AuthenticationError("You're not authorized to do that")
+            const dbUser = await project(DBUser, DBUser.findByIdAndUpdate(id, {$pull: {languages: language}}, {new: true}), info).exec()
+            log(dbUser!.toGraph())
+            return dbUser as any
         }
     }
 }

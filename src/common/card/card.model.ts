@@ -74,4 +74,6 @@ schema.method("toGraph", function(this: any) {
     return JSON.parse(JSON.stringify(this))
 })
 
+schema.index("deck")
+
 export default model<DbCard>("Card", schema)

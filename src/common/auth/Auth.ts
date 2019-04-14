@@ -142,7 +142,7 @@ class Auth {
             search_engine: "v3",
             per_page: 1,
             page: 0,
-            q: `app_metadata.uuid:"${id}"`
+            q: `app_metadata.id:"${id}"`
         })
 
         if(!user || user.length === 0) {

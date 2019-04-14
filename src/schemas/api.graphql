@@ -31,6 +31,7 @@ type Mutation {
     deleteUser(id: ID!): User
 
     addLanguageToUser(id: ID!, input: ID!): User
+    removeLanguageFromUser(id: ID!, language: ID!): User
 
     addDeck(input: DeckInput!): User
     updateDeck(id: ID!, input: DeckInput!): Deck
