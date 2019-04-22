@@ -30,7 +30,10 @@ const schema = new Schema({
         ref: "User"
     },
     reviewedFields: [String],
-    correct: Boolean
+    correct: {
+        type: Boolean,
+        default: true
+    }
 })
 
 schema.set("toObject", {virtuals: true})

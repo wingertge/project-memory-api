@@ -2,7 +2,6 @@ import {model, Schema, Document} from "mongoose"
 import {Card} from "../../generated/graphql"
 import Review from "../review/review.model"
 import Deck, {DbDeck} from "../deck/deck.model"
-import uuid = require("uuid")
 import ObjectId = Schema.Types.ObjectId
 
 export interface DbCard extends Document {
@@ -49,13 +48,11 @@ const saveFun = function(this: DbCard, next) {
     Deck.findByIdAndUpdate(this.deck, {$push: {cards: this._id}, $inc: {cardCount: 1}}).select("subscribers owner").then(dbDeck => {
         console.log(dbDeck)
         const reviews = (dbDeck!.subscribers! as string[]).map(sub => new Review({
-            _id: uuid(),
             card: this._id,
             box: 0,
             user: sub
         }))
         reviews.push(new Review({
-            _id: uuid(),
             card: this._id,
             box: 0,
             user: dbDeck!.owner

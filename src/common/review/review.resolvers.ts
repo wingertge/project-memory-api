@@ -6,7 +6,7 @@ import {scheduleNextReview} from "../reviewScheduling"
 import DBReview from "./review.model"
 import debug from "debug"
 
-const log = debug("api:resolvers:review")
+const log = debug("api:topicResolvers:review")
 log.log = console.log.bind(console)
 
 const resolvers: Resolvers = {
@@ -79,11 +79,13 @@ const resolvers: Resolvers = {
             if(!correct) update.correct = false
 
             const review = await DBReview.findByIdAndUpdate(id, update, {new: true})
-                .select("reviewedFields card user box").populate("card", "pronunciation")
+                .select("reviewedFields card user box correct").populate("card", "pronunciation")
             if(!review)
                 throw new Error("Couldn't find a review with that ID")
 
-            if(review.user as string !== user.id) {
+            log(user.id)
+            log(review.user)
+            if(review.user.toString() !== user.id.toString()) {
                 throw new AuthError(ErrorType.Unauthorized)
             }
 

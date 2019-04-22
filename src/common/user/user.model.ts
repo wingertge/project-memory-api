@@ -4,6 +4,7 @@ import {User} from "../../generated/graphql"
 import GraphConverter from "../GraphConverter"
 import Deck, {DbDeck} from "../deck/deck.model"
 import {DbLanguage} from "../language/language.model"
+import {DbPost} from "../post/post.model"
 import ObjectId = Schema.Types.ObjectId
 
 type Base = Document & GraphConverter
@@ -22,6 +23,8 @@ export interface DbUser extends Base {
     languages: string[] | DbLanguage[]
     ownedDecks: string[] | DbDeck[]
     subscribedDecks: string[] | DbDeck[]
+    feed: string[] | DbPost[]
+    badges: string[]
 }
 
 const userSchema = new Schema({
@@ -70,7 +73,22 @@ const userSchema = new Schema({
     subscribedDecks: [{
         type: ObjectId,
         ref: "Deck"
-    }]
+    }],
+    feed: [{
+        type: ObjectId,
+        ref: "Post"
+    }],
+    badges: [String],
+    totalRating: {
+        type: Number,
+        default: 0,
+        required: true
+    },
+    totalSubscribers: {
+        type: Number,
+        default: 0,
+        required: true
+    }
 })
 
 userSchema.set("toObject", {virtuals: true})

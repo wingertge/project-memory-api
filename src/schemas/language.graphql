@@ -3,4 +3,7 @@ type Language {
     name: String!
     nativeName: String!
     languageCode: String!
+    hasConverter: Boolean!
+    requiresIME: Boolean!
+    hasPronunciation: Boolean!
 }

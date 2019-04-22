@@ -55,6 +55,7 @@ class Auth {
 
     public async authenticate(code: string): Promise<AuthResult | null> {
         log("executing code grant")
+        log("code:" + code)
         try {
             // @ts-ignore
             const result = await this.auth0.oauth.authorizationCodeGrant({

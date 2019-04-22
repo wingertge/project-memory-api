@@ -6,7 +6,7 @@ import project from "../project"
 import DBUser from "../user/user.model"
 import DBDeck from "./deck.model"
 
-const log = debug("api:resolvers:deck")
+const log = debug("api:topicResolvers:deck")
 log.log = console.log.bind(console)
 
 const resolvers: Resolvers = {
@@ -48,7 +48,8 @@ const resolvers: Resolvers = {
                 throw new AuthError(ErrorType.Unauthorized)
             const userUpdate = value ? {$push: {subscribedDecks: deckID}} : {$pull: {subscribedDecks: deckID}}
             const deckUpdate = value ? {$push: {subscribers: id}, $inc: {subscriberCount: 1}} : {$pull: {subscribers: id}, $inc: {subscriberCount: -1}}
-            await DBDeck.findByIdAndUpdate(deckID, deckUpdate).exec()
+            const deck = await DBDeck.findByIdAndUpdate(deckID, deckUpdate).select("owner")
+            await DBUser.findByIdAndUpdate(deck!.owner, {$inc: {totalSubscribers: value ? 1 : -1}})
             const dbUser = await project(DBUser, DBUser.findByIdAndUpdate(id, userUpdate, {new: true}), info).exec()
             return dbUser as any
         },
@@ -56,6 +57,7 @@ const resolvers: Resolvers = {
             if(!user || user.id !== userID)
                 throw new AuthError(ErrorType.Unauthorized)
             log(id)
+            const deck = await DBDeck.findById(id).select("owner")
             const currentDeck = await DBDeck.findOne({_id: id, "ratings.user": userID}).select("ratings.$")
             log(currentDeck)
             let change
@@ -74,6 +76,7 @@ const resolvers: Resolvers = {
                 let dbDeck = await project(DBDeck, DBDeck.updateOne({_id: id, "ratings.user": userID}, {$pull: {ratings: {user: userID}}}, {new: true}), info)
                 if(currentDeck) {
                     dbDeck = await project(DBDeck, DBDeck.findByIdAndUpdate(id, {$inc: {rating: change}}, {new: true}), info)
+                    await DBUser.findByIdAndUpdate(deck!.owner, {$inc: {totalRating: change}})
                 }
                 log(dbDeck)
                 return dbDeck as Deck
@@ -91,6 +94,7 @@ const resolvers: Resolvers = {
                 }
 
                 dbDeck = await project(DBDeck, DBDeck.findByIdAndUpdate(id, {$inc: {rating: change}}, {new: true}), info)
+                await DBUser.findByIdAndUpdate(deck!.owner, {$inc: {totalRating: change}})
 
                 log(dbDeck)
                 return dbDeck as Deck

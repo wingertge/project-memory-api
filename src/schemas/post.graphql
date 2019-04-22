@@ -1,0 +1,33 @@
+type Post {
+    id: ID!
+    createdAt: Date!
+    type: PostType!
+    by: User!
+    content: String
+    originalPost: Post
+}
+
+input PostFilterInput {
+    limit: Int
+    offset: Int
+    type: PostType
+    sortBy: PostSortOption
+    sortDirection: SortDirection
+}
+
+input PostInput {
+    type: PostType
+    content: String
+    originalPost: Int
+}
+
+enum PostType {
+    post
+    repost
+}
+
+enum PostSortOption {
+    likes
+    reposts
+    createdAt
+}

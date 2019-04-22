@@ -8,6 +8,7 @@ export type Scalars = {
   Float: number;
   /** Represents a date in time */
   Date: any;
+  JSON: any;
 };
 
 export type AdditionalEntityFields = {
@@ -107,6 +108,9 @@ export type Language = {
   readonly name: Scalars["String"];
   readonly nativeName: Scalars["String"];
   readonly languageCode: Scalars["String"];
+  readonly hasConverter: Scalars["Boolean"];
+  readonly requiresIME: Scalars["Boolean"];
+  readonly hasPronunciation: Scalars["Boolean"];
 };
 
 export type Mutation = {
@@ -126,6 +130,9 @@ export type Mutation = {
   readonly editCard?: Maybe<Card>;
   readonly deleteCards?: Maybe<Deck>;
   readonly submitReview?: Maybe<Review>;
+  readonly createPost?: Maybe<ReadonlyArray<Maybe<Post>>>;
+  readonly editPost?: Maybe<Post>;
+  readonly deletePost?: Maybe<ReadonlyArray<Maybe<Post>>>;
 };
 
 export type MutationAuthenticateArgs = {
@@ -199,6 +206,48 @@ export type MutationSubmitReviewArgs = {
   correct: Scalars["Boolean"];
   field: ReviewFields;
 };
+
+export type MutationCreatePostArgs = {
+  input: PostInput;
+  filter?: Maybe<PostFilterInput>;
+};
+
+export type MutationEditPostArgs = {
+  id: Scalars["ID"];
+  input: PostInput;
+};
+
+export type MutationDeletePostArgs = {
+  id: Scalars["ID"];
+  filter?: Maybe<PostFilterInput>;
+};
+
+export type Post = {
+  readonly id: Scalars["ID"];
+  readonly createdAt: Scalars["Date"];
+  readonly type: PostType;
+  readonly by: User;
+  readonly content?: Maybe<Scalars["String"]>;
+  readonly originalPost?: Maybe<Post>;
+};
+
+export type PostFilterInput = {
+  readonly limit?: Maybe<Scalars["Int"]>;
+  readonly offset?: Maybe<Scalars["Int"]>;
+  readonly type?: Maybe<PostType>;
+  readonly sortBy?: Maybe<PostSortOption>;
+  readonly sortDirection?: Maybe<SortDirection>;
+};
+
+export type PostInput = {
+  readonly type?: Maybe<PostType>;
+  readonly content?: Maybe<Scalars["String"]>;
+  readonly originalPost?: Maybe<Scalars["Int"]>;
+};
+
+export type PostSortOption = "likes" | "reposts" | "createdAt";
+
+export type PostType = "post" | "repost";
 
 export type Query = {
   readonly users?: Maybe<ReadonlyArray<Maybe<User>>>;
@@ -285,6 +334,7 @@ export type User = {
   readonly lessonQueue?: Maybe<ReadonlyArray<Maybe<Review>>>;
   readonly lessonsCount?: Maybe<Scalars["Int"]>;
   readonly introStep?: Maybe<Scalars["Int"]>;
+  readonly feed?: Maybe<ReadonlyArray<Maybe<Post>>>;
 };
 
 export type UserReviewQueueArgs = {
@@ -297,6 +347,10 @@ export type UserReviewsCountArgs = {
 
 export type UserLessonQueueArgs = {
   filter?: Maybe<ReviewFilterInput>;
+};
+
+export type UserFeedArgs = {
+  filter?: Maybe<PostFilterInput>;
 };
 
 export type UserFilterInput = {
@@ -512,11 +566,19 @@ export type IdentityResolvers<Context = AppContext, ParentType = Identity> = {
   isSocial?: Resolver<Scalars["Boolean"], ParentType, Context>;
 };
 
+export interface JsonScalarConfig
+  extends GraphQLScalarTypeConfig<Scalars["JSON"], any> {
+  name: "JSON";
+}
+
 export type LanguageResolvers<Context = AppContext, ParentType = Language> = {
   id?: Resolver<Scalars["ID"], ParentType, Context>;
   name?: Resolver<Scalars["String"], ParentType, Context>;
   nativeName?: Resolver<Scalars["String"], ParentType, Context>;
   languageCode?: Resolver<Scalars["String"], ParentType, Context>;
+  hasConverter?: Resolver<Scalars["Boolean"], ParentType, Context>;
+  requiresIME?: Resolver<Scalars["Boolean"], ParentType, Context>;
+  hasPronunciation?: Resolver<Scalars["Boolean"], ParentType, Context>;
 };
 
 export type MutationResolvers<Context = AppContext, ParentType = Mutation> = {
@@ -591,6 +653,28 @@ export type MutationResolvers<Context = AppContext, ParentType = Mutation> = {
     Context,
     MutationSubmitReviewArgs
   >;
+  createPost?: Resolver<
+    Maybe<ReadonlyArray<Maybe<Post>>>,
+    ParentType,
+    Context,
+    MutationCreatePostArgs
+  >;
+  editPost?: Resolver<Maybe<Post>, ParentType, Context, MutationEditPostArgs>;
+  deletePost?: Resolver<
+    Maybe<ReadonlyArray<Maybe<Post>>>,
+    ParentType,
+    Context,
+    MutationDeletePostArgs
+  >;
+};
+
+export type PostResolvers<Context = AppContext, ParentType = Post> = {
+  id?: Resolver<Scalars["ID"], ParentType, Context>;
+  createdAt?: Resolver<Scalars["Date"], ParentType, Context>;
+  type?: Resolver<PostType, ParentType, Context>;
+  by?: Resolver<User, ParentType, Context>;
+  content?: Resolver<Maybe<Scalars["String"]>, ParentType, Context>;
+  originalPost?: Resolver<Maybe<Post>, ParentType, Context>;
 };
 
 export type QueryResolvers<Context = AppContext, ParentType = Query> = {
@@ -679,6 +763,12 @@ export type UserResolvers<Context = AppContext, ParentType = User> = {
   >;
   lessonsCount?: Resolver<Maybe<Scalars["Int"]>, ParentType, Context>;
   introStep?: Resolver<Maybe<Scalars["Int"]>, ParentType, Context>;
+  feed?: Resolver<
+    Maybe<ReadonlyArray<Maybe<Post>>>,
+    ParentType,
+    Context,
+    UserFeedArgs
+  >;
 };
 
 export type Resolvers<Context = AppContext> = {
@@ -687,8 +777,10 @@ export type Resolvers<Context = AppContext> = {
   Date?: GraphQLScalarType;
   Deck?: DeckResolvers<Context>;
   Identity?: IdentityResolvers<Context>;
+  JSON?: GraphQLScalarType;
   Language?: LanguageResolvers<Context>;
   Mutation?: MutationResolvers<Context>;
+  Post?: PostResolvers<Context>;
   Query?: QueryResolvers<Context>;
   Review?: ReviewResolvers<Context>;
   User?: UserResolvers<Context>;

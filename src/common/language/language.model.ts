@@ -9,6 +9,9 @@ export interface DbLanguage extends Base {
     name: string
     nativeName: string
     languageCode: string
+    hasConverter: boolean
+    requiresIME: boolean
+    hasPronunciation: boolean
 }
 
 const schema = new Schema({
@@ -22,6 +25,18 @@ const schema = new Schema({
     },
     languageCode: {
         type: String,
+        required: true
+    },
+    hasConverter: {
+        type: Boolean,
+        required: true
+    },
+    requiresIME: {
+        type: Boolean,
+        required: true
+    },
+    hasPronunciation: {
+        type: Boolean,
         required: true
     }
 })

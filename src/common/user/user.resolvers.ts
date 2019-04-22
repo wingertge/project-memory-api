@@ -6,7 +6,7 @@ import Auth from "../auth/Auth"
 import project from "../project"
 import DBUser from "./user.model"
 
-const log = debug("api:resolvers:user")
+const log = debug("api:topicResolvers:user")
 log.log = console.log.bind(console)
 
 const isSocial = (user: Pick<User, "identities">) => !user.identities!.some(identity => !identity!.isSocial)

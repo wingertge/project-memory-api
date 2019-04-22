@@ -3,11 +3,14 @@
 # import Card, CardInput from "./card.graphql"
 # import Deck from "./deck.graphql"
 # import Review, ReviewInput, ReviewFilterInput from "./review.graphql"
+# import Post, PostFilterInput, PostInput from "./post.graphql"
 
 schema {
     query: Query
     mutation: Mutation
 }
+
+scalar JSON
 
 type Query {
     users(filter: UserFilterInput): [User]
@@ -44,6 +47,10 @@ type Mutation {
     deleteCards(deck: ID!, ids: [ID]!): Deck
 
     submitReview(id: ID!, correct: Boolean!, field: ReviewFields!): Review
+
+    createPost(input: PostInput!, filter: PostFilterInput): [Post]
+    editPost(id: ID!, input: PostInput!): Post
+    deletePost(id: ID!, filter: PostFilterInput): [Post]
 }
 
 enum SortDirection {

@@ -5,7 +5,7 @@ import DBUser from "../user/user.model"
 import {AuthenticationError} from "apollo-server"
 import debug from "debug"
 
-const log = debug("api:resolvers:language")
+const log = debug("api:topicResolvers:language")
 log.log = console.log.bind(console)
 
 

@@ -8,6 +8,7 @@ import express from "express"
 import cookieParser from "cookie-parser"
 import {connect} from "mongoose"
 import authResolvers from "./auth/auth.resolvers"
+import postResolvers from "./post/post.resolvers"
 import userResolvers from "./user/user.resolvers"
 import deckResolvers from "./deck/deck.resolvers"
 import languageResolvers from "./language/language.resolvers"
@@ -64,7 +65,11 @@ const scalarResolvers: Resolvers = {
 
 const schema = makeExecutableSchema({
     typeDefs: [rootSchema],
-    resolvers: [scalarResolvers, authResolvers, userResolvers, deckResolvers, languageResolvers, cardResolvers, reviewResolvers] as any
+    resolvers: [
+        scalarResolvers, authResolvers, userResolvers,
+        deckResolvers, languageResolvers, cardResolvers,
+        reviewResolvers, postResolvers
+    ] as any
 })
 
 export interface AppContext {

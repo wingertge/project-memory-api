@@ -6,9 +6,8 @@ import project from "../project"
 import DBCard from "./card.model"
 import DBUser from "../user/user.model"
 import DBReview from "../review/review.model"
-import uuid = require("uuid")
 
-const log = debug("api:resolvers:card")
+const log = debug("api:topicResolvers:card")
 log.log = console.log.bind(console)
 
 const assertPermission = async (deckId, user) => {
@@ -18,7 +17,7 @@ const assertPermission = async (deckId, user) => {
     if(!deck)
         throw new Error("Deck with that ID doesn't exist")
     const ownerId = deck.owner as string
-    if(user.id !== ownerId)
+    if(user.id.toString() !== ownerId.toString())
         throw new AuthError(ErrorType.Unauthorized)
 }
 
@@ -26,10 +25,7 @@ const resolvers: Resolvers = {
     Mutation: {
         createCard: async (_, {input}, {user}, info) => {
             await assertPermission(input.deck, user)
-            await new DBCard({
-                _id: uuid(),
-                ...input
-            }).save()
+            await new DBCard({...input}).save()
             return await project(DBDeck, DBDeck.findById(input.deck), info) as any
         },
         editCard: async (_, {id, input}, {user}, info) => {

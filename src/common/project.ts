@@ -31,6 +31,10 @@ export default projector({
             name: "lessonQueue",
             mappingType: DBMappingType.Reference,
             ref: "Card"
+        },
+        feed: {
+            mappingType: DBMappingType.Reference,
+            ref: "Post"
         }
     },
     Language: {},
@@ -65,12 +69,27 @@ export default projector({
             ref: "User"
         }
     },
-    Card: {},
+    Card: {
+        deck: {
+            mappingType: DBMappingType.Reference,
+            ref: "Deck"
+        }
+    },
     Review: {
         card: {
             name: "card",
             mappingType: DBMappingType.Reference,
             ref: "Card"
+        }
+    },
+    Post: {
+        by: {
+            mappingType: DBMappingType.Reference,
+            ref: "User"
+        },
+        originalPost: {
+            mappingType: DBMappingType.Reference,
+            ref: "Post"
         }
     }
 })

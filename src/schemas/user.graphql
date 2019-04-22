@@ -17,9 +17,14 @@ type User {
     reviewsCount(filter: ReviewFilterInput): Int
     nextReview: Review
     lessonQueue(filter: ReviewFilterInput): [Review]
-    lessonsCount: Int
+    lessonsCount: Int!
+    totalRating: Int!
+    totalSubscribers: Int!
+    badges: [String]!
 
     introStep: Int
+
+    feed(filter: PostFilterInput): [Post]
 }
 
 type Identity {

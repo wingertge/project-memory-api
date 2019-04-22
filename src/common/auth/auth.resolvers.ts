@@ -1,16 +1,6 @@
 import {Resolvers} from "../../generated/graphql"
 import {AppContext} from "../server"
-import debug from "debug"
 import Auth from "./Auth"
-
-//const log = debug("api:resolvers:auth")
-
-/*const stripSensitive = (user: Partial<User>): Partial<User> => ({
-    id: user.id,
-    username: user.username,
-    picture: user.picture,
-    gender: user.gender
-})*/
 
 const resolvers: Resolvers<AppContext> = {
     User: {
