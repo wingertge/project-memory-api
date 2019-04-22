@@ -9,7 +9,7 @@
   "scripts": {
     "start": "ts-node-dev --respawn --transpileOnly src/node-index.ts",
     "start:serverless": "serverless offline start",
-    "build": "npm run schema:generate & tsc",
+    "build": "tsc",
     "start:heroku": "node build/node-index.js",
     "tsc": "tsc",
     "schema:generate": "graphql-codegen --config codegen.yml",
