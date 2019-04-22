@@ -18,7 +18,7 @@ input PostFilterInput {
 input PostInput {
     type: PostType
     content: String
-    originalPost: Int
+    originalPost: ID
 }
 
 enum PostType {

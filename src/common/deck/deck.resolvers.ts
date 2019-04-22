@@ -111,8 +111,8 @@ const resolvers: Resolvers = {
         }
     },
     Deck: {
-        isLikedBy: async (_, {userID}) => {
-            const user = await DBDeck.find({ratings: {$elemMatch: {user: userID}}})
+        isLikedBy: async ({id}, {userID}) => {
+            const user = await DBDeck.find({_id: id, ratings: {$elemMatch: {user: userID}}})
             return user.length > 0
         }
     }

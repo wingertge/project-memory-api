@@ -6,6 +6,8 @@
   "scripts": {
     "start": "ts-node-dev --respawn --transpileOnly src/node-index.ts",
     "start:serverless": "serverless offline start",
+    "build": "tsc",
+    "start:heroku": "node build/node-index.js",
     "tsc": "tsc",
     "schema:generate": "graphql-codegen --config codegen.yml",
     "test": "tsc && ava"
