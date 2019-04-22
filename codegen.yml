@@ -11,4 +11,4 @@ generates:
       contextType: "../common/server#AppContext"
       immutableTypes: true
       enumsAsTypes: true
-watch: true
+watch: false
