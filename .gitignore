@@ -17,3 +17,8 @@ public/static
 
 *.iml
 .idea
+.gcloud
+serverless.env.json
+.firebaserc
+.serverless
+.firebase

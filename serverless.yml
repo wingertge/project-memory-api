@@ -1,26 +1,23 @@
 service: project-memory
 
 provider:
-  name: aws
-  runtime: nodejs6.10
-  stage: dev
-  region: us-east-1
+  name: google
+  runtime: nodejs10
+  env: development
+  project: plenary-vim-176019
+  credentials: ./.gcloud/keyfile.json
+  environment: ${file(./serverless.env.json)}
 
 functions:
-  graphql:
-    handler: src/serverless-index.graphQLHandler
+  graphqlFunction:
+    handler: graphql
     events:
-      - http:
-          path: /
-          method: post
-          cors: true
-      - http:
-          path: /
-          method: get
+      - http: /
 
 plugins:
   - serverless-webpack
   - serverless-offline
+  - serverless-google-cloudfunctions
 custom:
   serverless-offline:
     port: 4000

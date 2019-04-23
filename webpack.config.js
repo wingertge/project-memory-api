@@ -1,11 +1,11 @@
-const serverlessWebpack = require("serverless-webpack");
-const nodeExternals = require("webpack-node-externals");
-const path = require("path");
+const serverlessWebpack = require("serverless-webpack")
+const nodeExternals = require("webpack-node-externals")
+const path = require("path")
 
 module.exports = {
-    entry: serverlessWebpack.lib.entries,
+    entry: "./src/serverless-index.ts",
     externals: [nodeExternals()],
-    mode: "development",
+    mode: "production",
     module: {
         rules: [
             {
@@ -16,10 +16,17 @@ module.exports = {
                     "ts-loader",
                 ],
             },
+            {
+                test: /\.graphql?$/,
+                loader: "webpack-graphql-loader",
+                options: {
+                    output: "string"
+                }
+            }
         ],
     },
     output: {
-        filename: "[name].js",
+        filename: "index.js",
         libraryTarget: "commonjs",
         path: path.join(__dirname, ".webpack"),
     },
@@ -27,4 +34,4 @@ module.exports = {
         extensions: [".ts", ".js", ".graphql"],
     },
     target: "node",
-};
+}
