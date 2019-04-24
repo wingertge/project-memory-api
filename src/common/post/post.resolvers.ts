@@ -18,7 +18,7 @@ export const postResolvers: Resolvers = {
     User: {
         feed: async ({id}, {filter}, {user}, info) => {
             if(!user) throw new AuthError(ErrorType.Unauthenticated)
-            return await project(DBPost, filteredQuery(id, filter), info) as any
+            return (await project(DBPost, filteredQuery(id, filter), info) as any).toObject()
         }
     },
     Mutation: {
@@ -32,19 +32,19 @@ export const postResolvers: Resolvers = {
                 content: input.content,
                 originalPost: input.originalPost
             }).save()
-            return project(DBPost, filteredQuery(user.id, filter), info) as any
+            return (await project(DBPost, filteredQuery(user.id, filter), info) as any).toObject()
         },
         editPost: async (_, {id, input}, {user}, info) => {
             if(!user) throw new AuthError(ErrorType.Unauthenticated)
             if(!input.originalPost && (!input.content || input.content.trim().length === 0)) throw new Error("Message can't be empty")
-            return await project(DBPost, DBPost.updateOne({_id: id, by: user.id}, {...input}, {new: true}), info) as any
+            return (await project(DBPost, DBPost.updateOne({_id: id, by: user.id}, {...input}, {new: true}), info) as any).toObject()
         },
         deletePost: async (_, {id, filter}, {user}, info) => {
             if(!user) throw new AuthError(ErrorType.Unauthenticated)
             const post = await DBPost.findOne({_id: id, by: user.id}).select("by")
             if(!post) throw new AuthError(ErrorType.Unauthorized)
             await DBPost.findByIdAndDelete(id)
-            return await project(DBPost, filteredQuery(user.id, filter), info) as any
+            return (await project(DBPost, filteredQuery(user.id, filter), info) as any).toObject()
         }
     }
 }

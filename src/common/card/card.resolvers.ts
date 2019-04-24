@@ -26,7 +26,7 @@ const resolvers: Resolvers = {
         createCard: async (_, {input}, {user}, info) => {
             await assertPermission(input.deck, user)
             await new DBCard({...input}).save()
-            return await project(DBDeck, DBDeck.findById(input.deck), info) as any
+            return (await project(DBDeck, DBDeck.findById(input.deck), info) as any).toObject()
         },
         editCard: async (_, {id, input}, {user}, info) => {
             log(id)
@@ -35,7 +35,7 @@ const resolvers: Resolvers = {
                 log(currentCard)
                 await assertPermission(currentCard!.deck, user)
             } else await assertPermission(input.deck, user)
-            return await project(DBCard, DBCard.findByIdAndUpdate(id, input, {new: true}), info) as any
+            return (await project(DBCard, DBCard.findByIdAndUpdate(id, input, {new: true}), info) as any).toObject()
         },
         deleteCards: async (_, {deck, ids}, {user}, info) => {
             await assertPermission(deck, user)
@@ -45,7 +45,7 @@ const resolvers: Resolvers = {
             const deletedIds = reviewsToDelete.map(review => review.id)
             await DBUser.updateMany({_id: {$in: users}}, {$pull: {reviewQueue: deletedIds}})
             await DBReview.deleteMany({card: {$in: ids}})
-            return await project(DBDeck, DBDeck.findByIdAndUpdate(deck, {$pullAll: {cards: ids}, $inc: {cardCount: -ids.length}}, {new: true}), info) as any
+            return (await project(DBDeck, DBDeck.findByIdAndUpdate(deck, {$pullAll: {cards: ids}, $inc: {cardCount: -ids.length}}, {new: true}), info) as any).toObject()
         }
     },
     Deck: {
@@ -57,9 +57,9 @@ const resolvers: Resolvers = {
             } else {
                 if(filter.limit) query = query.limit(filter.limit)
                 if(filter.offset) query = query.skip(filter.offset)
-                const cards = await query.sort({[filter.sortBy || "meaning"]: (filter.sortDirection || "asc") === "asc" ? 1 : -1})
+                const cards = await query.sort({[filter.sortBy || "meaning"]: (filter.sortDirection || "asc") === "asc" ? 1 : -1}) as any
                 log(cards)
-                return cards as any
+                return cards.toObject()
             }
         }
     }

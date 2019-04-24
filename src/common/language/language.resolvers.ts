@@ -12,13 +12,13 @@ log.log = console.log.bind(console)
 const resolvers: Resolvers = {
     Query: {
         languages: async (a, b, c, info) => {
-            const langs = await project(DBLanguage, DBLanguage.find({}), info).exec()
+            const langs = await project(DBLanguage, DBLanguage.find({}), info) as any
             log(langs)
-            return langs as any
+            return langs.toObject()
         },
         language: async (a, {languageCode}, b, info) => {
-            const lang = await project(DBLanguage, DBLanguage.findOne({languageCode}), info).exec()
-            return lang as any
+            const lang = await project(DBLanguage, DBLanguage.findOne({languageCode}), info) as any
+            return lang.toObject()
         }
     },
     Mutation: {
@@ -26,16 +26,16 @@ const resolvers: Resolvers = {
             if(!user || user.id !== id)
                 throw new AuthenticationError("You're not authorized to do that")
             log(input)
-            const dbUser = await project(DBUser, DBUser.findByIdAndUpdate(id, {$push: {languages: input}}, {new: true}), info).exec()
+            const dbUser = await project(DBUser, DBUser.findByIdAndUpdate(id, {$push: {languages: input}}, {new: true}), info) as any
             log(dbUser)
-            return dbUser as any
+            return dbUser.toObject()
         },
         removeLanguageFromUser: async (_, {id, language}, {user}, info) => {
             if(!user || user.id !== id)
                 throw new AuthenticationError("You're not authorized to do that")
-            const dbUser = await project(DBUser, DBUser.findByIdAndUpdate(id, {$pull: {languages: language}}, {new: true}), info).exec()
+            const dbUser = await project(DBUser, DBUser.findByIdAndUpdate(id, {$pull: {languages: language}}, {new: true}), info) as any
             log(dbUser)
-            return dbUser as any
+            return dbUser.toObject()
         }
     }
 }

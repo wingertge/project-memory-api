@@ -20,14 +20,14 @@ const resolvers: Resolvers = {
             if(user.id !== userId)
                 throw new AuthError(ErrorType.Unauthorized)
 
-            return review as any
+            return (review as any).toObject()
         }
     },
     User: {
         nextReview: async ({id}, _, a, info) => {
             //for now, just take the oldest review
             const review = await project(DBReview, DBReview.find({user: id, nextReviewAt: {$lt: new Date()}}).sort({nextReviewAt: 1}).limit(1), info)
-            return review.length > 0 ? review[0] as any : null
+            return review.length > 0 ? (review[0] as any).toObject() : null
         },
         reviewQueue: async ({id}, {filter}, _, info) => {
             const conditions: any = {user: id}
@@ -42,7 +42,7 @@ const resolvers: Resolvers = {
                 query = query.sort({[filter.sortBy || "nextReviewAt"]: filter.sortDirection || "asc"})
             if(filter.limit) query = query.limit(filter.limit)
             if(filter.offset) query = query.skip(filter.offset)
-            return await query as any
+            return (await query as any).toObject()
         },
         reviewsCount: async ({id}, {filter}) => {
             const conditions: any = {user: id}
@@ -63,7 +63,7 @@ const resolvers: Resolvers = {
             if(filter.offset) query = query.skip(filter.offset)
             const reviews = await query
             log(reviews)
-            return reviews as any
+            return (reviews as any).toObject()
         },
         lessonsCount: async ({id}) => await DBReview.count({user: id, box: 0}) as any
     },
@@ -97,7 +97,7 @@ const resolvers: Resolvers = {
                 log(nextReviewAt)
                 return await project(DBReview, DBReview.findByIdAndUpdate(id, {$set: {reviewedFields: [], nextReviewAt, correct: true}, $inc: {box: review.correct ? 1 : -1}}, {new: true}), info)
             }
-            return (await project(DBReview, DBReview.findById(id), info)) as any
+            return ((await project(DBReview, DBReview.findById(id), info)) as any).toObject()
         }
     }
 }

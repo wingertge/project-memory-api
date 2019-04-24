@@ -19,10 +19,10 @@ const resolvers: Resolvers = {
             log("id: " + id)
             log(fieldsMap(info))
             log("Starting Query")
-            const dbUser = await project(DBUser, DBUser.findById(id), info).exec()
+            const dbUser = await project(DBUser, DBUser.findById(id), info) as any
             log("Finished Query")
             log(dbUser)
-            return (dbUser || {id}) as User
+            return (dbUser.toObject() || {id}) as User
         }
     },
     Mutation: {
@@ -36,7 +36,7 @@ const resolvers: Resolvers = {
             //Add permission verification
             log(`Initialising user ${id}`)
             const user = await new Auth().findUserById(id)
-            return await project(DBUser, DBUser.findByIdAndUpdate(id, {...user, isSocial: isSocial(user)}, {new: true, upsert: true}), info) as any
+            return (await project(DBUser, DBUser.findByIdAndUpdate(id, {...user, isSocial: isSocial(user)}, {new: true, upsert: true}), info) as any).toObject()
         },
         async editUser(_, {id, input}, {user}, info) {
             log(input)
@@ -71,10 +71,10 @@ const resolvers: Resolvers = {
 
             log(fieldsMap(info))
 
-            const dbUser = await project(DBUser, DBUser.findByIdAndUpdate(id, {...input}, {new: true}), info).exec()
+            const dbUser = await project(DBUser, DBUser.findByIdAndUpdate(id, {...input}, {new: true}), info)
 
             log(dbUser)
-            return dbUser as any
+            return (dbUser as any).toObject()
         }
     }
 }
