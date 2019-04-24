@@ -14,7 +14,7 @@ scalar JSON
 
 type Query {
     users(filter: UserFilterInput): [User]
-    user(id: ID): User
+    user(id: ID!): User
 
     languages: [Language]
     language(languageCode: String!): Language
@@ -29,7 +29,6 @@ type Mutation {
     authenticate(code: ID!): AuthResult
     logout: Boolean
 
-    initUser(id: ID!): User
     editUser(id: ID!, input: UserInput!): User
     deleteUser(id: ID!): User
 

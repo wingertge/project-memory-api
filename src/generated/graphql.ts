@@ -1,4 +1,4 @@
-type Maybe<T> = T | null;
+export type Maybe<T> = T | null;
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
   ID: string;
@@ -116,7 +116,6 @@ export type Language = {
 export type Mutation = {
   readonly authenticate?: Maybe<AuthResult>;
   readonly logout?: Maybe<Scalars["Boolean"]>;
-  readonly initUser?: Maybe<User>;
   readonly editUser?: Maybe<User>;
   readonly deleteUser?: Maybe<User>;
   readonly addLanguageToUser?: Maybe<User>;
@@ -137,10 +136,6 @@ export type Mutation = {
 
 export type MutationAuthenticateArgs = {
   code: Scalars["ID"];
-};
-
-export type MutationInitUserArgs = {
-  id: Scalars["ID"];
 };
 
 export type MutationEditUserArgs = {
@@ -264,7 +259,7 @@ export type QueryUsersArgs = {
 };
 
 export type QueryUserArgs = {
-  id?: Maybe<Scalars["ID"]>;
+  id: Scalars["ID"];
 };
 
 export type QueryLanguageArgs = {
@@ -377,6 +372,8 @@ import {
   GraphQLScalarTypeConfig
 } from "graphql";
 
+export type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
+
 export type ResolverFn<TResult, TParent, TContext, TArgs> = (
   parent: TParent,
   args: TArgs,
@@ -444,379 +441,515 @@ export type DirectiveResolverFn<
   info: GraphQLResolveInfo
 ) => TResult | Promise<TResult>;
 
+/** Mapping between all available schema types and the resolvers types */
+export type ResolversTypes = {
+  Query: {};
+  UserFilterInput: UserFilterInput;
+  Int: Scalars["Int"];
+  User: User;
+  ID: Scalars["ID"];
+  String: Scalars["String"];
+  Identity: Identity;
+  Boolean: Scalars["Boolean"];
+  Language: Language;
+  Deck: Deck;
+  CardFilterInput: CardFilterInput;
+  SortDirection: SortDirection;
+  CardSortingOptions: CardSortingOptions;
+  Card: Card;
+  SubscriberFilterInput: SubscriberFilterInput;
+  ReviewFilterInput: ReviewFilterInput;
+  Date: Scalars["Date"];
+  ReviewSortOptions: ReviewSortOptions;
+  Review: Review;
+  ReviewFields: ReviewFields;
+  PostFilterInput: PostFilterInput;
+  PostType: PostType;
+  PostSortOption: PostSortOption;
+  Post: Post;
+  DeckFilterInput: DeckFilterInput;
+  DeckSortBy: DeckSortBy;
+  Mutation: {};
+  AuthResult: AuthResult;
+  UserInput: UserInput;
+  DeckInput: DeckInput;
+  CardInput: CardInput;
+  PostInput: PostInput;
+  JSON: Scalars["JSON"];
+  AdditionalEntityFields: AdditionalEntityFields;
+};
+
 export type UnionDirectiveResolver<
   Result,
   Parent,
-  Context = AppContext,
+  ContextType = AppContext,
   Args = {
     discriminatorField?: Maybe<Maybe<Scalars["String"]>>;
     additionalFields?: Maybe<Maybe<Array<Maybe<AdditionalEntityFields>>>>;
   }
-> = DirectiveResolverFn<Result, Parent, Context, Args>;
+> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
 export type AbstractEntityDirectiveResolver<
   Result,
   Parent,
-  Context = AppContext,
+  ContextType = AppContext,
   Args = {
     discriminatorField?: Maybe<Scalars["String"]>;
     additionalFields?: Maybe<Maybe<Array<Maybe<AdditionalEntityFields>>>>;
   }
-> = DirectiveResolverFn<Result, Parent, Context, Args>;
+> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
 export type EntityDirectiveResolver<
   Result,
   Parent,
-  Context = AppContext,
+  ContextType = AppContext,
   Args = {
     embedded?: Maybe<Maybe<Scalars["Boolean"]>>;
     additionalFields?: Maybe<Maybe<Array<Maybe<AdditionalEntityFields>>>>;
   }
-> = DirectiveResolverFn<Result, Parent, Context, Args>;
+> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
 export type ColumnDirectiveResolver<
   Result,
   Parent,
-  Context = AppContext,
+  ContextType = AppContext,
   Args = { overrideType?: Maybe<Maybe<Scalars["String"]>> }
-> = DirectiveResolverFn<Result, Parent, Context, Args>;
+> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
 export type IdDirectiveResolver<
   Result,
   Parent,
-  Context = AppContext,
+  ContextType = AppContext,
   Args = {}
-> = DirectiveResolverFn<Result, Parent, Context, Args>;
+> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
 export type LinkDirectiveResolver<
   Result,
   Parent,
-  Context = AppContext,
-  Args = {}
-> = DirectiveResolverFn<Result, Parent, Context, Args>;
+  ContextType = AppContext,
+  Args = { overrideType?: Maybe<Maybe<Scalars["String"]>> }
+> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
 export type EmbeddedDirectiveResolver<
   Result,
   Parent,
-  Context = AppContext,
+  ContextType = AppContext,
   Args = {}
-> = DirectiveResolverFn<Result, Parent, Context, Args>;
+> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
 export type MapDirectiveResolver<
   Result,
   Parent,
-  Context = AppContext,
+  ContextType = AppContext,
   Args = { path?: Maybe<Scalars["String"]> }
-> = DirectiveResolverFn<Result, Parent, Context, Args>;
+> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
 export type AuthResultResolvers<
-  Context = AppContext,
-  ParentType = AuthResult
+  ContextType = AppContext,
+  ParentType = ResolversTypes["AuthResult"]
 > = {
-  accessToken?: Resolver<Scalars["String"], ParentType, Context>;
-  idToken?: Resolver<Scalars["String"], ParentType, Context>;
-  tokenType?: Resolver<Scalars["String"], ParentType, Context>;
-  expiresIn?: Resolver<Scalars["Int"], ParentType, Context>;
+  accessToken?: Resolver<ResolversTypes["String"], ParentType, ContextType>;
+  idToken?: Resolver<ResolversTypes["String"], ParentType, ContextType>;
+  tokenType?: Resolver<ResolversTypes["String"], ParentType, ContextType>;
+  expiresIn?: Resolver<ResolversTypes["Int"], ParentType, ContextType>;
 };
 
-export type CardResolvers<Context = AppContext, ParentType = Card> = {
-  id?: Resolver<Scalars["ID"], ParentType, Context>;
-  translation?: Resolver<Scalars["String"], ParentType, Context>;
-  meaning?: Resolver<Scalars["String"], ParentType, Context>;
-  pronunciation?: Resolver<Maybe<Scalars["String"]>, ParentType, Context>;
-  audioUrl?: Resolver<Maybe<Scalars["String"]>, ParentType, Context>;
-  deck?: Resolver<Maybe<Deck>, ParentType, Context>;
+export type CardResolvers<
+  ContextType = AppContext,
+  ParentType = ResolversTypes["Card"]
+> = {
+  id?: Resolver<ResolversTypes["ID"], ParentType, ContextType>;
+  translation?: Resolver<ResolversTypes["String"], ParentType, ContextType>;
+  meaning?: Resolver<ResolversTypes["String"], ParentType, ContextType>;
+  pronunciation?: Resolver<
+    Maybe<ResolversTypes["String"]>,
+    ParentType,
+    ContextType
+  >;
+  audioUrl?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
+  deck?: Resolver<Maybe<ResolversTypes["Deck"]>, ParentType, ContextType>;
 };
 
 export interface DateScalarConfig
-  extends GraphQLScalarTypeConfig<Scalars["Date"], any> {
+  extends GraphQLScalarTypeConfig<ResolversTypes["Date"], any> {
   name: "Date";
 }
 
-export type DeckResolvers<Context = AppContext, ParentType = Deck> = {
-  id?: Resolver<Scalars["ID"], ParentType, Context>;
-  name?: Resolver<Scalars["String"], ParentType, Context>;
-  owner?: Resolver<User, ParentType, Context>;
-  language?: Resolver<Language, ParentType, Context>;
-  nativeLanguage?: Resolver<Language, ParentType, Context>;
-  cards?: Resolver<
-    Maybe<ReadonlyArray<Maybe<Card>>>,
+export type DeckResolvers<
+  ContextType = AppContext,
+  ParentType = ResolversTypes["Deck"]
+> = {
+  id?: Resolver<ResolversTypes["ID"], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes["String"], ParentType, ContextType>;
+  owner?: Resolver<ResolversTypes["User"], ParentType, ContextType>;
+  language?: Resolver<ResolversTypes["Language"], ParentType, ContextType>;
+  nativeLanguage?: Resolver<
+    ResolversTypes["Language"],
     ParentType,
-    Context,
+    ContextType
+  >;
+  cards?: Resolver<
+    Maybe<ReadonlyArray<Maybe<ResolversTypes["Card"]>>>,
+    ParentType,
+    ContextType,
     DeckCardsArgs
   >;
-  cardCount?: Resolver<Scalars["Int"], ParentType, Context>;
+  cardCount?: Resolver<ResolversTypes["Int"], ParentType, ContextType>;
   subscribers?: Resolver<
-    Maybe<ReadonlyArray<Maybe<User>>>,
+    Maybe<ReadonlyArray<Maybe<ResolversTypes["User"]>>>,
     ParentType,
-    Context,
+    ContextType,
     DeckSubscribersArgs
   >;
-  subscriberCount?: Resolver<Scalars["Int"], ParentType, Context>;
-  rating?: Resolver<Scalars["Int"], ParentType, Context>;
+  subscriberCount?: Resolver<ResolversTypes["Int"], ParentType, ContextType>;
+  rating?: Resolver<ResolversTypes["Int"], ParentType, ContextType>;
   isLikedBy?: Resolver<
-    Scalars["Boolean"],
+    ResolversTypes["Boolean"],
     ParentType,
-    Context,
+    ContextType,
     DeckIsLikedByArgs
   >;
 };
 
-export type IdentityResolvers<Context = AppContext, ParentType = Identity> = {
-  userId?: Resolver<Scalars["ID"], ParentType, Context>;
-  provider?: Resolver<Scalars["String"], ParentType, Context>;
-  connection?: Resolver<Scalars["String"], ParentType, Context>;
-  isSocial?: Resolver<Scalars["Boolean"], ParentType, Context>;
+export type IdentityResolvers<
+  ContextType = AppContext,
+  ParentType = ResolversTypes["Identity"]
+> = {
+  userId?: Resolver<ResolversTypes["ID"], ParentType, ContextType>;
+  provider?: Resolver<ResolversTypes["String"], ParentType, ContextType>;
+  connection?: Resolver<ResolversTypes["String"], ParentType, ContextType>;
+  isSocial?: Resolver<ResolversTypes["Boolean"], ParentType, ContextType>;
 };
 
 export interface JsonScalarConfig
-  extends GraphQLScalarTypeConfig<Scalars["JSON"], any> {
+  extends GraphQLScalarTypeConfig<ResolversTypes["JSON"], any> {
   name: "JSON";
 }
 
-export type LanguageResolvers<Context = AppContext, ParentType = Language> = {
-  id?: Resolver<Scalars["ID"], ParentType, Context>;
-  name?: Resolver<Scalars["String"], ParentType, Context>;
-  nativeName?: Resolver<Scalars["String"], ParentType, Context>;
-  languageCode?: Resolver<Scalars["String"], ParentType, Context>;
-  hasConverter?: Resolver<Scalars["Boolean"], ParentType, Context>;
-  requiresIME?: Resolver<Scalars["Boolean"], ParentType, Context>;
-  hasPronunciation?: Resolver<Scalars["Boolean"], ParentType, Context>;
+export type LanguageResolvers<
+  ContextType = AppContext,
+  ParentType = ResolversTypes["Language"]
+> = {
+  id?: Resolver<ResolversTypes["ID"], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes["String"], ParentType, ContextType>;
+  nativeName?: Resolver<ResolversTypes["String"], ParentType, ContextType>;
+  languageCode?: Resolver<ResolversTypes["String"], ParentType, ContextType>;
+  hasConverter?: Resolver<ResolversTypes["Boolean"], ParentType, ContextType>;
+  requiresIME?: Resolver<ResolversTypes["Boolean"], ParentType, ContextType>;
+  hasPronunciation?: Resolver<
+    ResolversTypes["Boolean"],
+    ParentType,
+    ContextType
+  >;
 };
 
-export type MutationResolvers<Context = AppContext, ParentType = Mutation> = {
+export type MutationResolvers<
+  ContextType = AppContext,
+  ParentType = ResolversTypes["Mutation"]
+> = {
   authenticate?: Resolver<
-    Maybe<AuthResult>,
+    Maybe<ResolversTypes["AuthResult"]>,
     ParentType,
-    Context,
+    ContextType,
     MutationAuthenticateArgs
   >;
-  logout?: Resolver<Maybe<Scalars["Boolean"]>, ParentType, Context>;
-  initUser?: Resolver<Maybe<User>, ParentType, Context, MutationInitUserArgs>;
-  editUser?: Resolver<Maybe<User>, ParentType, Context, MutationEditUserArgs>;
-  deleteUser?: Resolver<
-    Maybe<User>,
+  logout?: Resolver<Maybe<ResolversTypes["Boolean"]>, ParentType, ContextType>;
+  editUser?: Resolver<
+    Maybe<ResolversTypes["User"]>,
     ParentType,
-    Context,
+    ContextType,
+    MutationEditUserArgs
+  >;
+  deleteUser?: Resolver<
+    Maybe<ResolversTypes["User"]>,
+    ParentType,
+    ContextType,
     MutationDeleteUserArgs
   >;
   addLanguageToUser?: Resolver<
-    Maybe<User>,
+    Maybe<ResolversTypes["User"]>,
     ParentType,
-    Context,
+    ContextType,
     MutationAddLanguageToUserArgs
   >;
   removeLanguageFromUser?: Resolver<
-    Maybe<User>,
+    Maybe<ResolversTypes["User"]>,
     ParentType,
-    Context,
+    ContextType,
     MutationRemoveLanguageFromUserArgs
   >;
-  addDeck?: Resolver<Maybe<User>, ParentType, Context, MutationAddDeckArgs>;
-  updateDeck?: Resolver<
-    Maybe<Deck>,
+  addDeck?: Resolver<
+    Maybe<ResolversTypes["User"]>,
     ParentType,
-    Context,
+    ContextType,
+    MutationAddDeckArgs
+  >;
+  updateDeck?: Resolver<
+    Maybe<ResolversTypes["Deck"]>,
+    ParentType,
+    ContextType,
     MutationUpdateDeckArgs
   >;
   deleteDeck?: Resolver<
-    Maybe<Deck>,
+    Maybe<ResolversTypes["Deck"]>,
     ParentType,
-    Context,
+    ContextType,
     MutationDeleteDeckArgs
   >;
   changeSubscriptionStatus?: Resolver<
-    Maybe<User>,
+    Maybe<ResolversTypes["User"]>,
     ParentType,
-    Context,
+    ContextType,
     MutationChangeSubscriptionStatusArgs
   >;
   changeLikeStatus?: Resolver<
-    Maybe<Deck>,
+    Maybe<ResolversTypes["Deck"]>,
     ParentType,
-    Context,
+    ContextType,
     MutationChangeLikeStatusArgs
   >;
   createCard?: Resolver<
-    Maybe<Deck>,
+    Maybe<ResolversTypes["Deck"]>,
     ParentType,
-    Context,
+    ContextType,
     MutationCreateCardArgs
   >;
-  editCard?: Resolver<Maybe<Card>, ParentType, Context, MutationEditCardArgs>;
-  deleteCards?: Resolver<
-    Maybe<Deck>,
+  editCard?: Resolver<
+    Maybe<ResolversTypes["Card"]>,
     ParentType,
-    Context,
+    ContextType,
+    MutationEditCardArgs
+  >;
+  deleteCards?: Resolver<
+    Maybe<ResolversTypes["Deck"]>,
+    ParentType,
+    ContextType,
     MutationDeleteCardsArgs
   >;
   submitReview?: Resolver<
-    Maybe<Review>,
+    Maybe<ResolversTypes["Review"]>,
     ParentType,
-    Context,
+    ContextType,
     MutationSubmitReviewArgs
   >;
   createPost?: Resolver<
-    Maybe<ReadonlyArray<Maybe<Post>>>,
+    Maybe<ReadonlyArray<Maybe<ResolversTypes["Post"]>>>,
     ParentType,
-    Context,
+    ContextType,
     MutationCreatePostArgs
   >;
-  editPost?: Resolver<Maybe<Post>, ParentType, Context, MutationEditPostArgs>;
-  deletePost?: Resolver<
-    Maybe<ReadonlyArray<Maybe<Post>>>,
+  editPost?: Resolver<
+    Maybe<ResolversTypes["Post"]>,
     ParentType,
-    Context,
+    ContextType,
+    MutationEditPostArgs
+  >;
+  deletePost?: Resolver<
+    Maybe<ReadonlyArray<Maybe<ResolversTypes["Post"]>>>,
+    ParentType,
+    ContextType,
     MutationDeletePostArgs
   >;
 };
 
-export type PostResolvers<Context = AppContext, ParentType = Post> = {
-  id?: Resolver<Scalars["ID"], ParentType, Context>;
-  createdAt?: Resolver<Scalars["Date"], ParentType, Context>;
-  type?: Resolver<PostType, ParentType, Context>;
-  by?: Resolver<User, ParentType, Context>;
-  content?: Resolver<Maybe<Scalars["String"]>, ParentType, Context>;
-  originalPost?: Resolver<Maybe<Post>, ParentType, Context>;
+export type PostResolvers<
+  ContextType = AppContext,
+  ParentType = ResolversTypes["Post"]
+> = {
+  id?: Resolver<ResolversTypes["ID"], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes["Date"], ParentType, ContextType>;
+  type?: Resolver<ResolversTypes["PostType"], ParentType, ContextType>;
+  by?: Resolver<ResolversTypes["User"], ParentType, ContextType>;
+  content?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
+  originalPost?: Resolver<
+    Maybe<ResolversTypes["Post"]>,
+    ParentType,
+    ContextType
+  >;
 };
 
-export type QueryResolvers<Context = AppContext, ParentType = Query> = {
+export type QueryResolvers<
+  ContextType = AppContext,
+  ParentType = ResolversTypes["Query"]
+> = {
   users?: Resolver<
-    Maybe<ReadonlyArray<Maybe<User>>>,
+    Maybe<ReadonlyArray<Maybe<ResolversTypes["User"]>>>,
     ParentType,
-    Context,
+    ContextType,
     QueryUsersArgs
   >;
-  user?: Resolver<Maybe<User>, ParentType, Context, QueryUserArgs>;
-  languages?: Resolver<
-    Maybe<ReadonlyArray<Maybe<Language>>>,
+  user?: Resolver<
+    Maybe<ResolversTypes["User"]>,
     ParentType,
-    Context
+    ContextType,
+    QueryUserArgs
   >;
-  language?: Resolver<Maybe<Language>, ParentType, Context, QueryLanguageArgs>;
-  decks?: Resolver<
-    Maybe<ReadonlyArray<Maybe<Deck>>>,
+  languages?: Resolver<
+    Maybe<ReadonlyArray<Maybe<ResolversTypes["Language"]>>>,
     ParentType,
-    Context,
+    ContextType
+  >;
+  language?: Resolver<
+    Maybe<ResolversTypes["Language"]>,
+    ParentType,
+    ContextType,
+    QueryLanguageArgs
+  >;
+  decks?: Resolver<
+    Maybe<ReadonlyArray<Maybe<ResolversTypes["Deck"]>>>,
+    ParentType,
+    ContextType,
     QueryDecksArgs
   >;
-  deck?: Resolver<Maybe<Deck>, ParentType, Context, QueryDeckArgs>;
-  review?: Resolver<Maybe<Review>, ParentType, Context, QueryReviewArgs>;
+  deck?: Resolver<
+    Maybe<ResolversTypes["Deck"]>,
+    ParentType,
+    ContextType,
+    QueryDeckArgs
+  >;
+  review?: Resolver<
+    Maybe<ResolversTypes["Review"]>,
+    ParentType,
+    ContextType,
+    QueryReviewArgs
+  >;
 };
 
-export type ReviewResolvers<Context = AppContext, ParentType = Review> = {
-  id?: Resolver<Scalars["ID"], ParentType, Context>;
-  nextReviewAt?: Resolver<Maybe<Scalars["Date"]>, ParentType, Context>;
-  box?: Resolver<Scalars["Int"], ParentType, Context>;
-  card?: Resolver<Card, ParentType, Context>;
-  user?: Resolver<User, ParentType, Context>;
+export type ReviewResolvers<
+  ContextType = AppContext,
+  ParentType = ResolversTypes["Review"]
+> = {
+  id?: Resolver<ResolversTypes["ID"], ParentType, ContextType>;
+  nextReviewAt?: Resolver<
+    Maybe<ResolversTypes["Date"]>,
+    ParentType,
+    ContextType
+  >;
+  box?: Resolver<ResolversTypes["Int"], ParentType, ContextType>;
+  card?: Resolver<ResolversTypes["Card"], ParentType, ContextType>;
+  user?: Resolver<ResolversTypes["User"], ParentType, ContextType>;
   reviewedFields?: Resolver<
-    Maybe<ReadonlyArray<Maybe<ReviewFields>>>,
+    Maybe<ReadonlyArray<Maybe<ResolversTypes["ReviewFields"]>>>,
     ParentType,
-    Context
+    ContextType
   >;
-  correct?: Resolver<Maybe<Scalars["Boolean"]>, ParentType, Context>;
+  correct?: Resolver<Maybe<ResolversTypes["Boolean"]>, ParentType, ContextType>;
 };
 
-export type UserResolvers<Context = AppContext, ParentType = User> = {
-  sub?: Resolver<Maybe<Scalars["ID"]>, ParentType, Context>;
-  id?: Resolver<Scalars["ID"], ParentType, Context>;
-  email?: Resolver<Maybe<Scalars["String"]>, ParentType, Context>;
-  name?: Resolver<Maybe<Scalars["String"]>, ParentType, Context>;
-  username?: Resolver<Scalars["String"], ParentType, Context>;
-  picture?: Resolver<Scalars["String"], ParentType, Context>;
-  gender?: Resolver<Scalars["String"], ParentType, Context>;
-  locale?: Resolver<Maybe<Scalars["String"]>, ParentType, Context>;
+export type UserResolvers<
+  ContextType = AppContext,
+  ParentType = ResolversTypes["User"]
+> = {
+  sub?: Resolver<Maybe<ResolversTypes["ID"]>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes["ID"], ParentType, ContextType>;
+  email?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
+  name?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
+  username?: Resolver<ResolversTypes["String"], ParentType, ContextType>;
+  picture?: Resolver<ResolversTypes["String"], ParentType, ContextType>;
+  gender?: Resolver<ResolversTypes["String"], ParentType, ContextType>;
+  locale?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
   identities?: Resolver<
-    Maybe<ReadonlyArray<Maybe<Identity>>>,
+    Maybe<ReadonlyArray<Maybe<ResolversTypes["Identity"]>>>,
     ParentType,
-    Context
+    ContextType
   >;
-  isSocial?: Resolver<Scalars["Boolean"], ParentType, Context>;
-  nativeLanguage?: Resolver<Maybe<Language>, ParentType, Context>;
+  isSocial?: Resolver<ResolversTypes["Boolean"], ParentType, ContextType>;
+  nativeLanguage?: Resolver<
+    Maybe<ResolversTypes["Language"]>,
+    ParentType,
+    ContextType
+  >;
   languages?: Resolver<
-    Maybe<ReadonlyArray<Maybe<Language>>>,
+    Maybe<ReadonlyArray<Maybe<ResolversTypes["Language"]>>>,
     ParentType,
-    Context
+    ContextType
   >;
-  ownedDecks?: Resolver<Maybe<ReadonlyArray<Maybe<Deck>>>, ParentType, Context>;
-  subscribedDecks?: Resolver<
-    Maybe<ReadonlyArray<Maybe<Deck>>>,
+  ownedDecks?: Resolver<
+    Maybe<ReadonlyArray<Maybe<ResolversTypes["Deck"]>>>,
     ParentType,
-    Context
+    ContextType
+  >;
+  subscribedDecks?: Resolver<
+    Maybe<ReadonlyArray<Maybe<ResolversTypes["Deck"]>>>,
+    ParentType,
+    ContextType
   >;
   reviewQueue?: Resolver<
-    Maybe<ReadonlyArray<Maybe<Review>>>,
+    Maybe<ReadonlyArray<Maybe<ResolversTypes["Review"]>>>,
     ParentType,
-    Context,
+    ContextType,
     UserReviewQueueArgs
   >;
   reviewsCount?: Resolver<
-    Maybe<Scalars["Int"]>,
+    Maybe<ResolversTypes["Int"]>,
     ParentType,
-    Context,
+    ContextType,
     UserReviewsCountArgs
   >;
-  nextReview?: Resolver<Maybe<Review>, ParentType, Context>;
-  lessonQueue?: Resolver<
-    Maybe<ReadonlyArray<Maybe<Review>>>,
+  nextReview?: Resolver<
+    Maybe<ResolversTypes["Review"]>,
     ParentType,
-    Context,
+    ContextType
+  >;
+  lessonQueue?: Resolver<
+    Maybe<ReadonlyArray<Maybe<ResolversTypes["Review"]>>>,
+    ParentType,
+    ContextType,
     UserLessonQueueArgs
   >;
-  lessonsCount?: Resolver<Scalars["Int"], ParentType, Context>;
-  totalRating?: Resolver<Scalars["Int"], ParentType, Context>;
-  totalSubscribers?: Resolver<Scalars["Int"], ParentType, Context>;
+  lessonsCount?: Resolver<ResolversTypes["Int"], ParentType, ContextType>;
+  totalRating?: Resolver<ResolversTypes["Int"], ParentType, ContextType>;
+  totalSubscribers?: Resolver<ResolversTypes["Int"], ParentType, ContextType>;
   badges?: Resolver<
-    ReadonlyArray<Maybe<Scalars["String"]>>,
+    ReadonlyArray<Maybe<ResolversTypes["String"]>>,
     ParentType,
-    Context
+    ContextType
   >;
-  introStep?: Resolver<Maybe<Scalars["Int"]>, ParentType, Context>;
+  introStep?: Resolver<Maybe<ResolversTypes["Int"]>, ParentType, ContextType>;
   feed?: Resolver<
-    Maybe<ReadonlyArray<Maybe<Post>>>,
+    Maybe<ReadonlyArray<Maybe<ResolversTypes["Post"]>>>,
     ParentType,
-    Context,
+    ContextType,
     UserFeedArgs
   >;
 };
 
-export type Resolvers<Context = AppContext> = {
-  AuthResult?: AuthResultResolvers<Context>;
-  Card?: CardResolvers<Context>;
+export type Resolvers<ContextType = AppContext> = {
+  AuthResult?: AuthResultResolvers<ContextType>;
+  Card?: CardResolvers<ContextType>;
   Date?: GraphQLScalarType;
-  Deck?: DeckResolvers<Context>;
-  Identity?: IdentityResolvers<Context>;
+  Deck?: DeckResolvers<ContextType>;
+  Identity?: IdentityResolvers<ContextType>;
   JSON?: GraphQLScalarType;
-  Language?: LanguageResolvers<Context>;
-  Mutation?: MutationResolvers<Context>;
-  Post?: PostResolvers<Context>;
-  Query?: QueryResolvers<Context>;
-  Review?: ReviewResolvers<Context>;
-  User?: UserResolvers<Context>;
+  Language?: LanguageResolvers<ContextType>;
+  Mutation?: MutationResolvers<ContextType>;
+  Post?: PostResolvers<ContextType>;
+  Query?: QueryResolvers<ContextType>;
+  Review?: ReviewResolvers<ContextType>;
+  User?: UserResolvers<ContextType>;
 };
 
 /**
  * @deprecated
  * Use "Resolvers" root object instead. If you wish to get "IResolvers", add "typesPrefix: I" to your config.
  */
-export type IResolvers<Context = AppContext> = Resolvers<Context>;
-export type DirectiveResolvers<Context = AppContext> = {
-  union?: UnionDirectiveResolver<any, any, Context>;
-  abstractEntity?: AbstractEntityDirectiveResolver<any, any, Context>;
-  entity?: EntityDirectiveResolver<any, any, Context>;
-  column?: ColumnDirectiveResolver<any, any, Context>;
-  id?: IdDirectiveResolver<any, any, Context>;
-  link?: LinkDirectiveResolver<any, any, Context>;
-  embedded?: EmbeddedDirectiveResolver<any, any, Context>;
-  map?: MapDirectiveResolver<any, any, Context>;
+export type IResolvers<ContextType = AppContext> = Resolvers<ContextType>;
+export type DirectiveResolvers<ContextType = AppContext> = {
+  union?: UnionDirectiveResolver<any, any, ContextType>;
+  abstractEntity?: AbstractEntityDirectiveResolver<any, any, ContextType>;
+  entity?: EntityDirectiveResolver<any, any, ContextType>;
+  column?: ColumnDirectiveResolver<any, any, ContextType>;
+  id?: IdDirectiveResolver<any, any, ContextType>;
+  link?: LinkDirectiveResolver<any, any, ContextType>;
+  embedded?: EmbeddedDirectiveResolver<any, any, ContextType>;
+  map?: MapDirectiveResolver<any, any, ContextType>;
 };
 
 /**
  * @deprecated
  * Use "DirectiveResolvers" root object instead. If you wish to get "IDirectiveResolvers", add "typesPrefix: I" to your config.
  */
-export type IDirectiveResolvers<Context = AppContext> = DirectiveResolvers<
-  Context
+export type IDirectiveResolvers<ContextType = AppContext> = DirectiveResolvers<
+  ContextType
 >;
 import { ObjectID } from "mongodb";

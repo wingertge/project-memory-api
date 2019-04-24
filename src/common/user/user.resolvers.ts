@@ -3,11 +3,13 @@ import {Deck, Resolvers, User} from "../../generated/graphql"
 import {AuthenticationError} from "apollo-server"
 import debug from "debug"
 import Auth from "../auth/Auth"
+import makeLogger from "../logging"
 import project from "../project"
 import DBUser from "./user.model"
 
 const log = debug("api:topicResolvers:user")
 log.log = console.log.bind(console)
+const logger = makeLogger("resolvers.user")
 
 const isSocial = (user: Pick<User, "identities">) => !user.identities!.some(identity => !identity!.isSocial)
 
@@ -16,12 +18,15 @@ const resolvers: Resolvers = {
         user: async (_, {id}, {user}, info) => {
             if(!user)
                 return null
-            log("id: " + id)
-            log(fieldsMap(info))
-            log("Starting Query")
+            logger.debug("Starting Query")
             const dbUser = await project(DBUser, DBUser.findById(id), info) as any
-            log("Finished Query")
-            log(dbUser)
+            logger.debug("Finished Query")
+            if(!dbUser && user.id === id) {
+                logger.debug(`Initialising user ${id}`)
+                const newUser = await new Auth().findUserById(id)
+                return await project(DBUser, DBUser.findByIdAndUpdate(id, {...newUser, isSocial: isSocial(newUser)}, {new: true, upsert: true}), info) as any
+            }
+            logger.debug(dbUser)
             return (dbUser || {id}) as User
         }
     },
@@ -31,12 +36,6 @@ const resolvers: Resolvers = {
                 throw new AuthenticationError("Must be logged in to do that")
             log(`Updating deck ${id} with data ${JSON.stringify(input)}`)
             return {id, name: input.name} as Deck
-        },
-        initUser: async (_, {id}, {}, info) => {
-            //Add permission verification
-            log(`Initialising user ${id}`)
-            const user = await new Auth().findUserById(id)
-            return await project(DBUser, DBUser.findByIdAndUpdate(id, {...user, isSocial: isSocial(user)}, {new: true, upsert: true}), info) as any
         },
         async editUser(_, {id, input}, {user}, info) {
             log(input)
