@@ -1,0 +1,11 @@
+#import "./api.graphql"
+#import "./card.graphql"
+#import "./deck.graphql"
+#import "./language.graphql"
+#import "./post.graphql"
+#import "./review.graphql"
+#import "./user.graphql"
+
+extend type Query {
+    test: String
+}
