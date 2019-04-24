@@ -37,7 +37,10 @@ interface User {
 export const createApp = (rootSchema: string) => {
     connect(
         process.env.MONGODB_URI || "",
-        {useNewUrlParser: true}
+        {
+            useNewUrlParser: true,
+            useFindAndModify: false
+        }
     )
 
     const jwtCheck = jwt({
