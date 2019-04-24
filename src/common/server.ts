@@ -98,6 +98,7 @@ export const createApp = (rootSchema: string) => {
         },
         formatResponse(response) {
             log(JSON.stringify(response, null, 2))
+            logger.info(response)
             return response
         },
         engine: {
