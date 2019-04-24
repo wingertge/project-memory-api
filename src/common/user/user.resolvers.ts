@@ -3,6 +3,7 @@ import {Deck, Resolvers, User} from "../../generated/graphql"
 import {AuthenticationError} from "apollo-server"
 import debug from "debug"
 import Auth from "../auth/Auth"
+import graphify from "../graphify"
 import project from "../project"
 import DBUser from "./user.model"
 
@@ -22,7 +23,7 @@ const resolvers: Resolvers = {
             const dbUser = await project(DBUser, DBUser.findById(id), info) as any
             log("Finished Query")
             log(dbUser)
-            return (dbUser.toObject() || {id}) as User
+            return (graphify(dbUser) || {id}) as User
         }
     },
     Mutation: {
@@ -36,7 +37,7 @@ const resolvers: Resolvers = {
             //Add permission verification
             log(`Initialising user ${id}`)
             const user = await new Auth().findUserById(id)
-            return (await project(DBUser, DBUser.findByIdAndUpdate(id, {...user, isSocial: isSocial(user)}, {new: true, upsert: true}), info) as any).toObject()
+            return graphify(await project(DBUser, DBUser.findByIdAndUpdate(id, {...user, isSocial: isSocial(user)}, {new: true, upsert: true}), info) as any)
         },
         async editUser(_, {id, input}, {user}, info) {
             log(input)
@@ -74,7 +75,7 @@ const resolvers: Resolvers = {
             const dbUser = await project(DBUser, DBUser.findByIdAndUpdate(id, {...input}, {new: true}), info)
 
             log(dbUser)
-            return (dbUser as any).toObject()
+            return graphify(dbUser as any)
         }
     }
 }
