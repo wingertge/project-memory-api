@@ -1,10 +1,9 @@
-import {Resolvers} from "../../generated/graphql"
-import graphify from "../graphify"
-import project from "../project"
-import DBLanguage from "./language.model"
-import DBUser from "../user/user.model"
 import {AuthenticationError} from "apollo-server"
 import debug from "debug"
+import {Resolvers} from "../../generated/graphql"
+import project from "../project"
+import DBUser from "../user/user.model"
+import DBLanguage from "./language.model"
 
 const log = debug("api:topicResolvers:language")
 log.log = console.log.bind(console)
@@ -15,11 +14,10 @@ const resolvers: Resolvers = {
         languages: async (a, b, c, info) => {
             const langs = await project(DBLanguage, DBLanguage.find({}), info) as any
             log(langs)
-            return graphify(langs)
+            return langs
         },
         language: async (a, {languageCode}, b, info) => {
-            const lang = await project(DBLanguage, DBLanguage.findOne({languageCode}), info) as any
-            return graphify(lang)
+            return await project(DBLanguage, DBLanguage.findOne({languageCode}), info) as any
         }
     },
     Mutation: {
@@ -29,14 +27,14 @@ const resolvers: Resolvers = {
             log(input)
             const dbUser = await project(DBUser, DBUser.findByIdAndUpdate(id, {$push: {languages: input}}, {new: true}), info) as any
             log(dbUser)
-            return graphify(dbUser)
+            return dbUser
         },
         removeLanguageFromUser: async (_, {id, language}, {user}, info) => {
             if(!user || user.id !== id)
                 throw new AuthenticationError("You're not authorized to do that")
-            const dbUser = await project(DBUser, DBUser.findByIdAndUpdate(id, {$pull: {languages: language}}, {new: true}), info)
+            const dbUser = await project(DBUser, DBUser.findByIdAndUpdate(id, {$pull: {languages: language}}, {new: true}), info) as any
             log(dbUser)
-            return graphify(dbUser)
+            return dbUser
         }
     }
 }

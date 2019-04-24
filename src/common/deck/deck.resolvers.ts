@@ -2,7 +2,6 @@ import debug from "debug"
 import {oc} from "ts-optchain"
 import {Resolvers} from "../../generated/graphql"
 import AuthError, {ErrorType} from "../AuthError"
-import graphify from "../graphify"
 import project from "../project"
 import DBUser from "../user/user.model"
 import DBDeck from "./deck.model"
@@ -15,7 +14,7 @@ const resolvers: Resolvers = {
         deck: async (_, {id}, {user}, info) => {
             if(!user)
                 throw new AuthError(ErrorType.Unauthenticated)
-            return graphify(await project(DBDeck, DBDeck.findById(id), info) as any)
+            return await project(DBDeck, DBDeck.findById(id), info) as any
         },
         decks: async (_, {filter}, {user}, info) => {
             if(!user)
@@ -40,7 +39,7 @@ const resolvers: Resolvers = {
                 .limit(oc(filter).limit(Number.MAX_SAFE_INTEGER))
                 .sort({[oc(filter).sortBy("name") as string]: oc(filter).sortDirection("asc")})
 
-            return graphify(await project(DBDeck, decksQuery, info) as any)
+            return await project(DBDeck, decksQuery, info) as any
         }
     },
     Mutation: {
@@ -51,8 +50,7 @@ const resolvers: Resolvers = {
             const deckUpdate = value ? {$push: {subscribers: id}, $inc: {subscriberCount: 1}} : {$pull: {subscribers: id}, $inc: {subscriberCount: -1}}
             const deck = await DBDeck.findByIdAndUpdate(deckID, deckUpdate).select("owner")
             await DBUser.findByIdAndUpdate(deck!.owner, {$inc: {totalSubscribers: value ? 1 : -1}})
-            const dbUser = await project(DBUser, DBUser.findByIdAndUpdate(id, userUpdate, {new: true}), info) as any
-            return graphify(dbUser)
+            return await project(DBUser, DBUser.findByIdAndUpdate(id, userUpdate, {new: true}), info) as any
         },
         changeLikeStatus: async (_, {id, userID, value}, {user}, info) => {
             if(!user || user.id !== userID)
@@ -80,7 +78,7 @@ const resolvers: Resolvers = {
                     await DBUser.findByIdAndUpdate(deck!.owner, {$inc: {totalRating: change}})
                 }
                 log(dbDeck)
-                return graphify(dbDeck)
+                return dbDeck
             } else {
                 let dbDeck = await project(DBDeck, DBDeck.updateOne({_id: id, "ratings.user": {$ne: userID}}, {
                     $push: {
@@ -98,7 +96,7 @@ const resolvers: Resolvers = {
                 await DBUser.findByIdAndUpdate(deck!.owner, {$inc: {totalRating: change}})
 
                 log(dbDeck)
-                return graphify(dbDeck)
+                return dbDeck
             }
         },
         addDeck: async (_, {input}, {user}, info) => {
@@ -108,7 +106,7 @@ const resolvers: Resolvers = {
             const deck = await new DBDeck({...input}).save()
             const dbUser = await project(DBUser, DBUser.findByIdAndUpdate(userId, {$push: {ownedDecks: deck._id}}, {new: true}), info) as any
             log(dbUser)
-            return graphify(dbUser)
+            return dbUser
         }
     },
     Deck: {

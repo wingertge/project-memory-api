@@ -23,7 +23,7 @@ const resolvers: Resolvers = {
             if(user.id !== userId)
                 throw new AuthError(ErrorType.Unauthorized)
 
-            return graphify(review as any)
+            return review as any
         }
     },
     User: {
@@ -68,7 +68,7 @@ const resolvers: Resolvers = {
             if(filter.offset) query = query.skip(filter.offset)
             const reviews = await query
             log(reviews)
-            return graphify(reviews as any)
+            return reviews as any
         },
         lessonsCount: async ({id}) => await DBReview.countDocuments({user: id, box: 0})
     },
@@ -102,7 +102,7 @@ const resolvers: Resolvers = {
                 log(nextReviewAt)
                 return await project(DBReview, DBReview.findByIdAndUpdate(id, {$set: {reviewedFields: [], nextReviewAt, correct: true}, $inc: {box: review.correct ? 1 : -1}}, {new: true}), info)
             }
-            return graphify(await project(DBReview, DBReview.findById(id), info))
+            return await project(DBReview, DBReview.findById(id), info) as any
         }
     }
 }
