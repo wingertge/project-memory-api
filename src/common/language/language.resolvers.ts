@@ -13,12 +13,12 @@ const resolvers: Resolvers = {
     Query: {
         languages: async (a, b, c, info) => {
             const langs = await project(DBLanguage, DBLanguage.find({}), info).exec()
-            log(langs && langs.map(l => l.toGraph()))
-            return (langs && langs.map(l => l.toGraph())) as any
+            log(langs)
+            return langs as any
         },
         language: async (a, {languageCode}, b, info) => {
             const lang = await project(DBLanguage, DBLanguage.findOne({languageCode}), info).exec()
-            return (lang && lang.toGraph()) as any
+            return lang as any
         }
     },
     Mutation: {
@@ -27,14 +27,14 @@ const resolvers: Resolvers = {
                 throw new AuthenticationError("You're not authorized to do that")
             log(input)
             const dbUser = await project(DBUser, DBUser.findByIdAndUpdate(id, {$push: {languages: input}}, {new: true}), info).exec()
-            log(dbUser!.toGraph())
+            log(dbUser)
             return dbUser as any
         },
         removeLanguageFromUser: async (_, {id, language}, {user}, info) => {
             if(!user || user.id !== id)
                 throw new AuthenticationError("You're not authorized to do that")
             const dbUser = await project(DBUser, DBUser.findByIdAndUpdate(id, {$pull: {languages: language}}, {new: true}), info).exec()
-            log(dbUser!.toGraph())
+            log(dbUser)
             return dbUser as any
         }
     }

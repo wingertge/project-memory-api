@@ -21,8 +21,8 @@ const resolvers: Resolvers = {
             log("Starting Query")
             const dbUser = await project(DBUser, DBUser.findById(id), info).exec()
             log("Finished Query")
-            log(dbUser!.toGraph())
-            return ((dbUser && dbUser.toGraph()) || {id}) as User
+            log(dbUser)
+            return (dbUser || {id}) as User
         }
     },
     Mutation: {
@@ -74,7 +74,7 @@ const resolvers: Resolvers = {
             const dbUser = await project(DBUser, DBUser.findByIdAndUpdate(id, {...input}, {new: true}), info).exec()
 
             log(dbUser)
-            return dbUser!.toGraph() as any
+            return dbUser as any
         }
     }
 }

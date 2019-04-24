@@ -1,15 +1,12 @@
 /* tslint:disable:only-arrow-functions */
 import {model, Schema, Document} from "mongoose"
 import {User} from "../../generated/graphql"
-import GraphConverter from "../GraphConverter"
 import Deck, {DbDeck} from "../deck/deck.model"
 import {DbLanguage} from "../language/language.model"
 import {DbPost} from "../post/post.model"
 import ObjectId = Schema.Types.ObjectId
 
-type Base = Document & GraphConverter
-
-export interface DbUser extends Base {
+export interface DbUser extends Document {
     id: string
     introStep: number
     email: string
@@ -101,9 +98,5 @@ const deleteFun = function(this: DbUser, next) {
 
 userSchema.pre("remove", deleteFun)
 userSchema.pre("deleteMany", deleteFun)
-
-userSchema.method("toGraph", function(this: any) {
-    return JSON.parse(JSON.stringify(this))
-})
 
 export default model<DbUser>("User", userSchema)

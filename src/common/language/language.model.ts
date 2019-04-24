@@ -1,10 +1,7 @@
 import {Document, model, Schema} from "mongoose"
 import {Language} from "../../generated/graphql"
-import GraphConverter from "../GraphConverter"
 
-type Base = Document & GraphConverter
-
-export interface DbLanguage extends Base {
+export interface DbLanguage extends Document {
     id: string
     name: string
     nativeName: string
@@ -43,9 +40,5 @@ const schema = new Schema({
 
 schema.set("toObject", {virtuals: true})
 schema.set("toJSON", {virtuals: true})
-
-schema.method("toGraph", function(this: any) {
-    return JSON.parse(JSON.stringify(this))
-})
 
 export default model<DbLanguage>("Language", schema)

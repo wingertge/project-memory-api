@@ -1,14 +1,11 @@
 import {model, Schema, Document} from "mongoose"
 import {Deck} from "../../generated/graphql"
-import GraphConverter from "../GraphConverter"
 import Card, {DbCard} from "../card/card.model"
 import {DbLanguage} from "../language/language.model"
 import {DbUser} from "../user/user.model"
 import ObjectId = Schema.Types.ObjectId
 
-type Base = Document & GraphConverter
-
-export interface DbDeck extends Base {
+export interface DbDeck extends Document {
     id: string
     name: string
     language: string | DbLanguage
@@ -88,11 +85,6 @@ const deleteFun = function(this: DbDeck, next) {
 
 schema.pre("remove", deleteFun)
 schema.pre("deleteMany", deleteFun)
-
-schema.method("toGraph", function(this: any) {
-    return JSON.parse(JSON.stringify(this))
-})
-
 schema.index("owner")
 
 export default model<DbDeck>("Deck", schema)
