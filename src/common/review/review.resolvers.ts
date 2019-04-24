@@ -2,13 +2,15 @@ import {Resolvers} from "../../generated/graphql"
 import AuthError, {ErrorType} from "../AuthError"
 import {DbCard} from "../card/card.model"
 import graphify from "../graphify"
+import makeLogger from "../logging"
 import project from "../project"
 import {scheduleNextReview} from "../reviewScheduling"
 import DBReview from "./review.model"
 import debug from "debug"
 
-const log = debug("api:topicResolvers:review")
+const log = debug("api:resolvers:review")
 log.log = console.log.bind(console)
+const logger = makeLogger("reviewResolvers")
 
 const resolvers: Resolvers = {
     Query: {
@@ -43,7 +45,9 @@ const resolvers: Resolvers = {
                 query = query.sort({[filter.sortBy || "nextReviewAt"]: filter.sortDirection || "asc"})
             if(filter.limit) query = query.limit(filter.limit)
             if(filter.offset) query = query.skip(filter.offset)
-            return graphify(await query)
+            const result = await query
+            logger.debug(result)
+            return result as any
         },
         reviewsCount: async ({id}, {filter}) => {
             const conditions: any = {user: id}
@@ -53,7 +57,7 @@ const resolvers: Resolvers = {
             if(filter.boxes) conditions.box = {$in: filter.boxes}
             else conditions.box = {$gt: 0}
 
-            return await DBReview.count(conditions)
+            return await DBReview.countDocuments(conditions)
         },
         lessonQueue: async ({id}, {filter}, _, info) => {
             const conditions: any = {user: id, box: 0}
@@ -66,14 +70,14 @@ const resolvers: Resolvers = {
             log(reviews)
             return graphify(reviews as any)
         },
-        lessonsCount: async ({id}) => await DBReview.count({user: id, box: 0})
+        lessonsCount: async ({id}) => await DBReview.countDocuments({user: id, box: 0})
     },
     Mutation: {
         submitReview: async (_, {id, field, correct}, {user}, info) => {
             if(!user)
                 throw new AuthError(ErrorType.Unauthenticated)
 
-            const reviewsCount = await DBReview.count({user: user.id, nextReviewAt: {$lt: new Date()}})
+            const reviewsCount = await DBReview.countDocuments({user: user.id, nextReviewAt: {$lt: new Date()}})
             const addedDelay = Math.floor(Math.random() * reviewsCount)
             const newDate = new Date(new Date().getTime() + addedDelay * 1000)
             const update: any = {$addToSet: {reviewedFields: field}, nextReviewAt: newDate}

@@ -81,16 +81,13 @@ const handleFieldShallow = <TModel, TResult>(mappings: ProjectionMapping,
                 }
                 Object.keys(value).forEach(childSelector => handlePopulate(mappings, populateObj, [childSelector, value[childSelector]], (mapping as DBMapping).ref!))
                 log("Populating like this:")
-                log({
+                const popObj = {
                     path: populateObj.path,
                     populate: populateObj.populate,
                     select: populateObj.select.join(" ")
-                })
-                return currentQuery.select(populateObj.path).populate({
-                    path: populateObj.path,
-                    populate: populateObj.populate,
-                    select: populateObj.select.join(" ")
-                })
+                }
+                log(popObj)
+                return currentQuery.select(populateObj.path).populate(popObj)
         }
     }
 }

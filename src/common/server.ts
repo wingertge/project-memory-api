@@ -1,6 +1,5 @@
 import {ApolloServer} from "apollo-server-express"
 import {GraphQLScalarType, Kind} from "graphql"
-import {importSchema} from "graphql-import"
 import {makeExecutableSchema} from "graphql-tools"
 import jwt from "express-jwt"
 import jwks from "jwks-rsa"
@@ -8,6 +7,7 @@ import express from "express"
 import cookieParser from "cookie-parser"
 import {connect} from "mongoose"
 import authResolvers from "./auth/auth.resolvers"
+import makeLogger from "./logging"
 import postResolvers from "./post/post.resolvers"
 import userResolvers from "./user/user.resolvers"
 import deckResolvers from "./deck/deck.resolvers"
@@ -23,7 +23,8 @@ import "./language/language.model"
 
 const log = debug("api:server")
 log.log = console.log.bind(console)
-//const logError = debug("api:server:error")
+const logError = debug("api:server:error")
+const logger = makeLogger("server")
 
 export interface AppContext {
     user: User
@@ -59,8 +60,8 @@ export const createApp = (rootSchema: string) => {
             parseValue(value: string) {
                 return new Date(value)
             },
-            serialize(value: Date) {
-                return value.toISOString()
+            serialize(value: Date | string) {
+                return typeof value !== "string" ? value.toISOString() : new Date(value).toISOString()
             },
             parseLiteral(ast) {
                 if(ast.kind === Kind.INT || ast.kind === Kind.STRING) {
@@ -71,7 +72,6 @@ export const createApp = (rootSchema: string) => {
         })
     }
 
-    log(rootSchema)
     const schema = makeExecutableSchema({
         typeDefs: [rootSchema],
         resolvers: [
@@ -91,7 +91,9 @@ export const createApp = (rootSchema: string) => {
             user: req.user && convertUser(req.user)
         }),
         formatError(error) {
-            log(JSON.stringify(error, null, 2))
+            logError(JSON.stringify(error, null, 2))
+            //errors.report(error)
+            logger.error(error)
             return error
         },
         formatResponse(response) {
