@@ -75,11 +75,6 @@ class Auth {
         }
     }
 
-    public async updateMetadata(uuid: string, metadata: object) {
-        const user = await this.findById(uuid)
-        return await this.auth0Manage.updateUserMetadata({id: user.user_id!}, metadata)
-    }
-
     public async updatePassword(uuid: string, password: string, oldPassword: string) {
         const user = await this.findById(uuid)
         const emailIdent = find(user.identities, (identity: AuthIdentity) => oc(identity).profileData.email()) as AuthIdentity | undefined

@@ -1,6 +1,10 @@
 import {Resolvers} from "../../generated/graphql"
 import {AppContext} from "../server"
 import Auth from "./Auth"
+import debug from "debug"
+
+const log = debug("api:auth")
+log.log = console.log.bind(console)
 
 const resolvers: Resolvers<AppContext> = {
     User: {
@@ -8,6 +12,7 @@ const resolvers: Resolvers<AppContext> = {
     },
     Mutation: {
         async authenticate(_, {code}) {
+            log("Authenticating...")
             return await new Auth().authenticate(code)
         }
     }
