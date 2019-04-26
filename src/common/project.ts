@@ -35,6 +35,10 @@ export default projector({
         feed: {
             mappingType: DBMappingType.Reference,
             ref: "Post"
+        },
+        following: {
+            mappingType: DBMappingType.Reference,
+            ref: "User"
         }
     },
     Language: {},

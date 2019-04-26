@@ -10,6 +10,7 @@ type Deck {
     subscriberCount: Int!
     rating: Int!
     isLikedBy(userID: ID!): Boolean!
+    tags: [String!]!
 }
 
 input DeckFilterInput {

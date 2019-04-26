@@ -61,6 +61,7 @@ export type Deck = {
   readonly subscriberCount: Scalars["Int"];
   readonly rating: Scalars["Int"];
   readonly isLikedBy: Scalars["Boolean"];
+  readonly tags: ReadonlyArray<Scalars["String"]>;
 };
 
 export type DeckCardsArgs = {
@@ -118,13 +119,9 @@ export type Mutation = {
   readonly logout?: Maybe<Scalars["Boolean"]>;
   readonly editUser?: Maybe<User>;
   readonly deleteUser?: Maybe<User>;
+  readonly changeFollowingStatus?: Maybe<User>;
   readonly addLanguageToUser?: Maybe<User>;
   readonly removeLanguageFromUser?: Maybe<User>;
-  readonly addDeck?: Maybe<User>;
-  readonly updateDeck?: Maybe<Deck>;
-  readonly deleteDeck?: Maybe<Deck>;
-  readonly changeSubscriptionStatus?: Maybe<User>;
-  readonly changeLikeStatus?: Maybe<Deck>;
   readonly createCard?: Maybe<Deck>;
   readonly editCard?: Maybe<Card>;
   readonly deleteCards?: Maybe<Deck>;
@@ -132,6 +129,13 @@ export type Mutation = {
   readonly createPost?: Maybe<ReadonlyArray<Maybe<Post>>>;
   readonly editPost?: Maybe<Post>;
   readonly deletePost?: Maybe<ReadonlyArray<Maybe<Post>>>;
+  readonly addDeck?: Maybe<User>;
+  readonly updateDeck?: Maybe<Deck>;
+  readonly deleteDeck?: Maybe<Deck>;
+  readonly changeSubscriptionStatus?: Maybe<User>;
+  readonly changeLikeStatus?: Maybe<Deck>;
+  readonly addTagToDeck?: Maybe<Deck>;
+  readonly removeTagFromDeck?: Maybe<Deck>;
 };
 
 export type MutationAuthenticateArgs = {
@@ -147,6 +151,12 @@ export type MutationDeleteUserArgs = {
   id: Scalars["ID"];
 };
 
+export type MutationChangeFollowingStatusArgs = {
+  id: Scalars["ID"];
+  followID: Scalars["ID"];
+  value: Scalars["Boolean"];
+};
+
 export type MutationAddLanguageToUserArgs = {
   id: Scalars["ID"];
   input: Scalars["ID"];
@@ -155,31 +165,6 @@ export type MutationAddLanguageToUserArgs = {
 export type MutationRemoveLanguageFromUserArgs = {
   id: Scalars["ID"];
   language: Scalars["ID"];
-};
-
-export type MutationAddDeckArgs = {
-  input: DeckInput;
-};
-
-export type MutationUpdateDeckArgs = {
-  id: Scalars["ID"];
-  input: DeckInput;
-};
-
-export type MutationDeleteDeckArgs = {
-  id: Scalars["ID"];
-};
-
-export type MutationChangeSubscriptionStatusArgs = {
-  id: Scalars["ID"];
-  deckID: Scalars["ID"];
-  value: Scalars["Boolean"];
-};
-
-export type MutationChangeLikeStatusArgs = {
-  id: Scalars["ID"];
-  userID: Scalars["ID"];
-  value?: Maybe<Scalars["Boolean"]>;
 };
 
 export type MutationCreateCardArgs = {
@@ -217,6 +202,41 @@ export type MutationDeletePostArgs = {
   filter?: Maybe<PostFilterInput>;
 };
 
+export type MutationAddDeckArgs = {
+  input: DeckInput;
+};
+
+export type MutationUpdateDeckArgs = {
+  id: Scalars["ID"];
+  input: DeckInput;
+};
+
+export type MutationDeleteDeckArgs = {
+  id: Scalars["ID"];
+};
+
+export type MutationChangeSubscriptionStatusArgs = {
+  id: Scalars["ID"];
+  deckID: Scalars["ID"];
+  value: Scalars["Boolean"];
+};
+
+export type MutationChangeLikeStatusArgs = {
+  id: Scalars["ID"];
+  userID: Scalars["ID"];
+  value?: Maybe<Scalars["Boolean"]>;
+};
+
+export type MutationAddTagToDeckArgs = {
+  id: Scalars["ID"];
+  tag: Scalars["String"];
+};
+
+export type MutationRemoveTagFromDeckArgs = {
+  id: Scalars["ID"];
+  tag: Scalars["String"];
+};
+
 export type Post = {
   readonly id: Scalars["ID"];
   readonly createdAt: Scalars["Date"];
@@ -251,6 +271,7 @@ export type Query = {
   readonly language?: Maybe<Language>;
   readonly decks?: Maybe<ReadonlyArray<Maybe<Deck>>>;
   readonly deck?: Maybe<Deck>;
+  readonly tags: ReadonlyArray<Scalars["String"]>;
   readonly review?: Maybe<Review>;
 };
 
@@ -272,6 +293,12 @@ export type QueryDecksArgs = {
 
 export type QueryDeckArgs = {
   id: Scalars["ID"];
+};
+
+export type QueryTagsArgs = {
+  search: Scalars["String"];
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
 };
 
 export type QueryReviewArgs = {
@@ -472,9 +499,9 @@ export type ResolversTypes = {
   Mutation: {};
   AuthResult: AuthResult;
   UserInput: UserInput;
-  DeckInput: DeckInput;
   CardInput: CardInput;
   PostInput: PostInput;
+  DeckInput: DeckInput;
   JSON: Scalars["JSON"];
   AdditionalEntityFields: AdditionalEntityFields;
 };
@@ -609,6 +636,11 @@ export type DeckResolvers<
     ContextType,
     DeckIsLikedByArgs
   >;
+  tags?: Resolver<
+    ReadonlyArray<ResolversTypes["String"]>,
+    ParentType,
+    ContextType
+  >;
 };
 
 export type IdentityResolvers<
@@ -666,6 +698,12 @@ export type MutationResolvers<
     ContextType,
     MutationDeleteUserArgs
   >;
+  changeFollowingStatus?: Resolver<
+    Maybe<ResolversTypes["User"]>,
+    ParentType,
+    ContextType,
+    MutationChangeFollowingStatusArgs
+  >;
   addLanguageToUser?: Resolver<
     Maybe<ResolversTypes["User"]>,
     ParentType,
@@ -677,36 +715,6 @@ export type MutationResolvers<
     ParentType,
     ContextType,
     MutationRemoveLanguageFromUserArgs
-  >;
-  addDeck?: Resolver<
-    Maybe<ResolversTypes["User"]>,
-    ParentType,
-    ContextType,
-    MutationAddDeckArgs
-  >;
-  updateDeck?: Resolver<
-    Maybe<ResolversTypes["Deck"]>,
-    ParentType,
-    ContextType,
-    MutationUpdateDeckArgs
-  >;
-  deleteDeck?: Resolver<
-    Maybe<ResolversTypes["Deck"]>,
-    ParentType,
-    ContextType,
-    MutationDeleteDeckArgs
-  >;
-  changeSubscriptionStatus?: Resolver<
-    Maybe<ResolversTypes["User"]>,
-    ParentType,
-    ContextType,
-    MutationChangeSubscriptionStatusArgs
-  >;
-  changeLikeStatus?: Resolver<
-    Maybe<ResolversTypes["Deck"]>,
-    ParentType,
-    ContextType,
-    MutationChangeLikeStatusArgs
   >;
   createCard?: Resolver<
     Maybe<ResolversTypes["Deck"]>,
@@ -749,6 +757,48 @@ export type MutationResolvers<
     ParentType,
     ContextType,
     MutationDeletePostArgs
+  >;
+  addDeck?: Resolver<
+    Maybe<ResolversTypes["User"]>,
+    ParentType,
+    ContextType,
+    MutationAddDeckArgs
+  >;
+  updateDeck?: Resolver<
+    Maybe<ResolversTypes["Deck"]>,
+    ParentType,
+    ContextType,
+    MutationUpdateDeckArgs
+  >;
+  deleteDeck?: Resolver<
+    Maybe<ResolversTypes["Deck"]>,
+    ParentType,
+    ContextType,
+    MutationDeleteDeckArgs
+  >;
+  changeSubscriptionStatus?: Resolver<
+    Maybe<ResolversTypes["User"]>,
+    ParentType,
+    ContextType,
+    MutationChangeSubscriptionStatusArgs
+  >;
+  changeLikeStatus?: Resolver<
+    Maybe<ResolversTypes["Deck"]>,
+    ParentType,
+    ContextType,
+    MutationChangeLikeStatusArgs
+  >;
+  addTagToDeck?: Resolver<
+    Maybe<ResolversTypes["Deck"]>,
+    ParentType,
+    ContextType,
+    MutationAddTagToDeckArgs
+  >;
+  removeTagFromDeck?: Resolver<
+    Maybe<ResolversTypes["Deck"]>,
+    ParentType,
+    ContextType,
+    MutationRemoveTagFromDeckArgs
   >;
 };
 
@@ -806,6 +856,12 @@ export type QueryResolvers<
     ParentType,
     ContextType,
     QueryDeckArgs
+  >;
+  tags?: Resolver<
+    ReadonlyArray<ResolversTypes["String"]>,
+    ParentType,
+    ContextType,
+    QueryTagsArgs
   >;
   review?: Resolver<
     Maybe<ResolversTypes["Review"]>,

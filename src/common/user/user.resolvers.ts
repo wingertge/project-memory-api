@@ -1,8 +1,9 @@
-import {fieldsMap} from "graphql-fields-list"
-import {Deck, Resolvers, User} from "../../generated/graphql"
 import {AuthenticationError} from "apollo-server"
 import debug from "debug"
+import {fieldsMap} from "graphql-fields-list"
+import {Resolvers, User} from "../../generated/graphql"
 import Auth from "../auth/Auth"
+import AuthError, {ErrorType} from "../AuthError"
 import makeLogger from "../logging"
 import project from "../project"
 import DBUser from "./user.model"
@@ -31,11 +32,15 @@ const resolvers: Resolvers = {
         }
     },
     Mutation: {
-        async updateDeck(_, {id, input}, {user}) {
-            if(!user)
-                throw new AuthenticationError("Must be logged in to do that")
-            log(`Updating deck ${id} with data ${JSON.stringify(input)}`)
-            return {id, name: input.name} as Deck
+        changeFollowingStatus: async (_, {id, followID, value}, {user}, info) => {
+            if(!user) throw new AuthError(ErrorType.Unauthenticated)
+            if(user.id !== id) throw new AuthError(ErrorType.Unauthorized)
+            if(value) {
+                await DBUser.updateOne({_id: id, following: {$ne: followID}}, {$push: {following: followID}})
+            } else {
+                await DBUser.updateOne({_id: id}, {$pull: {following: followID}})
+            }
+            return await project(DBUser, DBUser.findById(id), info) as any
         },
         async editUser(_, {id, input}, {user}, info) {
             log(input)

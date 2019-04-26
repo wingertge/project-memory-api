@@ -34,7 +34,4 @@ const schema = new Schema({
     }
 })
 
-schema.set("toObject", {virtuals: true})
-schema.set("toJSON", {virtuals: true})
-
 export default model<DbPost>("Post", schema)

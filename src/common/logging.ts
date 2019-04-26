@@ -1,10 +1,15 @@
 import {createLogger} from "bunyan"
 import {LoggingBunyan} from "@google-cloud/logging-bunyan"
+import PrettyStream from "bunyan-prettystream"
 
 export type LogLevel = "trace" | "debug" | "info" | "warn" | "error" | "fatal"
 
 const loggingBunyan = process.env.GCP_PROJECT && new LoggingBunyan()
-
+let prettyStdOut: PrettyStream | undefined
+if(!loggingBunyan) {
+    prettyStdOut = new PrettyStream()
+    prettyStdOut.pipe(process.stdout)
+}
 
 export const makeLogger = (name: string, level: LogLevel = "debug") => createLogger({
     name,
@@ -12,7 +17,7 @@ export const makeLogger = (name: string, level: LogLevel = "debug") => createLog
         {stream: process.stdout, level},
         loggingBunyan.stream(level)
     ] : [
-        {stream: process.stdout, level},
+        {stream: prettyStdOut, level, type: "raw"},
     ]
 })
 

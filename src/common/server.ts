@@ -5,10 +5,11 @@ import jwt from "express-jwt"
 import jwks from "jwks-rsa"
 import express from "express"
 import cookieParser from "cookie-parser"
-import {connect} from "mongoose"
+import mongoose from "mongoose"
 import authResolvers from "./auth/auth.resolvers"
 import makeLogger from "./logging"
 import postResolvers from "./post/post.resolvers"
+import tagResolvers from "./tag/tag.resolvers"
 import userResolvers from "./user/user.resolvers"
 import deckResolvers from "./deck/deck.resolvers"
 import languageResolvers from "./language/language.resolvers"
@@ -35,13 +36,16 @@ interface User {
 }
 
 export const createApp = (rootSchema: string) => {
-    connect(
+    mongoose.connect(
         process.env.MONGODB_URI || "",
         {
             useNewUrlParser: true,
-            useFindAndModify: false
+            useFindAndModify: false,
+            useCreateIndex: true
         }
     )
+    mongoose.set("toObject", {virtuals: true})
+    mongoose.set("toJSON", {virtuals: true})
 
     const jwtCheck = jwt({
         secret: jwks.expressJwtSecret({
@@ -80,7 +84,7 @@ export const createApp = (rootSchema: string) => {
         resolvers: [
             scalarResolvers, authResolvers, userResolvers,
             deckResolvers, languageResolvers, cardResolvers,
-            reviewResolvers, postResolvers
+            reviewResolvers, postResolvers, tagResolvers
         ] as any
     })
 

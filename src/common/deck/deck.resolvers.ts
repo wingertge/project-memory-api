@@ -53,9 +53,7 @@ const resolvers: Resolvers = {
             return await project(DBUser, DBUser.findByIdAndUpdate(id, userUpdate, {new: true}), info) as any
         },
         changeLikeStatus: async (_, {id, userID, value}, {user}, info) => {
-            if(!user || user.id !== userID)
-                throw new AuthError(ErrorType.Unauthorized)
-            log(id)
+            if(!user || user.id !== userID) throw new AuthError(ErrorType.Unauthorized)
             const deck = await DBDeck.findById(id).select("owner")
             const currentDeck = await DBDeck.findOne({_id: id, "ratings.user": userID}).select("ratings.$")
             log(currentDeck)
@@ -107,6 +105,13 @@ const resolvers: Resolvers = {
             const dbUser = await project(DBUser, DBUser.findByIdAndUpdate(userId, {$push: {ownedDecks: deck._id}}, {new: true}), info) as any
             log(dbUser)
             return dbUser
+        },
+        async updateDeck(_, {id, input}, {user}, info) {
+            if(!user) throw new AuthError(ErrorType.Unauthenticated)
+            return await project(DBDeck, DBDeck.findOneAndUpdate({
+                _id: id,
+                owner: user.id
+            }, {name: input.name}, {new: true}), info).orFail(new AuthError(ErrorType.Unauthorized)) as any
         }
     },
     Deck: {

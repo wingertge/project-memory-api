@@ -20,6 +20,7 @@ export interface DbDeck extends Document {
     }>
     rating: number
     owner: string | DbUser
+    tags: string[]
 }
 
 const schema = new Schema({
@@ -72,19 +73,15 @@ const schema = new Schema({
         type: ObjectId,
         ref: "User",
         required: true
-    }
+    },
+    tags: [String]
 })
 
-schema.set("toObject", {virtuals: true})
-schema.set("toJSON", {virtuals: true})
-
-const deleteFun = function(this: DbDeck, next) {
+schema.pre("remove", function(this: DbDeck, next) {
     Card.remove({deck: this._id}).exec()
     next()
-}
+})
 
-schema.pre("remove", deleteFun)
-schema.pre("deleteMany", deleteFun)
 schema.index("owner")
 
 export default model<DbDeck>("Deck", schema)

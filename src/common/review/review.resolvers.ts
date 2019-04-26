@@ -1,7 +1,6 @@
 import {Resolvers} from "../../generated/graphql"
 import AuthError, {ErrorType} from "../AuthError"
 import {DbCard} from "../card/card.model"
-import graphify from "../graphify"
 import makeLogger from "../logging"
 import project from "../project"
 import {scheduleNextReview} from "../reviewScheduling"
@@ -30,7 +29,7 @@ const resolvers: Resolvers = {
         nextReview: async ({id}, _, a, info) => {
             //for now, just take the oldest review
             const review = await project(DBReview, DBReview.find({user: id, nextReviewAt: {$lt: new Date()}}).sort({nextReviewAt: 1}).limit(1), info)
-            return review.length > 0 ? graphify(review[0] as any) : null
+            return review.length > 0 ? review[0] as any : null
         },
         reviewQueue: async ({id}, {filter}, _, info) => {
             const conditions: any = {user: id}

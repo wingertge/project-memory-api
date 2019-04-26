@@ -24,26 +24,13 @@ const schema = new Schema({
     }
 })
 
-schema.set("toObject", {
-    transform(doc, ret) {
-        ret.id = ret._id
-        delete ret._id
-    }
-})
-schema.set("toJSON", {
-    transform(doc, ret) {
-        ret.id = ret._id
-        delete ret._id
-    }
-})
-
-const removeFun = function(this: DbCard, next) {
+schema.pre("remove", function(this: DbCard, next) {
     console.log(this._id)
     Review.remove({card: this._id}).exec()
     next()
-}
+})
 
-const saveFun = function(this: DbCard, next) {
+schema.pre("save", function(this: DbCard, next) {
     console.log(this)
     Deck.findByIdAndUpdate(this.deck, {$push: {cards: this._id}, $inc: {cardCount: 1}}).select("subscribers owner").then(dbDeck => {
         console.log(dbDeck)
@@ -60,12 +47,7 @@ const saveFun = function(this: DbCard, next) {
         Review.insertMany(reviews)
     })
     next()
-}
-
-schema.pre("remove", removeFun)
-
-schema.pre("save", saveFun)
-schema.pre("insertMany", saveFun)
+})
 
 schema.index("deck")
 

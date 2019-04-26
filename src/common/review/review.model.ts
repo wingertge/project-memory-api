@@ -36,24 +36,15 @@ const schema = new Schema({
     }
 })
 
-schema.set("toObject", {virtuals: true})
-schema.set("toJSON", {virtuals: true})
-
-const saveFun = function(this: DbReview, next) {
+schema.pre<DbReview>("save", function(this: DbReview, next) {
     User.findByIdAndUpdate(this.user, {$push: {reviewQueue: this._id}}).exec()
     next()
-}
+})
 
-const removeFun = function(this: DbReview, next) {
+schema.pre<DbReview>("remove", function(this: DbReview, next) {
     User.findByIdAndUpdate(this.user, {$pull: {reviewQueue: this._id}}).exec()
     next()
-}
-
-schema.pre<DbReview>("save", saveFun)
-schema.pre<DbReview>("insertMany", saveFun)
-
-schema.pre<DbReview>("remove", removeFun)
-schema.pre<DbReview>("deleteMany", removeFun)
+})
 
 schema.index("user")
 

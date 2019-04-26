@@ -22,6 +22,7 @@ export interface DbUser extends Document {
     subscribedDecks: string[] | DbDeck[]
     feed: string[] | DbPost[]
     badges: string[]
+    following: string[] | DbUser[]
 }
 
 const userSchema = new Schema({
@@ -85,18 +86,16 @@ const userSchema = new Schema({
         type: Number,
         default: 0,
         required: true
-    }
+    },
+    following: [{
+        type: ObjectId,
+        ref: "User"
+    }]
 })
 
-userSchema.set("toObject", {virtuals: true})
-userSchema.set("toJSON", {virtuals: true})
-
-const deleteFun = function(this: DbUser, next) {
+userSchema.pre("remove", function(this: DbUser, next) {
     Deck.remove({owner: this._id}).exec()
     next()
-}
-
-userSchema.pre("remove", deleteFun)
-userSchema.pre("deleteMany", deleteFun)
+})
 
 export default model<DbUser>("User", userSchema)
