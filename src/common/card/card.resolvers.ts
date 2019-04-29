@@ -56,17 +56,21 @@ const resolvers: Resolvers = {
     },
     Deck: {
         cards: async ({id}, {filter}, _, info) => {
-            let query = DBCard.find({deck: id})
+            filter = filter || {}
+            const condition: any = {deck: id}
+            if(filter.search) condition.$or = [
+                //{$text: {$search: filter.search}},
+                {meaning: new RegExp(filter.search, "i")},
+                {pronunciation: new RegExp(filter.search, "i")},
+                {translation: new RegExp(filter.search, "i")}
+            ]
+            let query = DBCard.find(condition)
             query = project(DBCard, query, info)!
-            if(!filter) {
-                return await query.sort({meaning: 1})
-            } else {
-                if(filter.limit) query = query.limit(filter.limit)
-                if(filter.offset) query = query.skip(filter.offset)
-                const cards = await query.sort({[filter.sortBy || "meaning"]: (filter.sortDirection || "asc") === "asc" ? 1 : -1}) as any
-                log(cards)
-                return cards
-            }
+            if(filter.limit) query = query.limit(filter.limit)
+            if(filter.offset) query = query.skip(filter.offset)
+            const cards = await query.sort({[filter.sortBy || "meaning"]: (filter.sortDirection || "asc") === "asc" ? 1 : -1}) as any
+            log(cards)
+            return cards
         }
     }
 }

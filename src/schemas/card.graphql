@@ -20,6 +20,7 @@ input CardFilterInput {
     offset: Int
     sortDirection: SortDirection
     sortBy: CardSortingOptions
+    search: String
 }
 
 enum CardSortingOptions {

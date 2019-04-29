@@ -37,6 +37,7 @@ export type CardFilterInput = {
   readonly offset?: Maybe<Scalars["Int"]>;
   readonly sortDirection?: Maybe<SortDirection>;
   readonly sortBy?: Maybe<CardSortingOptions>;
+  readonly search?: Maybe<Scalars["String"]>;
 };
 
 export type CardInput = {
@@ -96,7 +97,7 @@ export type DeckInput = {
   readonly cards?: Maybe<ReadonlyArray<Maybe<CardInput>>>;
 };
 
-export type DeckSortBy = "name" | "cardCount" | "rating" | "subscribers";
+export type DeckSortBy = "name" | "cardCount" | "rating" | "subscriberCount";
 
 export type Identity = {
   readonly userId: Scalars["ID"];
@@ -132,7 +133,7 @@ export type Mutation = {
   readonly deletePost?: Maybe<ReadonlyArray<Maybe<Post>>>;
   readonly addDeck?: Maybe<User>;
   readonly updateDeck?: Maybe<Deck>;
-  readonly deleteDeck?: Maybe<Deck>;
+  readonly deleteDeck: User;
   readonly changeSubscriptionStatus?: Maybe<User>;
   readonly changeLikeStatus?: Maybe<Deck>;
   readonly addTagToDeck?: Maybe<Deck>;
@@ -771,7 +772,7 @@ export type MutationResolvers<
     MutationUpdateDeckArgs
   >;
   deleteDeck?: Resolver<
-    Maybe<ResolversTypes["Deck"]>,
+    ResolversTypes["User"],
     ParentType,
     ContextType,
     MutationDeleteDeckArgs
