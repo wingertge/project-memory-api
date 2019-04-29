@@ -41,8 +41,10 @@
     "lodash": "^4.17.11",
     "mongoose": "^5.5.3",
     "serverless-google-cloudfunctions": "^2.3.2",
+    "stringz": "^1.0.0",
     "ts-optchain": "^0.1.6",
-    "typed-promisify": "^0.4.0"
+    "typed-promisify": "^0.4.0",
+    "validator": "^10.11.0"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "^1.1.1",
@@ -58,6 +60,7 @@
     "@types/jsonwebtoken": "^8.3.2",
     "@types/lodash": "^4.14.123",
     "@types/mongoose": "^5.3.26",
+    "@types/validator": "^10.11.0",
     "ava": "^1.4.1",
     "aws-sdk": "^2.441.0",
     "chai": "^4.2.0",

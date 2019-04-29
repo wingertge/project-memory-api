@@ -1,22 +1,21 @@
 type User {
-    sub: ID
     id: ID!
     email: String
     name: String
     username: String!
     picture: String!
-    gender: String!
+    gender: String
     locale: String
-    identities: [Identity]
+    identities: [Identity!]
     isSocial: Boolean!
-    nativeLanguage: Language
-    languages: [Language]
-    ownedDecks: [Deck]
-    subscribedDecks: [Deck]
-    reviewQueue(filter: ReviewFilterInput): [Review]
-    reviewsCount(filter: ReviewFilterInput): Int
+    nativeLanguage: Language!
+    languages: [Language!]!
+    ownedDecks: [Deck!]!
+    subscribedDecks: [Deck!]!
+    reviewQueue(filter: ReviewFilterInput): [Review!]!
+    reviewsCount(filter: ReviewFilterInput): Int!
     nextReview: Review
-    lessonQueue(filter: ReviewFilterInput): [Review]
+    lessonQueue(filter: ReviewFilterInput): [Review!]!
     lessonsCount: Int!
     totalRating: Int!
     totalSubscribers: Int!

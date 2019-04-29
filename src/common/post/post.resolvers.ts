@@ -2,6 +2,7 @@ import Maybe from "graphql/tsutils/Maybe"
 import {PostFilterInput, Resolvers} from "../../generated/graphql"
 import AuthError, {ErrorType} from "../AuthError"
 import project from "../project"
+import {validatePost} from "../validators"
 import DBPost from "./post.model"
 
 const filteredQuery = (userId: string, filter: Maybe<PostFilterInput>) => {
@@ -24,6 +25,7 @@ export const postResolvers: Resolvers = {
     Mutation: {
         createPost: async (_, {input, filter}, {user}, info) => {
             if(!user) throw new AuthError(ErrorType.Unauthenticated)
+            validatePost(input)
             if(!input.originalPost && (!input.content || input.content.trim().length === 0)) throw new Error("Message can't be empty")
             await new DBPost({
                 createdAt: new Date(),
@@ -36,6 +38,7 @@ export const postResolvers: Resolvers = {
         },
         editPost: async (_, {id, input}, {user}, info) => {
             if(!user) throw new AuthError(ErrorType.Unauthenticated)
+            validatePost(input)
             if(!input.originalPost && (!input.content || input.content.trim().length === 0)) throw new Error("Message can't be empty")
             return await project(DBPost, DBPost.updateOne({_id: id, by: user.id}, {...input}, {new: true}), info) as any
         },

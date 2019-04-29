@@ -55,9 +55,9 @@ export type Deck = {
   readonly owner: User;
   readonly language: Language;
   readonly nativeLanguage: Language;
-  readonly cards?: Maybe<ReadonlyArray<Maybe<Card>>>;
+  readonly cards: ReadonlyArray<Card>;
   readonly cardCount: Scalars["Int"];
-  readonly subscribers?: Maybe<ReadonlyArray<Maybe<User>>>;
+  readonly subscribers: ReadonlyArray<User>;
   readonly subscriberCount: Scalars["Int"];
   readonly rating: Scalars["Int"];
   readonly isLikedBy: Scalars["Boolean"];
@@ -78,13 +78,14 @@ export type DeckIsLikedByArgs = {
 
 export type DeckFilterInput = {
   readonly limit?: Maybe<Scalars["Int"]>;
+  readonly offset?: Maybe<Scalars["Int"]>;
   readonly sortBy?: Maybe<DeckSortBy>;
   readonly sortDirection?: Maybe<SortDirection>;
   readonly search?: Maybe<Scalars["String"]>;
   readonly owner?: Maybe<Scalars["ID"]>;
-  readonly languages?: Maybe<ReadonlyArray<Maybe<Scalars["ID"]>>>;
+  readonly languages?: Maybe<ReadonlyArray<Scalars["ID"]>>;
   readonly nativeLanguage?: Maybe<Scalars["ID"]>;
-  readonly cardContained?: Maybe<Scalars["ID"]>;
+  readonly tags?: Maybe<ReadonlyArray<Scalars["String"]>>;
 };
 
 export type DeckInput = {
@@ -336,24 +337,23 @@ export type SubscriberFilterInput = {
 };
 
 export type User = {
-  readonly sub?: Maybe<Scalars["ID"]>;
   readonly id: Scalars["ID"];
   readonly email?: Maybe<Scalars["String"]>;
   readonly name?: Maybe<Scalars["String"]>;
   readonly username: Scalars["String"];
   readonly picture: Scalars["String"];
-  readonly gender: Scalars["String"];
+  readonly gender?: Maybe<Scalars["String"]>;
   readonly locale?: Maybe<Scalars["String"]>;
-  readonly identities?: Maybe<ReadonlyArray<Maybe<Identity>>>;
+  readonly identities?: Maybe<ReadonlyArray<Identity>>;
   readonly isSocial: Scalars["Boolean"];
-  readonly nativeLanguage?: Maybe<Language>;
-  readonly languages?: Maybe<ReadonlyArray<Maybe<Language>>>;
-  readonly ownedDecks?: Maybe<ReadonlyArray<Maybe<Deck>>>;
-  readonly subscribedDecks?: Maybe<ReadonlyArray<Maybe<Deck>>>;
-  readonly reviewQueue?: Maybe<ReadonlyArray<Maybe<Review>>>;
-  readonly reviewsCount?: Maybe<Scalars["Int"]>;
+  readonly nativeLanguage: Language;
+  readonly languages: ReadonlyArray<Language>;
+  readonly ownedDecks: ReadonlyArray<Deck>;
+  readonly subscribedDecks: ReadonlyArray<Deck>;
+  readonly reviewQueue: ReadonlyArray<Review>;
+  readonly reviewsCount: Scalars["Int"];
   readonly nextReview?: Maybe<Review>;
-  readonly lessonQueue?: Maybe<ReadonlyArray<Maybe<Review>>>;
+  readonly lessonQueue: ReadonlyArray<Review>;
   readonly lessonsCount: Scalars["Int"];
   readonly totalRating: Scalars["Int"];
   readonly totalSubscribers: Scalars["Int"];
@@ -616,14 +616,14 @@ export type DeckResolvers<
     ContextType
   >;
   cards?: Resolver<
-    Maybe<ReadonlyArray<Maybe<ResolversTypes["Card"]>>>,
+    ReadonlyArray<ResolversTypes["Card"]>,
     ParentType,
     ContextType,
     DeckCardsArgs
   >;
   cardCount?: Resolver<ResolversTypes["Int"], ParentType, ContextType>;
   subscribers?: Resolver<
-    Maybe<ReadonlyArray<Maybe<ResolversTypes["User"]>>>,
+    ReadonlyArray<ResolversTypes["User"]>,
     ParentType,
     ContextType,
     DeckSubscribersArgs
@@ -896,48 +896,47 @@ export type UserResolvers<
   ContextType = AppContext,
   ParentType = ResolversTypes["User"]
 > = {
-  sub?: Resolver<Maybe<ResolversTypes["ID"]>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes["ID"], ParentType, ContextType>;
   email?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
   name?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
   username?: Resolver<ResolversTypes["String"], ParentType, ContextType>;
   picture?: Resolver<ResolversTypes["String"], ParentType, ContextType>;
-  gender?: Resolver<ResolversTypes["String"], ParentType, ContextType>;
+  gender?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
   locale?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
   identities?: Resolver<
-    Maybe<ReadonlyArray<Maybe<ResolversTypes["Identity"]>>>,
+    Maybe<ReadonlyArray<ResolversTypes["Identity"]>>,
     ParentType,
     ContextType
   >;
   isSocial?: Resolver<ResolversTypes["Boolean"], ParentType, ContextType>;
   nativeLanguage?: Resolver<
-    Maybe<ResolversTypes["Language"]>,
+    ResolversTypes["Language"],
     ParentType,
     ContextType
   >;
   languages?: Resolver<
-    Maybe<ReadonlyArray<Maybe<ResolversTypes["Language"]>>>,
+    ReadonlyArray<ResolversTypes["Language"]>,
     ParentType,
     ContextType
   >;
   ownedDecks?: Resolver<
-    Maybe<ReadonlyArray<Maybe<ResolversTypes["Deck"]>>>,
+    ReadonlyArray<ResolversTypes["Deck"]>,
     ParentType,
     ContextType
   >;
   subscribedDecks?: Resolver<
-    Maybe<ReadonlyArray<Maybe<ResolversTypes["Deck"]>>>,
+    ReadonlyArray<ResolversTypes["Deck"]>,
     ParentType,
     ContextType
   >;
   reviewQueue?: Resolver<
-    Maybe<ReadonlyArray<Maybe<ResolversTypes["Review"]>>>,
+    ReadonlyArray<ResolversTypes["Review"]>,
     ParentType,
     ContextType,
     UserReviewQueueArgs
   >;
   reviewsCount?: Resolver<
-    Maybe<ResolversTypes["Int"]>,
+    ResolversTypes["Int"],
     ParentType,
     ContextType,
     UserReviewsCountArgs
@@ -948,7 +947,7 @@ export type UserResolvers<
     ContextType
   >;
   lessonQueue?: Resolver<
-    Maybe<ReadonlyArray<Maybe<ResolversTypes["Review"]>>>,
+    ReadonlyArray<ResolversTypes["Review"]>,
     ParentType,
     ContextType,
     UserLessonQueueArgs

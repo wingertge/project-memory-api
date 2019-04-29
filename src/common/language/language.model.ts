@@ -38,4 +38,5 @@ const schema = new Schema({
     }
 })
 
-export default model<DbLanguage>("Language", schema)
+export const DBLanguage = model<DbLanguage>("Language", schema)
+export default DBLanguage

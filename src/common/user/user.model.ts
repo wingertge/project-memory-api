@@ -68,6 +68,11 @@ const userSchema = new Schema({
         type: ObjectId,
         ref: "Deck"
     }],
+    ownedDecksCount: {
+        type: Number,
+        required: true,
+        default: 0
+    },
     subscribedDecks: [{
         type: ObjectId,
         ref: "Deck"

@@ -28,6 +28,7 @@ const schema = new Schema({
         type: String,
         required: true
     },
+    deckName: String,
     language: {
         type: ObjectId,
         ref: "Language",
@@ -74,7 +75,8 @@ const schema = new Schema({
         ref: "User",
         required: true
     },
-    tags: [String]
+    tags: [String],
+    nameLanguage: String
 })
 
 schema.pre("remove", function(this: DbDeck, next) {
@@ -83,5 +85,7 @@ schema.pre("remove", function(this: DbDeck, next) {
 })
 
 schema.index("owner")
+schema.index({name: "text"}, {language_override: "nameLanguage"})
 
-export default model<DbDeck>("Deck", schema)
+export const DBDeck = model<DbDeck>("Deck", schema)
+export default DBDeck

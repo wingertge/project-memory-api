@@ -34,4 +34,5 @@ const schema = new Schema({
     }
 })
 
-export default model<DbPost>("Post", schema)
+export const DBPost = model<DbPost>("Post", schema)
+export default DBPost

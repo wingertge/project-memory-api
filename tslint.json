@@ -53,7 +53,8 @@
         "comment-format": false,
         "interface-name": false,
         "no-console": false,
-        "object-literal-key-quotes": [true, "as-needed"]
+        "object-literal-key-quotes": [true, "as-needed"],
+        "no-shadowed-variable": false
     },
     "rulesDirectory": [],
     "linterOptions": {

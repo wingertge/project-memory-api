@@ -1,10 +1,11 @@
 import {Resolvers} from "../../generated/graphql"
 import AuthError, {ErrorType} from "../AuthError"
 import DBDeck from "../deck/deck.model"
+import makeLogger from "../logging"
 import project from "../project"
 import DBTag from "./tag.model"
 
-//const logger = makeLogger("resolvers.tag")
+const logger = makeLogger("resolvers.tag")
 
 const tagResolvers: Resolvers = {
     Mutation: {
@@ -13,9 +14,13 @@ const tagResolvers: Resolvers = {
             const deck = await DBDeck.findOne({_id: id}).select("owner")
             if(!deck) throw new Error("Not Found")
             if(deck.owner.toString() !== user.id) throw new AuthError(ErrorType.Unauthorized)
-            await DBTag.updateOne({tagText: tag}, {tagText: tag}, {upsert: true})
-            await DBTag.updateOne({tagText: tag, decks: {$ne: id}}, {$push: {decks: id}, $inc: {decksLength: 1}})
-            await DBDeck.updateOne({_id: id, owner: user.id, tags: {$ne: tag}}, {$push: {tags: tag}})
+            logger.debug("Trying to update")
+            const updatedDeck = await DBDeck.findOneAndUpdate({_id: id, owner: user.id, "tags.19": {$exists: false}}, {$push: {tags: tag}})
+            logger.debug(updatedDeck)
+            if(updatedDeck) {
+                await DBTag.updateOne({tagText: tag}, {tagText: tag}, {upsert: true})
+                await DBTag.updateOne({tagText: tag, decks: {$ne: id}}, {$push: {decks: id}, $inc: {decksLength: 1}})
+            }
             return await project(DBDeck, DBDeck.findById(id), info) as any
         },
         removeTagFromDeck: async (_, {id, tag}, {user}, info) => {
@@ -34,7 +39,7 @@ const tagResolvers: Resolvers = {
     Query: {
         tags: async (_, {search, limit, offset}, {user}) => {
             if(!user) throw new AuthError(ErrorType.Unauthenticated)
-            let q = DBTag.find({$text: {$search: search}}).select("tagText").skip(offset || 0)
+            let q = DBTag.find({$text: {$search: search}}).select("tagText decks").skip(offset || 0)
             if(limit) q = q.limit(limit)
             const tags = await q
             return tags.sort((tag1, tag2) => tag2.decks.length - tag1.decks.length).map(tag => tag.tagText)

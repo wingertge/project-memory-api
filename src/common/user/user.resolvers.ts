@@ -6,6 +6,7 @@ import Auth from "../auth/Auth"
 import AuthError, {ErrorType} from "../AuthError"
 import makeLogger from "../logging"
 import project from "../project"
+import {validateUser} from "../validators"
 import DBUser from "./user.model"
 
 const log = debug("api:topicResolvers:user")
@@ -47,6 +48,8 @@ const resolvers: Resolvers = {
             if (!user || user.id !== id)
                 throw new AuthenticationError("You don't have permission to edit that profile.")
 
+            validateUser(input)
+
             const extra: any = {}
 
             if((input.email || input.password)) {
@@ -80,6 +83,14 @@ const resolvers: Resolvers = {
             log(dbUser)
             return dbUser as any
         }
+    },
+    User: {
+        email: ({id, email}, _, {user}) => user.id === id ? email! : null,
+        gender: ({id, gender}, _, {user}) => user.id === id ? gender! : null,
+        identities: ({id, identities}, _, {user}) => user.id === id ? identities! : null,
+        locale: ({id, locale}, _, {user}) => user.id === id ? locale! : null,
+        isSocial: ({id, isSocial}, _, {user}) => user.id === id ? isSocial : false,
+        name: ({id, name}, _, {user}) => user.id === id ? name! : null
     }
 }
 

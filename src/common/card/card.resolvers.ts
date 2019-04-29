@@ -3,6 +3,7 @@ import {Resolvers} from "../../generated/graphql"
 import AuthError, {ErrorType} from "../AuthError"
 import DBDeck from "../deck/deck.model"
 import project from "../project"
+import {validateCard} from "../validators"
 import DBCard from "./card.model"
 import DBUser from "../user/user.model"
 import DBReview from "../review/review.model"
@@ -25,11 +26,13 @@ const resolvers: Resolvers = {
     Mutation: {
         createCard: async (_, {input}, {user}, info) => {
             await assertPermission(input.deck, user)
+            validateCard(input)
             await new DBCard({...input}).save()
             return await project(DBDeck, DBDeck.findById(input.deck), info) as any
         },
         editCard: async (_, {id, input}, {user}, info) => {
             log(id)
+            validateCard(input)
             if(!input.deck) {
                 const currentCard = await DBCard.findById(id).select("deck")
                 log(currentCard)

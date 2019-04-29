@@ -2,12 +2,15 @@ import debug from "debug"
 import {oc} from "ts-optchain"
 import {Resolvers} from "../../generated/graphql"
 import AuthError, {ErrorType} from "../AuthError"
+import DBLanguage from "../language/language.model"
+import {getTextLang} from "../language/textLanguage"
+import makeLogger from "../logging"
 import project from "../project"
 import DBUser from "../user/user.model"
+import {validateDeck} from "../validators"
 import DBDeck from "./deck.model"
 
-const log = debug("api:topicResolvers:deck")
-log.log = console.log.bind(console)
+const logger = makeLogger("resolvers.deck")
 
 const resolvers: Resolvers = {
     Query: {
@@ -19,25 +22,17 @@ const resolvers: Resolvers = {
         decks: async (_, {filter}, {user}, info) => {
             if(!user)
                 throw new AuthError(ErrorType.Unauthenticated)
+            filter = filter || {}
             const conditions: any = {}
-            if(oc(filter).languages())
-                conditions.language = {$in: filter!.languages}
-            if(oc(filter).search()) {
-                conditions.$or = [
-                    {meaning: {$regex: filter!.search, $options: "i"}},
-                    {pronunciation: {$regex: filter!.search, $options: "i"}},
-                    {translation: {$regex: filter!.search, $options: "i"}}
-                ]
-            }
-            if(oc(filter).cardContained()) {
-                conditions["cards.id"] = {$in: filter!.cardContained}
-            }
-            if(oc(filter).owner()) {
-                conditions.owner = filter!.owner
-            }
-            const decksQuery = DBDeck.find(conditions)
-                .limit(oc(filter).limit(Number.MAX_SAFE_INTEGER))
-                .sort({[oc(filter).sortBy("name") as string]: oc(filter).sortDirection("asc")})
+
+            if(filter.languages) conditions.language = {$in: filter.languages}
+            if(filter.nativeLanguage) conditions.nativeLanguage = filter.nativeLanguage
+            if(filter.search) conditions.$text = {$search: filter.search}
+            if(filter.owner) conditions.owner = filter.owner
+            if(filter.tags) conditions.tags = {$all: filter.tags}
+
+            let decksQuery = DBDeck.find(conditions).sort({[filter.sortBy || "name"]: filter.sortDirection || "asc"}).skip(filter.offset || 0)
+            if(filter.limit) decksQuery = decksQuery.limit(filter.limit)
 
             return await project(DBDeck, decksQuery, info) as any
         }
@@ -56,7 +51,7 @@ const resolvers: Resolvers = {
             if(!user || user.id !== userID) throw new AuthError(ErrorType.Unauthorized)
             const deck = await DBDeck.findById(id).select("owner")
             const currentDeck = await DBDeck.findOne({_id: id, "ratings.user": userID}).select("ratings.$")
-            log(currentDeck)
+            logger.debug(currentDeck)
             let change
             if(currentDeck) {
                 if(typeof value === "undefined")
@@ -68,14 +63,14 @@ const resolvers: Resolvers = {
             } else {
                 change = typeof value !== "undefined" ? value ? 1 : -1 : 0
             }
-            log(change)
+            logger.debug(change)
             if(typeof value === "undefined" || value === null) {
                 let dbDeck: any = await project(DBDeck, DBDeck.updateOne({_id: id, "ratings.user": userID}, {$pull: {ratings: {user: userID}}}, {new: true}), info)
                 if(currentDeck) {
                     dbDeck = await project(DBDeck, DBDeck.findByIdAndUpdate(id, {$inc: {rating: change}}, {new: true}), info)
                     await DBUser.findByIdAndUpdate(deck!.owner, {$inc: {totalRating: change}})
                 }
-                log(dbDeck)
+                logger.debug(dbDeck)
                 return dbDeck
             } else {
                 let dbDeck = await project(DBDeck, DBDeck.updateOne({_id: id, "ratings.user": {$ne: userID}}, {
@@ -93,25 +88,33 @@ const resolvers: Resolvers = {
                 dbDeck = await project(DBDeck, DBDeck.findByIdAndUpdate(id, {$inc: {rating: change}}, {new: true}), info)
                 await DBUser.findByIdAndUpdate(deck!.owner, {$inc: {totalRating: change}})
 
-                log(dbDeck)
+                logger.debug(dbDeck)
                 return dbDeck
             }
         },
         addDeck: async (_, {input}, {user}, info) => {
             const userId = oc(input).owner()
-            if(!user || user.id !== userId)
-                throw new AuthError(ErrorType.Unauthenticated)
-            const deck = await new DBDeck({...input}).save()
-            const dbUser = await project(DBUser, DBUser.findByIdAndUpdate(userId, {$push: {ownedDecks: deck._id}}, {new: true}), info) as any
-            log(dbUser)
-            return dbUser
+            if(!user || user.id !== userId) throw new AuthError(ErrorType.Unauthenticated)
+            validateDeck(input)
+            const nativeLang = await DBLanguage.findById(input.nativeLanguage).select("languageCode")
+            const deck = await new DBDeck({...input, nameLanguage: getTextLang(nativeLang!)}).save()
+            const result = await DBUser.updateOne({_id: userId, ownedDecksCount: {$lte: 50}}, {$push: {ownedDecks: deck._id}, $inc: {ownedDecksCount: 1}})
+            if(result.nModified === 0) throw new Error("You can't create more than 50 decks")
+            return await project(DBUser, DBUser.findById(userId), info) as any
         },
         async updateDeck(_, {id, input}, {user}, info) {
             if(!user) throw new AuthError(ErrorType.Unauthenticated)
+            validateDeck(input)
             return await project(DBDeck, DBDeck.findOneAndUpdate({
                 _id: id,
                 owner: user.id
             }, {name: input.name}, {new: true}), info).orFail(new AuthError(ErrorType.Unauthorized)) as any
+        },
+        deleteDeck: async (_, {id}, {user}, info) => {
+            if(!user) throw new AuthError(ErrorType.Unauthenticated)
+            const deck = await DBDeck.findOneAndDelete({_id: id, owner: user.id}).select("owner")
+            if(!deck) throw new AuthError(ErrorType.Unauthorized)
+            return await project(DBUser, DBUser.findByIdAndUpdate(deck.owner, {$pull: {ownedDecks: id}, $inc: {ownedDecksCount: -1}}, {new: true}), info) as any
         }
     },
     Deck: {
