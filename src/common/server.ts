@@ -1,4 +1,5 @@
-import {ApolloServer} from "apollo-server-express"
+import {HttpLink} from "apollo-link-http"
+import {ApolloServer, introspectSchema, makeRemoteExecutableSchema, mergeSchemas} from "apollo-server-express"
 import {GraphQLScalarType, Kind} from "graphql"
 import {makeExecutableSchema} from "graphql-tools"
 import jwt from "express-jwt"
@@ -20,6 +21,7 @@ import debug from "debug"
 import {Resolvers} from "../generated/graphql"
 //import DBLanguage from "./language/language.model"
 import "./language/language.model"
+import fetch from "node-fetch"
 
 
 const log = debug("api:server")
@@ -35,7 +37,7 @@ interface User {
     id: string
 }
 
-export const createApp = (rootSchema: string) => {
+export const createApp = async (rootSchema: string) => {
     mongoose.connect(
         process.env.MONGODB_URI || "",
         {
@@ -79,13 +81,30 @@ export const createApp = (rootSchema: string) => {
         })
     }
 
-    const schema = makeExecutableSchema({
+    const localSchema = makeExecutableSchema({
         typeDefs: [rootSchema],
         resolvers: [
             scalarResolvers, authResolvers, userResolvers,
             deckResolvers, languageResolvers, cardResolvers,
             reviewResolvers, postResolvers, tagResolvers
         ] as any
+    })
+
+    const cmsLink = new HttpLink({
+        uri: process.env.CMS_ENDPOINT_URL,
+        headers: {
+            authorization: `Bearer ${process.env.CMS_ACCESS_TOKEN}`
+        },
+        fetch
+    })
+    const cmsSchema = await introspectSchema(cmsLink)
+    const executableCmsSchema = makeRemoteExecutableSchema({schema: cmsSchema, link: cmsLink})
+
+    const schema = mergeSchemas({
+        schemas: [
+            executableCmsSchema,
+            localSchema
+        ]
     })
 
     const convertUser = (user: any): User => ({

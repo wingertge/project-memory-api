@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@google-cloud/logging-bunyan": "^0.10.1",
+    "apollo-link-http": "^1.5.14",
     "apollo-server": "^2.4.8",
     "apollo-server-express": "^2.4.8",
     "auth0": "^2.17.0",
@@ -40,6 +41,7 @@
     "jwks-rsa": "^1.4.0",
     "lodash": "^4.17.11",
     "mongoose": "^5.5.3",
+    "node-fetch": "^2.5.0",
     "serverless-google-cloudfunctions": "^2.3.2",
     "stringz": "^1.0.0",
     "ts-optchain": "^0.1.6",
