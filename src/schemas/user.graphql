@@ -8,7 +8,7 @@ type User {
     locale: String
     identities: [Identity!]
     isSocial: Boolean!
-    nativeLanguage: Language!
+    nativeLanguage: Language
     languages: [Language!]!
     ownedDecks: [Deck!]!
     subscribedDecks: [Deck!]!
