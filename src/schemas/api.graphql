@@ -10,8 +10,6 @@ schema {
     mutation: Mutation
 }
 
-scalar JSON
-
 type Query {
     users(filter: UserFilterInput): [User]
     user(id: ID!): User

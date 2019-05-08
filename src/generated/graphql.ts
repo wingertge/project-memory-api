@@ -23,7 +23,6 @@ export type Scalars = {
   RGBAHue: any;
   /** Custom scalar representing the transparency part of a rgba value. Value ranges from 0 - 1 */
   RGBATransparency: any;
-  JSON: any;
 };
 
 export type AdditionalEntityFields = {
@@ -529,8 +528,8 @@ export type DeckFilterInput = {
   readonly languages?: Maybe<ReadonlyArray<Scalars["ID"]>>;
   readonly nativeLanguage?: Maybe<Scalars["ID"]>;
   readonly tags?: Maybe<ReadonlyArray<Scalars["String"]>>;
-  readonly excludeOwnedBy?: Maybe<Scalars["ID"]>;
-  readonly excludeSubscribedBy?: Maybe<Scalars["ID"]>;
+  readonly excludeOwnedBy?: Maybe<ReadonlyArray<Scalars["ID"]>>;
+  readonly excludeSubscribedBy?: Maybe<ReadonlyArray<Scalars["ID"]>>;
 };
 
 export type DeckInput = {
@@ -2036,7 +2035,6 @@ export type ResolversTypes = {
   RGBATransparency: Scalars["RGBATransparency"];
   ColorInput: ColorInput;
   RGBAInput: RgbaInput;
-  JSON: Scalars["JSON"];
   Locale: Locale;
   LocationPreviousValues: LocationPreviousValues;
   LocationSubscriptionPayload: LocationSubscriptionPayload;
@@ -2331,11 +2329,6 @@ export type IdentityResolvers<
 export interface JsonScalarConfig
   extends GraphQLScalarTypeConfig<ResolversTypes["Json"], any> {
   name: "Json";
-}
-
-export interface JsonScalarConfig
-  extends GraphQLScalarTypeConfig<ResolversTypes["JSON"], any> {
-  name: "JSON";
 }
 
 export type LanguageResolvers<
@@ -3048,7 +3041,6 @@ export type Resolvers<ContextType = AppContext> = {
   HEX?: GraphQLScalarType;
   Identity?: IdentityResolvers<ContextType>;
   Json?: GraphQLScalarType;
-  JSON?: GraphQLScalarType;
   Language?: LanguageResolvers<ContextType>;
   Location?: LocationResolvers<ContextType>;
   LocationConnection?: LocationConnectionResolvers<ContextType>;
