@@ -35,6 +35,7 @@ type Identity {
 
 input UserFilterInput {
     limit: Int
+    search: String
 }
 
 input UserInput {

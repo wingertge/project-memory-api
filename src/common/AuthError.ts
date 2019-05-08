@@ -16,3 +16,4 @@ export default class AuthError extends Error {
         super(message)
     }
 }
+

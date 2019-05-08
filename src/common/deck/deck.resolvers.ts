@@ -1,4 +1,3 @@
-import debug from "debug"
 import {oc} from "ts-optchain"
 import {Resolvers} from "../../generated/graphql"
 import AuthError, {ErrorType} from "../AuthError"
@@ -30,6 +29,8 @@ const resolvers: Resolvers = {
             if(filter.search) conditions.$text = {$search: filter.search}
             if(filter.owner) conditions.owner = filter.owner
             if(filter.tags) conditions.tags = {$all: filter.tags}
+            if(filter.excludeOwnedBy) conditions.owner = {$nin: filter.excludeOwnedBy}
+            if(filter.excludeSubscribedBy) conditions.subscribers = {$nin: filter.excludeSubscribedBy}
 
             let decksQuery = DBDeck.find(conditions).sort({[filter.sortBy || "name"]: filter.sortDirection || "asc"}).skip(filter.offset || 0)
             if(filter.limit) decksQuery = decksQuery.limit(filter.limit)

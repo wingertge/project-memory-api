@@ -30,6 +30,20 @@ const resolvers: Resolvers = {
             }
             logger.debug(dbUser)
             return (dbUser || {id}) as User
+        },
+        users: async (_, {filter}, {user}, info) => {
+            if(!user) return []
+            filter = filter || {}
+            if(!filter.search && !filter.limit) return []
+            if(filter.search && filter.search.length < 3) return []
+
+            const find = filter.search ? {$or: [{username: new RegExp(filter.search, "i")}, {email: filter.search}]} : {}
+            const q = filter.limit ? DBUser.find(find).limit(filter.limit) : DBUser.find(find)
+
+            logger.debug("Starting user search")
+            const users = await project(DBUser, q, info) as any
+            logger.debug("Finished user search")
+            return users
         }
     },
     Mutation: {

@@ -23,6 +23,8 @@ input DeckFilterInput {
     languages: [ID!]
     nativeLanguage: ID
     tags: [String!]
+    excludeOwnedBy: [ID!]
+    excludeSubscribedBy: [ID!]
 }
 
 input SubscriberFilterInput {
