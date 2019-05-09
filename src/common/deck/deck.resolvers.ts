@@ -97,6 +97,8 @@ const resolvers: Resolvers = {
             const userId = oc(input).owner()
             if(!user || user.id !== userId) throw new AuthError(ErrorType.Unauthenticated)
             validateDeck(input)
+            const owner = DBUser.findOne({_id: userId, ownedDecksCount: {$lte: 50}})
+            if(!owner) throw new Error("Too many decks")
             const nativeLang = await DBLanguage.findById(input.nativeLanguage).select("languageCode")
             const deck = await new DBDeck({...input, nameLanguage: getTextLang(nativeLang!)}).save()
             const result = await DBUser.updateOne({_id: userId, ownedDecksCount: {$lte: 50}}, {$push: {ownedDecks: deck._id}, $inc: {ownedDecksCount: 1}})
