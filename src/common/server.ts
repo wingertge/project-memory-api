@@ -152,7 +152,7 @@ export const createApp = async (rootSchema: string) => {
         .disable("x-powered-by")
         .use(jwtCheck)
         .use(cookieParser(process.env.COOKIE_SIGNING_SECRET!))
-        .use(cors({origin: "*"}))
+        .use(cors({origin: "https://www.project-memory.org"}))
         .use((err, req, res, next) => {
             if(err.name === "UnauthorizedError") {
                 res.status(200).send(JSON.stringify({
