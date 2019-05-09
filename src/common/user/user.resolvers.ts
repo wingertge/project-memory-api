@@ -59,6 +59,7 @@ const resolvers: Resolvers = {
         },
         async editUser(_, {id, input}, {user}, info) {
             log(input)
+            logger.info(input)
             if (!user || user.id !== id)
                 throw new AuthenticationError("You don't have permission to edit that profile.")
 

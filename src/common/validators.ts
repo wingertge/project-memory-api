@@ -1,6 +1,9 @@
 import {length as unicodeLength} from "stringz"
 import validator from "validator"
 import {CardInput, DeckInput, PostInput, UserInput} from "../generated/graphql"
+import makeLogger from "./logging"
+
+const logger = makeLogger("validators")
 
 export const UNICODE_INVALID_CHARACTERS =
     /[\u200B-\u200D\uFEFF\u00A0\u1680​\u180e\u2000-\u2009\u200a\u202f\u205f\u3000\uDB40\uDC21\uFDFD\uD809\uDC2B\uD808\uDC31\uD80C\uDCF0\uDCF8\u0E01\u0E49\u0E2A\u0344\u036B\u030B\u0489\u031B\u0337\u0323\u0E47]/g
@@ -8,7 +11,7 @@ export const UNICODE_INVALID_CHARACTERS =
 const shorterThan = (length: number, str: string) => unicodeLength(str) < length
 const longerThan = (length: number, str: string) => unicodeLength(str) > length
 const isEmpty = (str: string) => validator.isEmpty(str)
-const hasInvalidCharacters = (str: string, invalidChars = UNICODE_INVALID_CHARACTERS) => !validator.matches(str, invalidChars)
+const hasInvalidCharacters = (str: string, invalidChars = UNICODE_INVALID_CHARACTERS) => validator.matches(str, invalidChars)
 const isEmail = (str: string) => validator.isEmail(str)
 
 class ValidationError extends Error {
@@ -18,6 +21,10 @@ class ValidationError extends Error {
 }
 
 const validateUsername = (username: string) => {
+    logger.debug(`isEmpty: ${isEmpty(username)}`)
+    logger.debug(`longerThan: ${longerThan(24, username)}`)
+    logger.debug(`shorterThan: ${shorterThan(3, username)}`)
+    logger.debug(`hasInvalidCharacters: ${hasInvalidCharacters(username)}`)
     if(isEmpty(username) ||
         longerThan(24, username) ||
         shorterThan(3, username) ||
