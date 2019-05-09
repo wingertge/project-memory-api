@@ -97,11 +97,11 @@ const resolvers: Resolvers = {
             const userId = oc(input).owner()
             if(!user || user.id !== userId) throw new AuthError(ErrorType.Unauthenticated)
             validateDeck(input)
-            const owner = DBUser.findOne({_id: userId, ownedDecksCount: {$lte: 50}})
+            const owner = DBUser.findOne({_id: userId, $or: [{ownedDecksCount: {$lte: 50}}, {ownedDecksCount: {$exists: false}}]})
             if(!owner) throw new Error("Too many decks")
             const nativeLang = await DBLanguage.findById(input.nativeLanguage).select("languageCode")
             const deck = await new DBDeck({...input, nameLanguage: getTextLang(nativeLang!)}).save()
-            const result = await DBUser.updateOne({_id: userId, ownedDecksCount: {$lte: 50}}, {$push: {ownedDecks: deck._id}, $inc: {ownedDecksCount: 1}})
+            const result = await DBUser.updateOne({_id: userId, $or: [{ownedDecksCount: {$lte: 50}}, {ownedDecksCount: {$exists: false}}]}, {$push: {ownedDecks: deck._id}, $inc: {ownedDecksCount: 1}})
             if(result.nModified === 0) throw new Error("You can't create more than 50 decks")
             return await project(DBUser, DBUser.findById(userId), info) as any
         },
