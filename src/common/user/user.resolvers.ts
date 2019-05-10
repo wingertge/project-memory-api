@@ -50,6 +50,7 @@ const resolvers: Resolvers = {
         changeFollowingStatus: async (_, {id, followID, value}, {user}, info) => {
             if(!user) throw new AuthError(ErrorType.Unauthenticated)
             if(user.id !== id) throw new AuthError(ErrorType.Unauthorized)
+            if(followID === id) throw new Error("You can't follow yourself silly.")
             if(value) {
                 await DBUser.updateOne({_id: id, following: {$ne: followID}}, {$push: {following: followID}})
             } else {
