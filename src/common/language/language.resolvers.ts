@@ -24,7 +24,7 @@ const resolvers: Resolvers = {
             if(!user || user.id !== id)
                 throw new AuthenticationError("You're not authorized to do that")
             log(input)
-            const dbUser = await project(DBUser, DBUser.findByIdAndUpdate(id, {$push: {languages: input}}, {new: true}), info) as any
+            const dbUser = await project(DBUser, DBUser.findOneAndUpdate({_id: id, languages: {$ne: input}}, {$push: {languages: input}}, {new: true}), info) as any
             logger.debug(dbUser)
             return dbUser
         },
