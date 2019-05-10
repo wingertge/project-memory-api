@@ -4,7 +4,7 @@ import PrettyStream from "bunyan-prettystream"
 
 export type LogLevel = "trace" | "debug" | "info" | "warn" | "error" | "fatal"
 
-const loggingBunyan = process.env.GCP_PROJECT && new LoggingBunyan()
+const loggingBunyan = process.env.IS_SERVERLESS && new LoggingBunyan()
 let prettyStdOut: PrettyStream | undefined
 if(!loggingBunyan) {
     prettyStdOut = new PrettyStream()

@@ -8,6 +8,7 @@ import express from "express"
 import cookieParser from "cookie-parser"
 import mongoose from "mongoose"
 import authResolvers from "./auth/auth.resolvers"
+import {cloudFunctionFix} from "./cloudFunctionFix"
 import makeLogger from "./logging"
 import postResolvers from "./post/post.resolvers"
 import tagResolvers from "./tag/tag.resolvers"
@@ -20,6 +21,7 @@ import cors from "cors"
 import debug from "debug"
 import {Resolvers} from "../generated/graphql"
 import cloudinary from "cloudinary"
+import {GraphQLUpload} from "graphql-upload"
 //import DBLanguage from "./language/language.model"
 import "./language/language.model"
 import fetch from "node-fetch"
@@ -79,7 +81,8 @@ export const createApp = async (rootSchema: string) => {
                 }
                 return null
             }
-        })
+        }),
+        Upload: GraphQLUpload
     }
 
     const localSchema = makeExecutableSchema({
@@ -170,6 +173,7 @@ export const createApp = async (rootSchema: string) => {
             }
             next()
         })
+        .use(cloudFunctionFix)
 
     server.applyMiddleware({app, path: "/", cors: false})
 
