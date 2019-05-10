@@ -8,6 +8,7 @@ import makeLogger from "../logging"
 import project from "../project"
 import {validateUser} from "../validators"
 import DBUser from "./user.model"
+import {v2 as cloudinary} from "cloudinary"
 
 const log = debug("api:topicResolvers:user")
 log.log = console.log.bind(console)
@@ -98,6 +99,38 @@ const resolvers: Resolvers = {
 
             log(dbUser)
             return dbUser as any
+        },
+        uploadProfilePicture: async (_, {userId, file}, {user}, info) => {
+            if(!user) throw new AuthError(ErrorType.Unauthenticated)
+            if(user.id !== userId) throw new AuthError(ErrorType.Unauthorized)
+
+            const {createReadStream, mimetype} = await file
+            if(!mimetype.startsWith("image/")) throw new Error("Invalid Mime Type")
+
+            try {
+                const image = await new Promise<{public_id: string, format: string}>(accept => {
+                    const uploadStream = cloudinary.uploader.upload_stream({
+                        crop: "fill", width: 256, height: 256,
+                        format: "png", gravity: "face"
+                    }, (error, result) => {
+                        if(error) throw new Error(JSON.stringify(error, null, 2))
+                        accept(result)
+                    })
+                    createReadStream().pipe(uploadStream)
+                })
+                const {public_id, format} = image
+                const baseUrl = process.env.CLOUDINARY_BASE_URL!
+                const newPictureUrl = `${baseUrl}${public_id}.${format}`
+                const user = await DBUser.findById(userId).select("picture")
+                if(user!.picture.startsWith(baseUrl)) {
+                    let publicId = user!.picture.replace(baseUrl, "")
+                    publicId = publicId.substring(0, publicId.lastIndexOf("."))
+                    cloudinary.uploader.destroy(publicId)
+                }
+                return await project(DBUser, DBUser.findByIdAndUpdate(userId, {picture: newPictureUrl}, {new: true}), info) as any
+            } catch (e) {
+                throw new Error(e)
+            }
         }
     },
     User: {

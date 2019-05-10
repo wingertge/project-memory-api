@@ -17,6 +17,7 @@ export type Scalars = {
    * Long can represent values between -(2^63) and 2^63 - 1.
    */
   Long: any;
+  Upload: any;
   /** Custom scalar representing the hex color code value */
   HEX: any;
   /** Custom scalar representing the hue part of a rgba value. Value ranges from 0 - 255 */
@@ -803,6 +804,7 @@ export type Mutation = {
   readonly editUser?: Maybe<User>;
   readonly deleteUser?: Maybe<User>;
   readonly changeFollowingStatus?: Maybe<User>;
+  readonly uploadProfilePicture?: Maybe<User>;
   readonly addLanguageToUser?: Maybe<User>;
   readonly removeLanguageFromUser?: Maybe<User>;
   readonly createCard?: Maybe<Deck>;
@@ -902,6 +904,11 @@ export type MutationChangeFollowingStatusArgs = {
   id: Scalars["ID"];
   followID: Scalars["ID"];
   value: Scalars["Boolean"];
+};
+
+export type MutationUploadProfilePictureArgs = {
+  userId: Scalars["ID"];
+  file: Scalars["Upload"];
 };
 
 export type MutationAddLanguageToUserArgs = {
@@ -1004,7 +1011,7 @@ export type Page = Node & {
   readonly slug: Scalars["String"];
   readonly intro?: Maybe<RichText>;
   readonly main?: Maybe<RichText>;
-  readonly blurbs?: Maybe<RichText>;
+  readonly blurbs: ReadonlyArray<RichText>;
   readonly outro?: Maybe<RichText>;
 };
 
@@ -1017,6 +1024,10 @@ export type PageConnection = {
   readonly aggregate: AggregatePage;
 };
 
+export type PageCreateblurbsInput = {
+  readonly set?: Maybe<ReadonlyArray<Scalars["RichTextAST"]>>;
+};
+
 export type PageCreateInput = {
   readonly status?: Maybe<Status>;
   readonly header?: Maybe<Scalars["String"]>;
@@ -1025,8 +1036,8 @@ export type PageCreateInput = {
   readonly slug: Scalars["String"];
   readonly intro?: Maybe<Scalars["RichTextAST"]>;
   readonly main?: Maybe<Scalars["RichTextAST"]>;
-  readonly blurbs?: Maybe<Scalars["RichTextAST"]>;
   readonly outro?: Maybe<Scalars["RichTextAST"]>;
+  readonly blurbs?: Maybe<PageCreateblurbsInput>;
   readonly mainImage?: Maybe<AssetCreateOneWithoutMainImagePageInput>;
 };
 
@@ -1043,8 +1054,8 @@ export type PageCreateWithoutMainImageInput = {
   readonly slug: Scalars["String"];
   readonly intro?: Maybe<Scalars["Json"]>;
   readonly main?: Maybe<Scalars["Json"]>;
-  readonly blurbs?: Maybe<Scalars["Json"]>;
   readonly outro?: Maybe<Scalars["Json"]>;
+  readonly blurbs?: Maybe<PageCreateblurbsInput>;
 };
 
 /** An edge in a connection. */
@@ -1088,8 +1099,6 @@ export type PageOrderByInput =
   | "intro_DESC"
   | "main_ASC"
   | "main_DESC"
-  | "blurbs_ASC"
-  | "blurbs_DESC"
   | "outro_ASC"
   | "outro_DESC";
 
@@ -1104,7 +1113,7 @@ export type PagePreviousValues = {
   readonly slug: Scalars["String"];
   readonly intro?: Maybe<RichText>;
   readonly main?: Maybe<RichText>;
-  readonly blurbs?: Maybe<RichText>;
+  readonly blurbs: ReadonlyArray<RichText>;
   readonly outro?: Maybe<RichText>;
 };
 
@@ -1318,6 +1327,10 @@ export type PageSubscriptionWhereInput = {
   readonly node?: Maybe<PageWhereInput>;
 };
 
+export type PageUpdateblurbsInput = {
+  readonly set?: Maybe<ReadonlyArray<Scalars["RichTextAST"]>>;
+};
+
 export type PageUpdateInput = {
   readonly status?: Maybe<Status>;
   readonly header?: Maybe<Scalars["String"]>;
@@ -1326,8 +1339,8 @@ export type PageUpdateInput = {
   readonly slug?: Maybe<Scalars["String"]>;
   readonly intro?: Maybe<Scalars["RichTextAST"]>;
   readonly main?: Maybe<Scalars["RichTextAST"]>;
-  readonly blurbs?: Maybe<Scalars["RichTextAST"]>;
   readonly outro?: Maybe<Scalars["RichTextAST"]>;
+  readonly blurbs?: Maybe<PageUpdateblurbsInput>;
   readonly mainImage?: Maybe<AssetUpdateOneWithoutMainImagePageInput>;
 };
 
@@ -1339,8 +1352,8 @@ export type PageUpdateManyDataInput = {
   readonly slug?: Maybe<Scalars["String"]>;
   readonly intro?: Maybe<Scalars["Json"]>;
   readonly main?: Maybe<Scalars["Json"]>;
-  readonly blurbs?: Maybe<Scalars["Json"]>;
   readonly outro?: Maybe<Scalars["Json"]>;
+  readonly blurbs?: Maybe<PageUpdateblurbsInput>;
 };
 
 export type PageUpdateManyMutationInput = {
@@ -1351,8 +1364,8 @@ export type PageUpdateManyMutationInput = {
   readonly slug?: Maybe<Scalars["String"]>;
   readonly intro?: Maybe<Scalars["RichTextAST"]>;
   readonly main?: Maybe<Scalars["RichTextAST"]>;
-  readonly blurbs?: Maybe<Scalars["RichTextAST"]>;
   readonly outro?: Maybe<Scalars["RichTextAST"]>;
+  readonly blurbs?: Maybe<PageUpdateblurbsInput>;
 };
 
 export type PageUpdateManyWithoutMainImageInput = {
@@ -1386,8 +1399,8 @@ export type PageUpdateWithoutMainImageDataInput = {
   readonly slug?: Maybe<Scalars["String"]>;
   readonly intro?: Maybe<Scalars["Json"]>;
   readonly main?: Maybe<Scalars["Json"]>;
-  readonly blurbs?: Maybe<Scalars["Json"]>;
   readonly outro?: Maybe<Scalars["Json"]>;
+  readonly blurbs?: Maybe<PageUpdateblurbsInput>;
 };
 
 export type PageUpdateWithWhereUniqueWithoutMainImageInput = {
@@ -1809,7 +1822,7 @@ export type User = {
   readonly locale?: Maybe<Scalars["String"]>;
   readonly identities?: Maybe<ReadonlyArray<Identity>>;
   readonly isSocial: Scalars["Boolean"];
-  readonly nativeLanguage: Language;
+  readonly nativeLanguage?: Maybe<Language>;
   readonly languages: ReadonlyArray<Language>;
   readonly ownedDecks: ReadonlyArray<Deck>;
   readonly subscribedDecks: ReadonlyArray<Deck>;
@@ -2000,6 +2013,7 @@ export type ResolversTypes = {
   PageCreateManyWithoutMainImageInput: PageCreateManyWithoutMainImageInput;
   PageCreateWithoutMainImageInput: PageCreateWithoutMainImageInput;
   Json: Scalars["Json"];
+  PageCreateblurbsInput: PageCreateblurbsInput;
   PageCreateInput: PageCreateInput;
   AssetCreateOneWithoutMainImagePageInput: AssetCreateOneWithoutMainImagePageInput;
   AssetCreateWithoutMainImagePageInput: AssetCreateWithoutMainImagePageInput;
@@ -2007,6 +2021,7 @@ export type ResolversTypes = {
   PageUpdateManyWithoutMainImageInput: PageUpdateManyWithoutMainImageInput;
   PageUpdateWithWhereUniqueWithoutMainImageInput: PageUpdateWithWhereUniqueWithoutMainImageInput;
   PageUpdateWithoutMainImageDataInput: PageUpdateWithoutMainImageDataInput;
+  PageUpdateblurbsInput: PageUpdateblurbsInput;
   PageUpdateManyWithWhereNestedInput: PageUpdateManyWithWhereNestedInput;
   PageScalarWhereInput: PageScalarWhereInput;
   PageUpdateManyDataInput: PageUpdateManyDataInput;
@@ -2021,6 +2036,7 @@ export type ResolversTypes = {
   PageUpdateManyMutationInput: PageUpdateManyMutationInput;
   AuthResult: AuthResult;
   UserInput: UserInput;
+  Upload: Scalars["Upload"];
   CardInput: CardInput;
   PostInput: PostInput;
   DeckInput: DeckInput;
@@ -2532,6 +2548,12 @@ export type MutationResolvers<
     ContextType,
     MutationChangeFollowingStatusArgs
   >;
+  uploadProfilePicture?: Resolver<
+    Maybe<ResolversTypes["User"]>,
+    ParentType,
+    ContextType,
+    MutationUploadProfilePictureArgs
+  >;
   addLanguageToUser?: Resolver<
     Maybe<ResolversTypes["User"]>,
     ParentType,
@@ -2665,7 +2687,11 @@ export type PageResolvers<
   slug?: Resolver<ResolversTypes["String"], ParentType, ContextType>;
   intro?: Resolver<Maybe<ResolversTypes["RichText"]>, ParentType, ContextType>;
   main?: Resolver<Maybe<ResolversTypes["RichText"]>, ParentType, ContextType>;
-  blurbs?: Resolver<Maybe<ResolversTypes["RichText"]>, ParentType, ContextType>;
+  blurbs?: Resolver<
+    ReadonlyArray<ResolversTypes["RichText"]>,
+    ParentType,
+    ContextType
+  >;
   outro?: Resolver<Maybe<ResolversTypes["RichText"]>, ParentType, ContextType>;
 };
 
@@ -2738,7 +2764,11 @@ export type PagePreviousValuesResolvers<
   slug?: Resolver<ResolversTypes["String"], ParentType, ContextType>;
   intro?: Resolver<Maybe<ResolversTypes["RichText"]>, ParentType, ContextType>;
   main?: Resolver<Maybe<ResolversTypes["RichText"]>, ParentType, ContextType>;
-  blurbs?: Resolver<Maybe<ResolversTypes["RichText"]>, ParentType, ContextType>;
+  blurbs?: Resolver<
+    ReadonlyArray<ResolversTypes["RichText"]>,
+    ParentType,
+    ContextType
+  >;
   outro?: Resolver<Maybe<ResolversTypes["RichText"]>, ParentType, ContextType>;
 };
 
@@ -2945,6 +2975,11 @@ export interface RichTextAstScalarConfig
   name: "RichTextAST";
 }
 
+export interface UploadScalarConfig
+  extends GraphQLScalarTypeConfig<ResolversTypes["Upload"], any> {
+  name: "Upload";
+}
+
 export type UserResolvers<
   ContextType = AppContext,
   ParentType = ResolversTypes["User"]
@@ -2963,7 +2998,7 @@ export type UserResolvers<
   >;
   isSocial?: Resolver<ResolversTypes["Boolean"], ParentType, ContextType>;
   nativeLanguage?: Resolver<
-    ResolversTypes["Language"],
+    Maybe<ResolversTypes["Language"]>,
     ParentType,
     ContextType
   >;
@@ -3066,6 +3101,7 @@ export type Resolvers<ContextType = AppContext> = {
   RGBATransparency?: GraphQLScalarType;
   RichText?: RichTextResolvers<ContextType>;
   RichTextAST?: GraphQLScalarType;
+  Upload?: GraphQLScalarType;
   User?: UserResolvers<ContextType>;
 };
 

@@ -19,6 +19,7 @@ import reviewResolvers from "./review/review.resolvers"
 import cors from "cors"
 import debug from "debug"
 import {Resolvers} from "../generated/graphql"
+import cloudinary from "cloudinary"
 //import DBLanguage from "./language/language.model"
 import "./language/language.model"
 import fetch from "node-fetch"
@@ -109,6 +110,12 @@ export const createApp = async (rootSchema: string) => {
 
     const convertUser = (user: any): User => ({
         id: user["https://project-memory.com/id"]
+    })
+
+    cloudinary.config({
+        cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+        api_key: process.env.CLOUDINARY_API_KEY,
+        api_secret: process.env.CLOUDINARY_API_SECRET
     })
 
     const server = new ApolloServer({

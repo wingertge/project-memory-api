@@ -10,6 +10,8 @@ schema {
     mutation: Mutation
 }
 
+scalar Upload
+
 type Query {
     users(filter: UserFilterInput): [User]
     user(id: ID!): User
@@ -32,6 +34,7 @@ type Mutation {
     editUser(id: ID!, input: UserInput!): User
     deleteUser(id: ID!): User
     changeFollowingStatus(id: ID!, followID: ID!, value: Boolean!): User
+    uploadProfilePicture(userId: ID!, file: Upload!): User
 
     addLanguageToUser(id: ID!, input: ID!): User
     removeLanguageFromUser(id: ID!, language: ID!): User
