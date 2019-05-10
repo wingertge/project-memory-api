@@ -1,10 +1,12 @@
 import {oc} from "ts-optchain"
 import {Resolvers} from "../../generated/graphql"
 import AuthError, {ErrorType} from "../AuthError"
+import DBCard from "../card/card.model"
 import DBLanguage from "../language/language.model"
 import {getTextLang} from "../language/textLanguage"
 import makeLogger from "../logging"
 import project from "../project"
+import DBReview from "../review/review.model"
 import DBUser from "../user/user.model"
 import {validateDeck} from "../validators"
 import DBDeck from "./deck.model"
@@ -118,6 +120,8 @@ const resolvers: Resolvers = {
             const deck = await DBDeck.findOne({_id: id, owner: user.id}).select("owner")
             if(!deck) throw new AuthError(ErrorType.Unauthorized)
             await DBDeck.remove({_id: id, owner: user.id})
+            await DBCard.remove({deck: id}).exec()
+            await DBReview.remove({deck: id}).exec()
             return await project(DBUser, DBUser.findByIdAndUpdate(deck.owner, {$pull: {ownedDecks: id}, $inc: {ownedDecksCount: -1}}, {new: true}), info) as any
         }
     },

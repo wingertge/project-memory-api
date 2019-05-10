@@ -54,4 +54,5 @@ schema.pre("save", function(this: DbCard, next) {
 schema.index("deck")
 schema.index({meaning: "text", pronunciation: "text", translation: "text"})
 
-export default model<DbCard>("Card", schema)
+export const DBCard = model<DbCard>("Card", schema)
+export default DBCard
