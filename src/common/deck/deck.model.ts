@@ -2,6 +2,7 @@ import {model, Schema, Document} from "mongoose"
 import {Deck} from "../../generated/graphql"
 import Card, {DbCard} from "../card/card.model"
 import {DbLanguage} from "../language/language.model"
+import DBReview from "../review/review.model"
 import {DbUser} from "../user/user.model"
 import ObjectId = Schema.Types.ObjectId
 
@@ -81,6 +82,7 @@ const schema = new Schema({
 
 schema.pre("remove", function(this: DbDeck, next) {
     Card.remove({deck: this._id}).exec()
+    DBReview.remove({deck: this._id}).exec()
     next()
 })
 

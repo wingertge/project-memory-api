@@ -32,17 +32,19 @@ schema.pre("remove", function(this: DbCard, next) {
 
 schema.pre("save", function(this: DbCard, next) {
     console.log(this)
-    Deck.findByIdAndUpdate(this.deck, {$push: {cards: this._id}, $inc: {cardCount: 1}}).select("subscribers owner").then(dbDeck => {
+    Deck.findByIdAndUpdate(this.deck, {$push: {cards: this._id}, $inc: {cardCount: 1}}).select("_id subscribers owner").then(dbDeck => {
         console.log(dbDeck)
         const reviews = (dbDeck!.subscribers! as string[]).map(sub => new Review({
             card: this._id,
             box: 0,
-            user: sub
+            user: sub,
+            deck: dbDeck!.id
         }))
         reviews.push(new Review({
             card: this._id,
             box: 0,
-            user: dbDeck!.owner
+            user: dbDeck!.owner,
+            deck: dbDeck!.id
         }))
         Review.insertMany(reviews)
     })

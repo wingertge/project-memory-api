@@ -33,6 +33,10 @@ const schema = new Schema({
     correct: {
         type: Boolean,
         default: true
+    },
+    deck: {
+        type: ObjectId,
+        ref: "Deck"
     }
 })
 
@@ -48,4 +52,6 @@ schema.pre<DbReview>("remove", function(this: DbReview, next) {
 
 schema.index("user")
 
-export default model<DbReview>("Review", schema)
+export const DBReview = model<DbReview>("Review", schema)
+
+export default DBReview

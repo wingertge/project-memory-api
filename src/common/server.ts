@@ -150,9 +150,9 @@ export const createApp = async (rootSchema: string) => {
     const app = express()
     app
         .disable("x-powered-by")
+        .use(cors({origin: true, credentials: true}))
         .use(jwtCheck)
         .use(cookieParser(process.env.COOKIE_SIGNING_SECRET!))
-        .use(cors({origin: "https://www.project-memory.org"}))
         .use((err, req, res, next) => {
             if(err.name === "UnauthorizedError") {
                 res.status(200).send(JSON.stringify({
@@ -164,7 +164,7 @@ export const createApp = async (rootSchema: string) => {
             next()
         })
 
-    server.applyMiddleware({app, path: "/", cors: true})
+    server.applyMiddleware({app, path: "/", cors: false})
 
     return {app, server}
 }

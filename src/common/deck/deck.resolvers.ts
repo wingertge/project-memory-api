@@ -115,8 +115,9 @@ const resolvers: Resolvers = {
         },
         deleteDeck: async (_, {id}, {user}, info) => {
             if(!user) throw new AuthError(ErrorType.Unauthenticated)
-            const deck = await DBDeck.findOneAndDelete({_id: id, owner: user.id}).select("owner")
+            const deck = await DBDeck.findOne({_id: id, owner: user.id}).select("owner")
             if(!deck) throw new AuthError(ErrorType.Unauthorized)
+            await DBDeck.remove({_id: id, owner: user.id})
             return await project(DBUser, DBUser.findByIdAndUpdate(deck.owner, {$pull: {ownedDecks: id}, $inc: {ownedDecksCount: -1}}, {new: true}), info) as any
         }
     },
