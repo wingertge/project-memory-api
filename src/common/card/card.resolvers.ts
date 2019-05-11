@@ -3,7 +3,7 @@ import {Resolvers} from "../../generated/graphql"
 import AuthError, {ErrorType} from "../AuthError"
 import DBDeck from "../deck/deck.model"
 import project from "../project"
-import {validateCard} from "../validators"
+import {escapeRegExp, validateCard} from "../validators"
 import DBCard from "./card.model"
 import DBUser from "../user/user.model"
 import DBReview from "../review/review.model"
@@ -58,12 +58,15 @@ const resolvers: Resolvers = {
         cards: async ({id}, {filter}, _, info) => {
             filter = filter || {}
             const condition: any = {deck: id}
-            if(filter.search) condition.$or = [
-                //{$text: {$search: filter.search}},
-                {meaning: new RegExp(filter.search, "i")},
-                {pronunciation: new RegExp(filter.search, "i")},
-                {translation: new RegExp(filter.search, "i")}
-            ]
+            if(filter.search) {
+                const search = escapeRegExp(filter.search)
+                condition.$or = [
+                    //{$text: {$search: filter.search}},
+                    {meaning: new RegExp(search, "i")},
+                    {pronunciation: new RegExp(search, "i")},
+                    {translation: new RegExp(search, "i")}
+                ]
+            }
             let query = DBCard.find(condition)
             query = project(DBCard, query, info)!
             if(filter.limit) query = query.limit(filter.limit)

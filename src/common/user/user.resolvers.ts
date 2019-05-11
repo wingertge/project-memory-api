@@ -6,7 +6,7 @@ import Auth from "../auth/Auth"
 import AuthError, {ErrorType} from "../AuthError"
 import makeLogger from "../logging"
 import project from "../project"
-import {validateUser} from "../validators"
+import {escapeRegExp, validateUser} from "../validators"
 import DBUser from "./user.model"
 import {v2 as cloudinary} from "cloudinary"
 
@@ -38,7 +38,7 @@ const resolvers: Resolvers = {
             if(!filter.search && !filter.limit) return []
             if(filter.search && filter.search.length < 3) return []
 
-            const find = filter.search ? {$or: [{username: new RegExp(filter.search, "i")}, {email: filter.search}]} : {}
+            const find = filter.search ? {$or: [{username: new RegExp(escapeRegExp(filter.search), "i")}, {email: filter.search}]} : {}
             const q = filter.limit ? DBUser.find(find).limit(filter.limit) : DBUser.find(find)
 
             logger.debug("Starting user search")
