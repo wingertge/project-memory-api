@@ -10,6 +10,8 @@ export interface DbPost extends Document {
     by: string | DbUser
     content?: string
     originalPost?: string | DbPost
+    likeCount: number
+    likes: string[] | DbUser[]
 }
 
 const schema = new Schema({
@@ -31,7 +33,16 @@ const schema = new Schema({
         type: ObjectId,
         ref: "Post",
         required: false
-    }
+    },
+    likeCount: {
+        type: Number,
+        required: true,
+        default: 0
+    },
+    likes: [{
+        type: ObjectId,
+        ref: "User"
+    }]
 })
 
 export const DBPost = model<DbPost>("Post", schema)

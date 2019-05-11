@@ -45,9 +45,10 @@ type Mutation {
 
     submitReview(id: ID!, correct: Boolean!, field: ReviewFields!): Review
 
-    createPost(input: PostInput!, filter: PostFilterInput): [Post]
+    createPost(input: PostInput!, filter: PostFilterInput): [Post!]
     editPost(id: ID!, input: PostInput!): Post
-    deletePost(id: ID!, filter: PostFilterInput): [Post]
+    deletePost(id: ID!, filter: PostFilterInput): [Post!]
+    changePostLikeStatus(id: ID!, userID: ID!, value: Boolean!): Post
 
     # Deck
     addDeck(input: DeckInput!): User

@@ -1,6 +1,7 @@
 import Maybe from "graphql/tsutils/Maybe"
 import {PostFilterInput, Resolvers} from "../../generated/graphql"
 import AuthError, {ErrorType} from "../AuthError"
+import makeLogger from "../logging"
 import project from "../project"
 import {validatePost} from "../validators"
 import DBPost from "./post.model"
@@ -15,6 +16,9 @@ const filteredQuery = (userId: string, filter: Maybe<PostFilterInput>) => {
     return q
 
 }
+
+const logger = makeLogger("post.resolvers")
+
 export const postResolvers: Resolvers = {
     User: {
         feed: async ({id}, {filter}, {user}, info) => {
@@ -48,6 +52,23 @@ export const postResolvers: Resolvers = {
             if(!post) throw new AuthError(ErrorType.Unauthorized)
             await DBPost.findByIdAndDelete(id)
             return await project(DBPost, filteredQuery(user.id, filter), info) as any
+        },
+        changePostLikeStatus: async (_, {id, userID, value}, {user}, info) => {
+            if(!user) throw new AuthError(ErrorType.Unauthenticated)
+            if(user.id !== userID) throw new AuthError(ErrorType.Unauthorized)
+            logger.debug(value)
+            if(value) {
+                const result = await DBPost.updateOne({_id: id, likes: {$ne: userID}}, {$inc: {likeCount: 1}, $push: {likes: userID}})
+                logger.debug(result)
+            } else
+                await DBPost.updateOne({_id: id, likes: userID}, {$inc: {likeCount: -1}, $pull: {likes: userID}})
+            return await project(DBPost, DBPost.findById(id), info) as any
+        }
+    },
+    Post: {
+        isLikedBy: async ({id}, {userID}) => {
+            const posts = await DBPost.find({_id: id, likes: userID}).select("likeCount")
+            return posts.length > 0
         }
     }
 }

@@ -17,6 +17,7 @@ export type Scalars = {
    * Long can represent values between -(2^63) and 2^63 - 1.
    */
   Long: any;
+  /** The `Upload` scalar type represents a file upload. */
   Upload: any;
   /** Custom scalar representing the hex color code value */
   HEX: any;
@@ -811,9 +812,10 @@ export type Mutation = {
   readonly editCard?: Maybe<Card>;
   readonly deleteCards?: Maybe<Deck>;
   readonly submitReview?: Maybe<Review>;
-  readonly createPost?: Maybe<ReadonlyArray<Maybe<Post>>>;
+  readonly createPost?: Maybe<ReadonlyArray<Post>>;
   readonly editPost?: Maybe<Post>;
-  readonly deletePost?: Maybe<ReadonlyArray<Maybe<Post>>>;
+  readonly deletePost?: Maybe<ReadonlyArray<Post>>;
+  readonly changePostLikeStatus?: Maybe<Post>;
   readonly addDeck?: Maybe<User>;
   readonly updateDeck?: Maybe<Deck>;
   readonly deleteDeck: User;
@@ -954,6 +956,12 @@ export type MutationEditPostArgs = {
 export type MutationDeletePostArgs = {
   id: Scalars["ID"];
   filter?: Maybe<PostFilterInput>;
+};
+
+export type MutationChangePostLikeStatusArgs = {
+  id: Scalars["ID"];
+  userID: Scalars["ID"];
+  value: Scalars["Boolean"];
 };
 
 export type MutationAddDeckArgs = {
@@ -1608,6 +1616,12 @@ export type Post = {
   readonly by: User;
   readonly content?: Maybe<Scalars["String"]>;
   readonly originalPost?: Maybe<Post>;
+  readonly likeCount: Scalars["Int"];
+  readonly isLikedBy: Scalars["Boolean"];
+};
+
+export type PostIsLikedByArgs = {
+  userID: Scalars["ID"];
 };
 
 export type PostFilterInput = {
@@ -1778,7 +1792,7 @@ export type ReviewFilterInput = {
   readonly boxes?: Maybe<ReadonlyArray<Maybe<Scalars["Int"]>>>;
 };
 
-export type ReviewSortOptions = "reviewDate" | "box";
+export type ReviewSortOptions = "nextReviewAt" | "box";
 
 /** Representing a RGBA color value: https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#rgb()_and_rgba() */
 export type Rgba = {
@@ -2591,7 +2605,7 @@ export type MutationResolvers<
     MutationSubmitReviewArgs
   >;
   createPost?: Resolver<
-    Maybe<ReadonlyArray<Maybe<ResolversTypes["Post"]>>>,
+    Maybe<ReadonlyArray<ResolversTypes["Post"]>>,
     ParentType,
     ContextType,
     MutationCreatePostArgs
@@ -2603,10 +2617,16 @@ export type MutationResolvers<
     MutationEditPostArgs
   >;
   deletePost?: Resolver<
-    Maybe<ReadonlyArray<Maybe<ResolversTypes["Post"]>>>,
+    Maybe<ReadonlyArray<ResolversTypes["Post"]>>,
     ParentType,
     ContextType,
     MutationDeletePostArgs
+  >;
+  changePostLikeStatus?: Resolver<
+    Maybe<ResolversTypes["Post"]>,
+    ParentType,
+    ContextType,
+    MutationChangePostLikeStatusArgs
   >;
   addDeck?: Resolver<
     Maybe<ResolversTypes["User"]>,
@@ -2803,6 +2823,13 @@ export type PostResolvers<
     Maybe<ResolversTypes["Post"]>,
     ParentType,
     ContextType
+  >;
+  likeCount?: Resolver<ResolversTypes["Int"], ParentType, ContextType>;
+  isLikedBy?: Resolver<
+    ResolversTypes["Boolean"],
+    ParentType,
+    ContextType,
+    PostIsLikedByArgs
   >;
 };
 

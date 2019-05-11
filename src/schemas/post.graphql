@@ -5,6 +5,8 @@ type Post {
     by: User!
     content: String
     originalPost: Post
+    likeCount: Int!
+    isLikedBy(userID: ID!): Boolean!
 }
 
 input PostFilterInput {
