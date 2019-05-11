@@ -25,7 +25,7 @@ enum ReviewFields {
 }
 
 enum ReviewSortOptions {
-    reviewDate
+    nextReviewAt
     box
 }
 
