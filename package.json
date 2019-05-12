@@ -18,7 +18,7 @@
   "dependencies": {
     "@google-cloud/logging-bunyan": "^0.10.1",
     "apollo-link-http": "^1.5.14",
-    "apollo-server": "^2.4.8",
+    "apollo-server": "^2.5.0",
     "apollo-server-express": "^2.4.8",
     "auth0": "^2.17.0",
     "buffer-to-stream": "^1.0.0",
