@@ -51,6 +51,7 @@ export const postResolvers: Resolvers = {
             const post = await DBPost.findOne({_id: id, by: user.id}).select("by")
             if(!post) throw new AuthError(ErrorType.Unauthorized)
             await DBPost.findByIdAndDelete(id)
+            await DBPost.deleteMany({originalPost: id})
             return await project(DBPost, filteredQuery(user.id, filter), info) as any
         },
         changePostLikeStatus: async (_, {id, userID, value}, {user}, info) => {
