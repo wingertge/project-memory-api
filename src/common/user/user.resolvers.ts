@@ -1,4 +1,5 @@
 import {AuthenticationError} from "apollo-server"
+import {v2 as cloudinary} from "cloudinary"
 import debug from "debug"
 import {fieldsMap} from "graphql-fields-list"
 import {Resolvers, User} from "../../generated/graphql"
@@ -8,7 +9,6 @@ import makeLogger from "../logging"
 import project from "../project"
 import {escapeRegExp, validateUser} from "../validators"
 import DBUser from "./user.model"
-import {v2 as cloudinary} from "cloudinary"
 
 const log = debug("api:topicResolvers:user")
 log.log = console.log.bind(console)
@@ -48,14 +48,14 @@ const resolvers: Resolvers = {
         }
     },
     Mutation: {
-        changeFollowingStatus: async (_, {id, followID, value}, {user}, info) => {
+        changeFollowingStatus: async (_, {id, followerID, value}, {user}, info) => {
             if(!user) throw new AuthError(ErrorType.Unauthenticated)
-            if(user.id !== id) throw new AuthError(ErrorType.Unauthorized)
-            if(followID === id) throw new Error("You can't follow yourself silly.")
+            if(user.id !== followerID) throw new AuthError(ErrorType.Unauthorized)
+            if(followerID === id) throw new Error("You can't follow yourself silly.")
             if(value) {
-                await DBUser.updateOne({_id: id, following: {$ne: followID}}, {$push: {following: followID}})
+                await DBUser.updateOne({_id: followerID, following: {$ne: id}}, {$push: {following: id}})
             } else {
-                await DBUser.updateOne({_id: id}, {$pull: {following: followID}})
+                await DBUser.updateOne({_id: followerID}, {$pull: {following: id}})
             }
             return await project(DBUser, DBUser.findById(id), info) as any
         },
@@ -139,7 +139,14 @@ const resolvers: Resolvers = {
         identities: ({id, identities}, _, {user}) => user.id === id ? identities! : null,
         locale: ({id, locale}, _, {user}) => user.id === id ? locale! : null,
         isSocial: ({id, isSocial}, _, {user}) => user.id === id ? isSocial : false,
-        name: ({id, name}, _, {user}) => user.id === id ? name! : null
+        name: ({id, name}, _, {user}) => user.id === id ? name! : null,
+        isFollowedBy: async ({id}, {id: followerID}, {user}) => {
+            if(!user) throw new AuthError(ErrorType.Unauthenticated)
+            if(user.id !== followerID) throw new AuthError(ErrorType.Unauthorized)
+
+            const result = await DBUser.find({_id: followerID, following: id}).select("_id")
+            return result.length > 0
+        }
     }
 }
 

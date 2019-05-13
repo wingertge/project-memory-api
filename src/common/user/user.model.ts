@@ -103,4 +103,5 @@ userSchema.pre("remove", function(this: DbUser, next) {
     next()
 })
 
-export default model<DbUser>("User", userSchema)
+export const DBUser = model<DbUser>("User", userSchema)
+export default DBUser

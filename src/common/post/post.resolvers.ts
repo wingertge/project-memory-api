@@ -3,6 +3,7 @@ import {PostFilterInput, Resolvers} from "../../generated/graphql"
 import AuthError, {ErrorType} from "../AuthError"
 import makeLogger from "../logging"
 import project from "../project"
+import DBUser from "../user/user.model"
 import {validatePost} from "../validators"
 import DBPost from "./post.model"
 
@@ -24,6 +25,23 @@ export const postResolvers: Resolvers = {
         feed: async ({id}, {filter}, {user}, info) => {
             if(!user) throw new AuthError(ErrorType.Unauthenticated)
             return await project(DBPost, filteredQuery(id, filter), info) as any
+        },
+        subscriptionFeed: async ({id}, {filter}, {user}, info) => {
+            if(!user) throw new AuthError(ErrorType.Unauthenticated)
+            if(user.id !== id) throw new AuthError(ErrorType.Unauthorized)
+
+            filter = filter || {}
+
+            const dbUser = await DBUser.findById(id).select("following")
+            const following = dbUser!.following as string[]
+
+            const find: any = {by: {$in: following}}
+            if(filter.type) find.type = filter.type
+            let q = DBPost.find(find).sort({[filter.sortBy || "createdAt"]: filter.sortDirection || "desc"})
+            if(filter.limit) q = q.limit(filter.limit)
+            if(filter.offset) q = q.skip(filter.offset)
+
+            return await project(DBPost, q, info) as any
         }
     },
     Mutation: {

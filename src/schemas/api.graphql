@@ -33,7 +33,7 @@ type Mutation {
     #User
     editUser(id: ID!, input: UserInput!): User
     deleteUser(id: ID!): User
-    changeFollowingStatus(id: ID!, followID: ID!, value: Boolean!): User
+    changeFollowingStatus(id: ID!, followerID: ID!, value: Boolean!): User
     uploadProfilePicture(userId: ID!, file: Upload!): User
 
     addLanguageToUser(id: ID!, input: ID!): User

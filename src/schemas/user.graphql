@@ -20,10 +20,12 @@ type User {
     totalRating: Int!
     totalSubscribers: Int!
     badges: [String]!
+    isFollowedBy(id: ID!): Boolean!
 
     introStep: Int
 
     feed(filter: PostFilterInput): [Post]
+    subscriptionFeed(filter: PostFilterInput): [Post]
 }
 
 type Identity {
