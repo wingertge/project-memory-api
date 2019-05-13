@@ -28,11 +28,11 @@ const resolvers: Resolvers = {
     User: {
         nextReview: async ({id}, _, a, info) => {
             //for now, just take the oldest review
-            const review = await project(DBReview, DBReview.find({user: id, nextReviewAt: {$lt: new Date()}}).sort({nextReviewAt: 1}).limit(1), info)
+            const review = await project(DBReview, DBReview.find({user: id, archived: false, nextReviewAt: {$lt: new Date()}}).sort({nextReviewAt: 1}).limit(1), info)
             return review.length > 0 ? review[0] as any : null
         },
         reviewQueue: async ({id}, {filter}, _, info) => {
-            const conditions: any = {user: id}
+            const conditions: any = {user: id, archived: false}
             filter = filter || {}
             if(filter.deck) conditions.deck = filter.deck
             if(filter.toBeReviewedBy) conditions.nextReviewAt = {$lt: filter.toBeReviewedBy}
@@ -49,7 +49,7 @@ const resolvers: Resolvers = {
             return result as any
         },
         reviewsCount: async ({id}, {filter}) => {
-            const conditions: any = {user: id}
+            const conditions: any = {user: id, archived: false}
             filter = filter || {}
             if(filter.deck) conditions.deck = filter.deck
             if(filter.toBeReviewedBy) conditions.nextReviewAt = {$lt: filter.toBeReviewedBy}
@@ -59,7 +59,7 @@ const resolvers: Resolvers = {
             return await DBReview.countDocuments(conditions)
         },
         lessonQueue: async ({id}, {filter}, _, info) => {
-            const conditions: any = {user: id, box: 0}
+            const conditions: any = {user: id, box: 0, archived: false}
             filter = filter || {}
             if(filter.deck) conditions.deck = filter.deck
             let query = project(DBReview, DBReview.find(conditions), info)
@@ -69,7 +69,7 @@ const resolvers: Resolvers = {
             log(reviews)
             return reviews as any
         },
-        lessonsCount: async ({id}) => await DBReview.countDocuments({user: id, box: 0})
+        lessonsCount: async ({id}) => await DBReview.countDocuments({user: id, box: 0, archived: false})
     },
     Mutation: {
         submitReview: async (_, {id, field, correct}, {user}, info) => {

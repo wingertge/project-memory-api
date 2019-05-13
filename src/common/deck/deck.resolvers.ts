@@ -46,8 +46,27 @@ const resolvers: Resolvers = {
                 throw new AuthError(ErrorType.Unauthorized)
             const userUpdate = value ? {$push: {subscribedDecks: deckID}} : {$pull: {subscribedDecks: deckID}}
             const deckUpdate = value ? {$push: {subscribers: id}, $inc: {subscriberCount: 1}} : {$pull: {subscribers: id}, $inc: {subscriberCount: -1}}
-            const deck = await DBDeck.findByIdAndUpdate(deckID, deckUpdate).select("owner")
+            const deck = await DBDeck.findByIdAndUpdate(deckID, deckUpdate).select("owner cards")
             await DBUser.findByIdAndUpdate(deck!.owner, {$inc: {totalSubscribers: value ? 1 : -1}})
+            if(value) {
+                await DBReview.updateMany(
+                    {user: id, deck: deckID},
+                    {archived: false}
+                )
+                const existing = await DBReview.find({user: id, deck: deckID}).select("card")
+                const reviews = (deck!.cards as string[])
+                    .filter(cardId => !existing.some(existing => existing.card.toString() === cardId.toString()))
+                    .map(cardId => new DBReview({
+                        box: 0,
+                        card: cardId,
+                        user: id,
+                        deck: deckID
+                    }))
+                await DBReview.insertMany(reviews)
+            } else {
+                await DBReview.updateMany({user: id, deck: deckID}, {archived: true})
+            }
+
             return await project(DBUser, DBUser.findByIdAndUpdate(id, userUpdate, {new: true}), info) as any
         },
         changeLikeStatus: async (_, {id, userID, value}, {user}, info) => {

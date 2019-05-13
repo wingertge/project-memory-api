@@ -12,6 +12,7 @@ export interface DbReview extends Document {
     user: string | DbUser
     reviewedFields: ReviewFields[]
     correct: boolean
+    archived: boolean
 }
 
 const schema = new Schema({
@@ -37,6 +38,11 @@ const schema = new Schema({
     deck: {
         type: ObjectId,
         ref: "Deck"
+    },
+    archived: {
+        type: Boolean,
+        required: true,
+        default: false
     }
 })
 
