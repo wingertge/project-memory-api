@@ -1,0 +1,70 @@
+type IssueReply {
+    id: ID!
+    content: String!
+    by: User!
+    postedAt: Date!
+}
+
+type Issue {
+    id: ID!
+    title: String!
+    content: String!
+    replies(select: IssueReplySelectInput): [IssueReply!]!
+    replyCount: Int!
+    by: User!
+    postedAt: Date!
+    lastActivity: Date!
+}
+
+input IssueReplySelectInput {
+    limit: Int
+    offset: Int
+    filter: IssueReplyFilterInput
+    sort: IssueReplySortInput
+}
+
+input IssueReplySortInput {
+    sortDirection: SortDirection
+    sortBy: IssueReplySortBy
+}
+
+enum IssueReplySortBy {
+    postedAt
+}
+
+input IssueReplyFilterInput {
+    by: ID
+    postedAt: DateComparator
+}
+
+input IssueInput {
+    title: String
+    content: String
+}
+
+input IssueFilterInput {
+    title: String
+    textSearch: String
+    replyCount: NumberComparator
+    by: ID
+    postedAt: DateComparator
+    lastActivity: DateComparator
+}
+
+enum IssueSortBy {
+    replyCount
+    postedAt
+    lastActivity
+}
+
+input IssueSortingInput {
+    sortDirection: SortDirection
+    sortBy: IssueSortBy
+}
+
+input IssueSelectInput {
+    filter: IssueFilterInput
+    limit: Int
+    offset: Int
+    sort: IssueSortingInput
+}

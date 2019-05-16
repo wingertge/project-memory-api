@@ -95,5 +95,20 @@ export default projector({
             mappingType: DBMappingType.Reference,
             ref: "Post"
         }
+    },
+    Issue: {
+        by: {
+            mappingType: DBMappingType.Reference,
+            ref: "User"
+        },
+        replies: {
+            mappingType: DBMappingType.Ignore
+        }
+    },
+    IssueReply: {
+        by: {
+            mappingType: DBMappingType.Reference,
+            ref: "User"
+        }
     }
 })

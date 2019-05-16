@@ -1,6 +1,6 @@
 import {length as unicodeLength} from "stringz"
 import validator from "validator"
-import {CardInput, DeckInput, PostInput, UserInput} from "../generated/graphql"
+import {CardInput, DeckInput, IssueInput, PostInput, UserInput} from "../generated/graphql"
 
 //const logger = makeLogger("validators")
 export const escapeRegExp = (str: string) => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") // $& means the whole matched string
@@ -69,9 +69,22 @@ export const validateDeck = (input: DeckInput) => {
 }
 
 const validateContent = (content: string) => {
-    if(longerThan(4000, content)) throw new ValidationError()
+    if(isEmpty(content) || longerThan(4000, content)) throw new ValidationError()
 }
 
 export const validatePost = (input: PostInput) => {
     if(input.content) validateContent(input.content)
+}
+
+const validateIssueTitle = (title: string) => {
+    if(isEmpty(title) || longerThan(300, title)) throw new ValidationError()
+}
+
+const validateIssueContent = (content: string) => {
+    if(isEmpty(content) || longerThan(5000, content)) throw new ValidationError()
+}
+
+export const validateIssue = ({title, content}: IssueInput) => {
+    if(title) validateIssueTitle(title)
+    if(content) validateIssueContent(content)
 }

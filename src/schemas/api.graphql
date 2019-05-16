@@ -4,6 +4,7 @@
 # import * from "./deck.graphql"
 # import Review, ReviewInput, ReviewFilterInput from "./review.graphql"
 # import Post, PostFilterInput, PostInput from "./post.graphql"
+# import Issue, IssueSelectInput, IssueInput from "./issue.graphql"
 
 schema {
     query: Query
@@ -24,6 +25,11 @@ type Query {
     tags(search: String!, limit: Int, offset: Int): [String!]!
 
     review(id: ID!): Review
+
+    # Issue
+    issue(id: ID): Issue
+    issues(limit: Int, offset: Int, filter: IssueFilterInput, sort: IssueSortingInput): [Issue!]!
+    issuesCount(filter: IssueFilterInput): Int!
 }
 
 type Mutation {
@@ -58,6 +64,14 @@ type Mutation {
     changeLikeStatus(id: ID!, userID: ID!, value: Boolean): Deck
     addTagToDeck(id: ID!, tag: String!): Deck
     removeTagFromDeck(id: ID!, tag: String!): Deck
+
+    # Issue
+    createIssue(input: IssueInput!): Issue
+    editIssue(id: ID!, input: IssueInput!): Issue
+    deleteIssue(id: ID!): Issue
+    replyToIssue(id: ID!, content: String!): Issue
+    editIssueReply(id: ID!, content: String!): Issue
+    deleteIssueReply(id: ID!): Issue
 }
 
 enum SortDirection {
@@ -66,3 +80,19 @@ enum SortDirection {
 }
 
 scalar Date
+
+input NumberComparator {
+    gt: Int
+    lt: Int
+    eq: Int
+    gte: Int
+    lte: Int
+}
+
+input DateComparator {
+    gt: Date
+    lt: Date
+    eq: Date
+    gte: Date
+    lte: Date
+}

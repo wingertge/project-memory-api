@@ -5,6 +5,7 @@
 #import "./post.graphql"
 #import "./review.graphql"
 #import "./user.graphql"
+#import "./issue.graphql"
 
 extend type Query {
     test: String

@@ -556,6 +556,14 @@ export type ColorInput = {
   readonly rgba?: Maybe<RgbaInput>;
 };
 
+export type DateComparator = {
+  readonly gt?: Maybe<Scalars["Date"]>;
+  readonly lt?: Maybe<Scalars["Date"]>;
+  readonly eq?: Maybe<Scalars["Date"]>;
+  readonly gte?: Maybe<Scalars["Date"]>;
+  readonly lte?: Maybe<Scalars["Date"]>;
+};
+
 export type Deck = {
   readonly id: Scalars["ID"];
   readonly name: Scalars["String"];
@@ -1277,6 +1285,68 @@ export type ImageTransformationInput = {
   readonly resize?: Maybe<ImageResizeInput>;
 };
 
+export type Issue = {
+  readonly id: Scalars["ID"];
+  readonly title: Scalars["String"];
+  readonly content: Scalars["String"];
+  readonly replies: ReadonlyArray<IssueReply>;
+  readonly replyCount: Scalars["Int"];
+  readonly by: User;
+  readonly postedAt: Scalars["Date"];
+  readonly lastActivity: Scalars["Date"];
+};
+
+export type IssueRepliesArgs = {
+  select?: Maybe<IssueReplySelectInput>;
+};
+
+export type IssueFilterInput = {
+  readonly title?: Maybe<Scalars["String"]>;
+  readonly textSearch?: Maybe<Scalars["String"]>;
+  readonly replyCount?: Maybe<NumberComparator>;
+  readonly by?: Maybe<Scalars["ID"]>;
+  readonly postedAt?: Maybe<DateComparator>;
+  readonly lastActivity?: Maybe<DateComparator>;
+};
+
+export type IssueInput = {
+  readonly title?: Maybe<Scalars["String"]>;
+  readonly content?: Maybe<Scalars["String"]>;
+};
+
+export type IssueReply = {
+  readonly id: Scalars["ID"];
+  readonly content: Scalars["String"];
+  readonly by: User;
+  readonly postedAt: Scalars["Date"];
+};
+
+export type IssueReplyFilterInput = {
+  readonly by?: Maybe<Scalars["ID"]>;
+  readonly postedAt?: Maybe<DateComparator>;
+};
+
+export type IssueReplySelectInput = {
+  readonly limit?: Maybe<Scalars["Int"]>;
+  readonly offset?: Maybe<Scalars["Int"]>;
+  readonly filter?: Maybe<IssueReplyFilterInput>;
+  readonly sort?: Maybe<IssueReplySortInput>;
+};
+
+export type IssueReplySortBy = "postedAt";
+
+export type IssueReplySortInput = {
+  readonly sortDirection?: Maybe<SortDirection>;
+  readonly sortBy?: Maybe<IssueReplySortBy>;
+};
+
+export type IssueSortBy = "replyCount" | "postedAt" | "lastActivity";
+
+export type IssueSortingInput = {
+  readonly sortDirection?: Maybe<SortDirection>;
+  readonly sortBy?: Maybe<IssueSortBy>;
+};
+
 export type Language = {
   readonly id: Scalars["ID"];
   readonly name: Scalars["String"];
@@ -1470,6 +1540,12 @@ export type Mutation = {
   readonly changeLikeStatus?: Maybe<Deck>;
   readonly addTagToDeck?: Maybe<Deck>;
   readonly removeTagFromDeck?: Maybe<Deck>;
+  readonly createIssue?: Maybe<Issue>;
+  readonly editIssue?: Maybe<Issue>;
+  readonly deleteIssue?: Maybe<Issue>;
+  readonly replyToIssue?: Maybe<Issue>;
+  readonly editIssueReply?: Maybe<Issue>;
+  readonly deleteIssueReply?: Maybe<Issue>;
 };
 
 export type MutationCreateAssetArgs = {
@@ -1674,12 +1750,47 @@ export type MutationRemoveTagFromDeckArgs = {
   tag: Scalars["String"];
 };
 
+export type MutationCreateIssueArgs = {
+  input: IssueInput;
+};
+
+export type MutationEditIssueArgs = {
+  id: Scalars["ID"];
+  input: IssueInput;
+};
+
+export type MutationDeleteIssueArgs = {
+  id: Scalars["ID"];
+};
+
+export type MutationReplyToIssueArgs = {
+  id: Scalars["ID"];
+  content: Scalars["String"];
+};
+
+export type MutationEditIssueReplyArgs = {
+  id: Scalars["ID"];
+  content: Scalars["String"];
+};
+
+export type MutationDeleteIssueReplyArgs = {
+  id: Scalars["ID"];
+};
+
 export type MutationType = "CREATED" | "UPDATED" | "DELETED";
 
 /** An object with an ID */
 export type Node = {
   /** The id of the object. */
   readonly id: Scalars["ID"];
+};
+
+export type NumberComparator = {
+  readonly gt?: Maybe<Scalars["Int"]>;
+  readonly lt?: Maybe<Scalars["Int"]>;
+  readonly eq?: Maybe<Scalars["Int"]>;
+  readonly gte?: Maybe<Scalars["Int"]>;
+  readonly lte?: Maybe<Scalars["Int"]>;
 };
 
 export type Page = Node & {
@@ -2340,6 +2451,9 @@ export type Query = {
   readonly deck?: Maybe<Deck>;
   readonly tags: ReadonlyArray<Scalars["String"]>;
   readonly review?: Maybe<Review>;
+  readonly issue?: Maybe<Issue>;
+  readonly issues: ReadonlyArray<Issue>;
+  readonly issuesCount: Scalars["Int"];
 };
 
 export type QueryAssetsArgs = {
@@ -2470,6 +2584,21 @@ export type QueryTagsArgs = {
 
 export type QueryReviewArgs = {
   id: Scalars["ID"];
+};
+
+export type QueryIssueArgs = {
+  id?: Maybe<Scalars["ID"]>;
+};
+
+export type QueryIssuesArgs = {
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  filter?: Maybe<IssueFilterInput>;
+  sort?: Maybe<IssueSortingInput>;
+};
+
+export type QueryIssuesCountArgs = {
+  filter?: Maybe<IssueFilterInput>;
 };
 
 export type Review = {
@@ -2742,6 +2871,17 @@ export type ResolversTypes = {
   Post: Post;
   DeckFilterInput: DeckFilterInput;
   DeckSortBy: DeckSortBy;
+  Issue: Issue;
+  IssueReplySelectInput: IssueReplySelectInput;
+  IssueReplyFilterInput: IssueReplyFilterInput;
+  DateComparator: DateComparator;
+  IssueReplySortInput: IssueReplySortInput;
+  IssueReplySortBy: IssueReplySortBy;
+  IssueReply: IssueReply;
+  IssueFilterInput: IssueFilterInput;
+  NumberComparator: NumberComparator;
+  IssueSortingInput: IssueSortingInput;
+  IssueSortBy: IssueSortBy;
   Mutation: {};
   AssetCreateInput: AssetCreateInput;
   PageCreateManyWithoutMainImageInput: PageCreateManyWithoutMainImageInput;
@@ -2795,6 +2935,7 @@ export type ResolversTypes = {
   CardInput: CardInput;
   PostInput: PostInput;
   DeckInput: DeckInput;
+  IssueInput: IssueInput;
   AssetPreviousValues: AssetPreviousValues;
   AssetSubscriptionPayload: AssetSubscriptionPayload;
   MutationType: MutationType;
@@ -3229,6 +3370,35 @@ export type IdentityResolvers<
   isSocial?: Resolver<ResolversTypes["Boolean"], ParentType, ContextType>;
 };
 
+export type IssueResolvers<
+  ContextType = AppContext,
+  ParentType = ResolversTypes["Issue"]
+> = {
+  id?: Resolver<ResolversTypes["ID"], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes["String"], ParentType, ContextType>;
+  content?: Resolver<ResolversTypes["String"], ParentType, ContextType>;
+  replies?: Resolver<
+    ReadonlyArray<ResolversTypes["IssueReply"]>,
+    ParentType,
+    ContextType,
+    IssueRepliesArgs
+  >;
+  replyCount?: Resolver<ResolversTypes["Int"], ParentType, ContextType>;
+  by?: Resolver<ResolversTypes["User"], ParentType, ContextType>;
+  postedAt?: Resolver<ResolversTypes["Date"], ParentType, ContextType>;
+  lastActivity?: Resolver<ResolversTypes["Date"], ParentType, ContextType>;
+};
+
+export type IssueReplyResolvers<
+  ContextType = AppContext,
+  ParentType = ResolversTypes["IssueReply"]
+> = {
+  id?: Resolver<ResolversTypes["ID"], ParentType, ContextType>;
+  content?: Resolver<ResolversTypes["String"], ParentType, ContextType>;
+  by?: Resolver<ResolversTypes["User"], ParentType, ContextType>;
+  postedAt?: Resolver<ResolversTypes["Date"], ParentType, ContextType>;
+};
+
 export interface JsonScalarConfig
   extends GraphQLScalarTypeConfig<ResolversTypes["Json"], any> {
   name: "Json";
@@ -3579,6 +3749,42 @@ export type MutationResolvers<
     ContextType,
     MutationRemoveTagFromDeckArgs
   >;
+  createIssue?: Resolver<
+    Maybe<ResolversTypes["Issue"]>,
+    ParentType,
+    ContextType,
+    MutationCreateIssueArgs
+  >;
+  editIssue?: Resolver<
+    Maybe<ResolversTypes["Issue"]>,
+    ParentType,
+    ContextType,
+    MutationEditIssueArgs
+  >;
+  deleteIssue?: Resolver<
+    Maybe<ResolversTypes["Issue"]>,
+    ParentType,
+    ContextType,
+    MutationDeleteIssueArgs
+  >;
+  replyToIssue?: Resolver<
+    Maybe<ResolversTypes["Issue"]>,
+    ParentType,
+    ContextType,
+    MutationReplyToIssueArgs
+  >;
+  editIssueReply?: Resolver<
+    Maybe<ResolversTypes["Issue"]>,
+    ParentType,
+    ContextType,
+    MutationEditIssueReplyArgs
+  >;
+  deleteIssueReply?: Resolver<
+    Maybe<ResolversTypes["Issue"]>,
+    ParentType,
+    ContextType,
+    MutationDeleteIssueReplyArgs
+  >;
 };
 
 export type NodeResolvers<
@@ -3871,6 +4077,24 @@ export type QueryResolvers<
     ContextType,
     QueryReviewArgs
   >;
+  issue?: Resolver<
+    Maybe<ResolversTypes["Issue"]>,
+    ParentType,
+    ContextType,
+    QueryIssueArgs
+  >;
+  issues?: Resolver<
+    ReadonlyArray<ResolversTypes["Issue"]>,
+    ParentType,
+    ContextType,
+    QueryIssuesArgs
+  >;
+  issuesCount?: Resolver<
+    ResolversTypes["Int"],
+    ParentType,
+    ContextType,
+    QueryIssuesCountArgs
+  >;
 };
 
 export type ReviewResolvers<
@@ -4049,6 +4273,8 @@ export type Resolvers<ContextType = AppContext> = {
   >;
   HEX?: GraphQLScalarType;
   Identity?: IdentityResolvers<ContextType>;
+  Issue?: IssueResolvers<ContextType>;
+  IssueReply?: IssueReplyResolvers<ContextType>;
   Json?: GraphQLScalarType;
   Language?: LanguageResolvers<ContextType>;
   Location?: LocationResolvers<ContextType>;
