@@ -1,3 +1,4 @@
+import {Types} from "mongoose"
 import {oc} from "ts-optchain"
 import {Resolvers} from "../../generated/graphql"
 import AuthError, {ErrorType} from "../AuthError"
@@ -10,6 +11,7 @@ import DBReview from "../review/review.model"
 import DBUser from "../user/user.model"
 import {validateDeck} from "../validators"
 import DBDeck from "./deck.model"
+import ObjectId = Types.ObjectId
 
 const logger = makeLogger("resolvers.deck")
 
@@ -118,10 +120,29 @@ const resolvers: Resolvers = {
             const userId = oc(input).owner()
             if(!user || user.id !== userId) throw new AuthError(ErrorType.Unauthenticated)
             validateDeck(input)
-            const owner = DBUser.findOne({_id: userId, $or: [{ownedDecksCount: {$lte: 50}}, {ownedDecksCount: {$exists: false}}]})
+            const owner = await DBUser.findOne({_id: userId, $or: [{ownedDecksCount: {$lte: 50}}, {ownedDecksCount: {$exists: false}}]}).select("_id")
             if(!owner) throw new Error("Too many decks")
             const nativeLang = await DBLanguage.findById(input.nativeLanguage).select("languageCode")
-            const deck = await new DBDeck({...input, nameLanguage: getTextLang(nativeLang!)}).save()
+            let cardCount = 0
+            const deckId = ObjectId()
+            if(input.cards && input.cards.length > 0) {
+                const newCards = input.cards.map(card => new DBCard({
+                    _id: ObjectId(),
+                    deck: deckId,
+                    ...card
+                }))
+                const cardIds = newCards.map(card => card._id)
+                cardCount = cardIds.length
+                await DBCard.insertMany(newCards)
+                const reviews = cardIds.map(id => new DBReview({
+                    card: id,
+                    box: 0,
+                    user: owner.id,
+                    deck: deckId
+                }))
+                DBReview.insertMany(reviews)
+            }
+            const deck = await new DBDeck({...input, nameLanguage: getTextLang(nativeLang!), _id: deckId, cardCount}).save()
             const result = await DBUser.updateOne({_id: userId, $or: [{ownedDecksCount: {$lte: 50}}, {ownedDecksCount: {$exists: false}}]}, {$push: {ownedDecks: deck._id}, $inc: {ownedDecksCount: 1}})
             if(result.nModified === 0) throw new Error("You can't create more than 50 decks")
             return await project(DBUser, DBUser.findById(userId), info) as any

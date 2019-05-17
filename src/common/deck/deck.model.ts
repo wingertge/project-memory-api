@@ -39,11 +39,6 @@ const schema = new Schema({
         ref: "Language",
         required: true
     },
-    cards: [{
-        type: ObjectId,
-        ref: "Card",
-        required: true
-    }],
     cardCount: {
         type: Number,
         required: true,

@@ -66,6 +66,7 @@ const validateDeckName = (name: string) => {
 
 export const validateDeck = (input: DeckInput) => {
     if(input.name) validateDeckName(input.name)
+    if(input.cards) input.cards.forEach(validateCard as any)
 }
 
 const validateContent = (content: string) => {
