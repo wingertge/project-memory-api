@@ -17,7 +17,6 @@ export type Scalars = {
    * Long can represent values between -(2^63) and 2^63 - 1.
    */
   Long: any;
-  /** The `Upload` scalar type represents a file upload. */
   Upload: any;
   /** Custom scalar representing the hex color code value */
   HEX: any;
@@ -1533,6 +1532,7 @@ export type Mutation = {
   readonly editPost?: Maybe<Post>;
   readonly deletePost?: Maybe<ReadonlyArray<Post>>;
   readonly changePostLikeStatus?: Maybe<Post>;
+  readonly addReportToPost?: Maybe<Post>;
   readonly addDeck?: Maybe<User>;
   readonly updateDeck?: Maybe<Deck>;
   readonly deleteDeck: User;
@@ -1713,6 +1713,13 @@ export type MutationChangePostLikeStatusArgs = {
   id: Scalars["ID"];
   userID: Scalars["ID"];
   value: Scalars["Boolean"];
+};
+
+export type MutationAddReportToPostArgs = {
+  id: Scalars["ID"];
+  reportedBy: Scalars["ID"];
+  reason: ReportReason;
+  message?: Maybe<Scalars["String"]>;
 };
 
 export type MutationAddDeckArgs = {
@@ -2404,9 +2411,14 @@ export type Post = {
   readonly originalPost?: Maybe<Post>;
   readonly likeCount: Scalars["Int"];
   readonly isLikedBy: Scalars["Boolean"];
+  readonly isReportedBy: Scalars["Boolean"];
 };
 
 export type PostIsLikedByArgs = {
+  userID: Scalars["ID"];
+};
+
+export type PostIsReportedByArgs = {
   userID: Scalars["ID"];
 };
 
@@ -2600,6 +2612,8 @@ export type QueryIssuesArgs = {
 export type QueryIssuesCountArgs = {
   filter?: Maybe<IssueFilterInput>;
 };
+
+export type ReportReason = "inappropriate" | "copyright";
 
 export type Review = {
   readonly id: Scalars["ID"];
@@ -2934,6 +2948,7 @@ export type ResolversTypes = {
   Upload: Scalars["Upload"];
   CardInput: CardInput;
   PostInput: PostInput;
+  ReportReason: ReportReason;
   DeckInput: DeckInput;
   IssueInput: IssueInput;
   AssetPreviousValues: AssetPreviousValues;
@@ -3707,6 +3722,12 @@ export type MutationResolvers<
     ContextType,
     MutationChangePostLikeStatusArgs
   >;
+  addReportToPost?: Resolver<
+    Maybe<ResolversTypes["Post"]>,
+    ParentType,
+    ContextType,
+    MutationAddReportToPostArgs
+  >;
   addDeck?: Resolver<
     Maybe<ResolversTypes["User"]>,
     ParentType,
@@ -3945,6 +3966,12 @@ export type PostResolvers<
     ParentType,
     ContextType,
     PostIsLikedByArgs
+  >;
+  isReportedBy?: Resolver<
+    ResolversTypes["Boolean"],
+    ParentType,
+    ContextType,
+    PostIsReportedByArgs
   >;
 };
 

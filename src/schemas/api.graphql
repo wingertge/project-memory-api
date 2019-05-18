@@ -33,6 +33,7 @@ type Query {
 }
 
 type Mutation {
+    # Auth
     authenticate(code: ID!): AuthResult
     logout: Boolean
 
@@ -42,19 +43,24 @@ type Mutation {
     changeFollowingStatus(id: ID!, followerID: ID!, value: Boolean!): User
     uploadProfilePicture(userId: ID!, file: Upload!): User
 
+    # Language
     addLanguageToUser(id: ID!, input: ID!): User
     removeLanguageFromUser(id: ID!, language: ID!): User
 
+    # Card
     createCard(input: CardInput!): Deck
     editCard(id: ID!, input: CardInput!): Card
     deleteCards(deck: ID!, ids: [ID]!): Deck
 
+    # Review
     submitReview(id: ID!, correct: Boolean!, field: ReviewFields!): Review
 
+    # Post
     createPost(input: PostInput!, filter: PostFilterInput): [Post!]
     editPost(id: ID!, input: PostInput!): Post
     deletePost(id: ID!, filter: PostFilterInput): [Post!]
     changePostLikeStatus(id: ID!, userID: ID!, value: Boolean!): Post
+    addReportToPost(id: ID!, reportedBy: ID!, reason: ReportReason!, message: String): Post
 
     # Deck
     addDeck(input: DeckInput!): User

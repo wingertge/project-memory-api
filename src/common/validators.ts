@@ -89,3 +89,7 @@ export const validateIssue = ({title, content}: IssueInput) => {
     if(title) validateIssueTitle(title)
     if(content) validateIssueContent(content)
 }
+
+export const validateReport = (message: string = "") => {
+    if(longerThan(5000, message)) throw new ValidationError()
+}

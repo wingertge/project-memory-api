@@ -42,6 +42,18 @@ const schema = new Schema({
     likes: [{
         type: ObjectId,
         ref: "User"
+    }],
+    reports: [{
+        by: {
+            type: ObjectId,
+            ref: "User",
+            required: true
+        },
+        reason: {
+            type: String,
+            required: true
+        },
+        message: String
     }]
 })
 
