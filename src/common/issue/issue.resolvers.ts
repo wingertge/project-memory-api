@@ -56,6 +56,13 @@ export const issueResolvers: Resolvers = {
             if(!user) throw new AuthError(ErrorType.Unauthenticated)
             validateIssue(input)
             const {title, content} = input
+            const duplicates = await DBIssue.find({
+                by: user.id,
+                title,
+                content,
+                postedAt: {$gt: new Date(new Date().getTime() - 10000)}
+            }).select("by")
+            if(duplicates.length > 0) return null
             const issue = await new DBIssue({
                 title,
                 content,
@@ -81,6 +88,13 @@ export const issueResolvers: Resolvers = {
         },
         replyToIssue: async (_, {id, content}, {user}, info) => {
             if(!user) throw new AuthError(ErrorType.Unauthenticated)
+            const duplicates = await DBIssueReply.find({
+                content,
+                by: user.id,
+                postedAt: {$gt: new Date(new Date().getTime() - 10000)},
+                issue: id
+            })
+            if(duplicates.length > 0) return await project(DBIssue, DBIssue.findById(id), info)
             const reply = await new DBIssueReply({
                 content,
                 by: user.id,

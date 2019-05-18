@@ -49,13 +49,21 @@ export const postResolvers: Resolvers = {
             if(!user) throw new AuthError(ErrorType.Unauthenticated)
             validatePost(input)
             if(!input.originalPost && (!input.content || input.content.trim().length === 0)) throw new Error("Message can't be empty")
-            await new DBPost({
-                createdAt: new Date(),
-                type: input.type,
+            const duplicates = await DBPost.find({
                 by: user.id,
-                content: input.content,
-                originalPost: input.originalPost
-            }).save()
+                $or: [{content: input.content}, {originalPost: input.originalPost}],
+                createdAt: {$gt: new Date(new Date().getTime() - 10000)},
+                type: input.type
+            }).select("by")
+            if(duplicates.length === 0) {
+                await new DBPost({
+                    createdAt: new Date(),
+                    type: input.type,
+                    by: user.id,
+                    content: input.content,
+                    originalPost: input.originalPost
+                }).save()
+            }
             return await project(DBPost, filteredQuery(user.id, filter, user.id), info) as any
         },
         editPost: async (_, {id, input}, {user}, info) => {
