@@ -8,12 +8,14 @@ type Post {
     likeCount: Int!
     isLikedBy(userID: ID!): Boolean!
     isReportedBy(userID: ID!): Boolean!
+    editedOn: Date
 }
 
 input PostFilterInput {
-    limit: Int
-    offset: Int
     type: PostType
+}
+
+input PostSortInput {
     sortBy: PostSortOption
     sortDirection: SortDirection
 }

@@ -24,8 +24,8 @@ type User {
 
     introStep: Int
 
-    feed(filter: PostFilterInput): [Post]
-    subscriptionFeed(filter: PostFilterInput): [Post]
+    feed(limit: Int, offset: Int, filter: PostFilterInput, sort: PostSortInput): [Post!]!
+    subscriptionFeed(limit: Int, offset: Int, filter: PostFilterInput, sort: PostSortInput): [Post!]!
 }
 
 type Identity {

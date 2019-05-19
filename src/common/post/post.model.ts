@@ -54,7 +54,13 @@ const schema = new Schema({
             required: true
         },
         message: String
-    }]
+    }],
+    reportCount: {
+        type: Number,
+        required: true,
+        default: 0
+    },
+    editedOn: Date
 })
 
 export const DBPost = model<DbPost>("Post", schema)

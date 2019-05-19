@@ -1696,7 +1696,10 @@ export type MutationSubmitReviewArgs = {
 
 export type MutationCreatePostArgs = {
   input: PostInput;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
   filter?: Maybe<PostFilterInput>;
+  sort?: Maybe<PostSortInput>;
 };
 
 export type MutationEditPostArgs = {
@@ -1706,7 +1709,10 @@ export type MutationEditPostArgs = {
 
 export type MutationDeletePostArgs = {
   id: Scalars["ID"];
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
   filter?: Maybe<PostFilterInput>;
+  sort?: Maybe<PostSortInput>;
 };
 
 export type MutationChangePostLikeStatusArgs = {
@@ -2412,6 +2418,7 @@ export type Post = {
   readonly likeCount: Scalars["Int"];
   readonly isLikedBy: Scalars["Boolean"];
   readonly isReportedBy: Scalars["Boolean"];
+  readonly editedOn?: Maybe<Scalars["Date"]>;
 };
 
 export type PostIsLikedByArgs = {
@@ -2423,17 +2430,18 @@ export type PostIsReportedByArgs = {
 };
 
 export type PostFilterInput = {
-  readonly limit?: Maybe<Scalars["Int"]>;
-  readonly offset?: Maybe<Scalars["Int"]>;
   readonly type?: Maybe<PostType>;
-  readonly sortBy?: Maybe<PostSortOption>;
-  readonly sortDirection?: Maybe<SortDirection>;
 };
 
 export type PostInput = {
   readonly type?: Maybe<PostType>;
   readonly content?: Maybe<Scalars["String"]>;
   readonly originalPost?: Maybe<Scalars["ID"]>;
+};
+
+export type PostSortInput = {
+  readonly sortBy?: Maybe<PostSortOption>;
+  readonly sortDirection?: Maybe<SortDirection>;
 };
 
 export type PostSortOption = "likes" | "reposts" | "createdAt";
@@ -2613,7 +2621,11 @@ export type QueryIssuesCountArgs = {
   filter?: Maybe<IssueFilterInput>;
 };
 
-export type ReportReason = "inappropriate" | "copyright";
+export type ReportReason =
+  | "inappropriate"
+  | "copyright"
+  | "spam"
+  | "hatespeech";
 
 export type Review = {
   readonly id: Scalars["ID"];
@@ -2695,8 +2707,8 @@ export type User = {
   readonly badges: ReadonlyArray<Maybe<Scalars["String"]>>;
   readonly isFollowedBy: Scalars["Boolean"];
   readonly introStep?: Maybe<Scalars["Int"]>;
-  readonly feed?: Maybe<ReadonlyArray<Maybe<Post>>>;
-  readonly subscriptionFeed?: Maybe<ReadonlyArray<Maybe<Post>>>;
+  readonly feed: ReadonlyArray<Post>;
+  readonly subscriptionFeed: ReadonlyArray<Post>;
 };
 
 export type UserReviewQueueArgs = {
@@ -2716,11 +2728,17 @@ export type UserIsFollowedByArgs = {
 };
 
 export type UserFeedArgs = {
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
   filter?: Maybe<PostFilterInput>;
+  sort?: Maybe<PostSortInput>;
 };
 
 export type UserSubscriptionFeedArgs = {
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
   filter?: Maybe<PostFilterInput>;
+  sort?: Maybe<PostSortInput>;
 };
 
 export type UserFilterInput = {
@@ -2881,6 +2899,7 @@ export type ResolversTypes = {
   ReviewFields: ReviewFields;
   PostFilterInput: PostFilterInput;
   PostType: PostType;
+  PostSortInput: PostSortInput;
   PostSortOption: PostSortOption;
   Post: Post;
   DeckFilterInput: DeckFilterInput;
@@ -3973,6 +3992,7 @@ export type PostResolvers<
     ContextType,
     PostIsReportedByArgs
   >;
+  editedOn?: Resolver<Maybe<ResolversTypes["Date"]>, ParentType, ContextType>;
 };
 
 export type QueryResolvers<
@@ -4261,13 +4281,13 @@ export type UserResolvers<
   >;
   introStep?: Resolver<Maybe<ResolversTypes["Int"]>, ParentType, ContextType>;
   feed?: Resolver<
-    Maybe<ReadonlyArray<Maybe<ResolversTypes["Post"]>>>,
+    ReadonlyArray<ResolversTypes["Post"]>,
     ParentType,
     ContextType,
     UserFeedArgs
   >;
   subscriptionFeed?: Resolver<
-    Maybe<ReadonlyArray<Maybe<ResolversTypes["Post"]>>>,
+    ReadonlyArray<ResolversTypes["Post"]>,
     ParentType,
     ContextType,
     UserSubscriptionFeedArgs
