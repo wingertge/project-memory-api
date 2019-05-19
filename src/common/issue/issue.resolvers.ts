@@ -38,8 +38,7 @@ export const issueResolvers: Resolvers = {
         }
     },
     Issue: {
-        replies: async ({id}, {select = {}}, _, info) => {
-            const {limit, offset, filter = {}, sort = {}} = select!
+        replies: async ({id}, {limit, offset, filter = {}, sort = {}}, _, info) => {
             const {by, postedAt} = filter!
             const {sortBy = "postedAt", sortDirection = "asc"} = sort!
             const find: any = {issue: id}

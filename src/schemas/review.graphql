@@ -9,13 +9,14 @@ type Review {
 }
 
 input ReviewFilterInput {
-    limit: Int
-    offset: Int
-    deck: ID
-    toBeReviewedBy: Date
+    deck: IDComparator
+    nextReviewAt: DateComparator
+    box: NumberComparator
+}
+
+input ReviewSortInput {
     sortBy: ReviewSortOptions
     sortDirection: SortDirection
-    boxes: [Int]
 }
 
 enum ReviewFields {

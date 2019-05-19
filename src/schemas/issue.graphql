@@ -9,18 +9,11 @@ type Issue {
     id: ID!
     title: String!
     content: String!
-    replies(select: IssueReplySelectInput): [IssueReply!]!
+    replies(limit: Int, offset: Int, filter: IssueReplyFilterInput, sort: IssueReplySortInput): [IssueReply!]!
     replyCount: Int!
     by: User!
     postedAt: Date!
     lastActivity: Date!
-}
-
-input IssueReplySelectInput {
-    limit: Int
-    offset: Int
-    filter: IssueReplyFilterInput
-    sort: IssueReplySortInput
 }
 
 input IssueReplySortInput {

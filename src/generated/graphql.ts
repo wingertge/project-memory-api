@@ -525,10 +525,6 @@ export type Card = {
 };
 
 export type CardFilterInput = {
-  readonly limit?: Maybe<Scalars["Int"]>;
-  readonly offset?: Maybe<Scalars["Int"]>;
-  readonly sortDirection?: Maybe<SortDirection>;
-  readonly sortBy?: Maybe<CardSortingOptions>;
   readonly search?: Maybe<Scalars["String"]>;
 };
 
@@ -541,6 +537,11 @@ export type CardInput = {
 };
 
 export type CardSortingOptions = "meaning" | "pronunciation" | "translation";
+
+export type CardSortInput = {
+  readonly sortBy?: Maybe<CardSortingOptions>;
+  readonly sortDirection?: Maybe<SortDirection>;
+};
 
 /** Representing a color value comprising of HEX, RGBA and css color values */
 export type Color = {
@@ -559,8 +560,12 @@ export type DateComparator = {
   readonly gt?: Maybe<Scalars["Date"]>;
   readonly lt?: Maybe<Scalars["Date"]>;
   readonly eq?: Maybe<Scalars["Date"]>;
+  readonly ne?: Maybe<Scalars["Date"]>;
   readonly gte?: Maybe<Scalars["Date"]>;
   readonly lte?: Maybe<Scalars["Date"]>;
+  readonly in?: Maybe<ReadonlyArray<Scalars["Date"]>>;
+  readonly nin?: Maybe<ReadonlyArray<Scalars["Date"]>>;
+  readonly all?: Maybe<ReadonlyArray<Scalars["Date"]>>;
 };
 
 export type Deck = {
@@ -579,11 +584,17 @@ export type Deck = {
 };
 
 export type DeckCardsArgs = {
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
   filter?: Maybe<CardFilterInput>;
+  sort?: Maybe<CardSortInput>;
 };
 
 export type DeckSubscribersArgs = {
-  filter?: Maybe<SubscriberFilterInput>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  filter?: Maybe<UserFilterInput>;
+  sort?: Maybe<UserSortInput>;
 };
 
 export type DeckIsLikedByArgs = {
@@ -591,17 +602,13 @@ export type DeckIsLikedByArgs = {
 };
 
 export type DeckFilterInput = {
-  readonly limit?: Maybe<Scalars["Int"]>;
-  readonly offset?: Maybe<Scalars["Int"]>;
-  readonly sortBy?: Maybe<DeckSortBy>;
-  readonly sortDirection?: Maybe<SortDirection>;
   readonly search?: Maybe<Scalars["String"]>;
-  readonly owner?: Maybe<Scalars["ID"]>;
-  readonly languages?: Maybe<ReadonlyArray<Scalars["ID"]>>;
-  readonly nativeLanguage?: Maybe<Scalars["ID"]>;
-  readonly tags?: Maybe<ReadonlyArray<Scalars["String"]>>;
-  readonly excludeOwnedBy?: Maybe<ReadonlyArray<Scalars["ID"]>>;
-  readonly excludeSubscribedBy?: Maybe<ReadonlyArray<Scalars["ID"]>>;
+  readonly owner?: Maybe<IdComparator>;
+  readonly language?: Maybe<IdComparator>;
+  readonly nativeLanguage?: Maybe<IdComparator>;
+  readonly tags?: Maybe<StringComparator>;
+  readonly subscribers?: Maybe<IdComparator>;
+  readonly id?: Maybe<IdComparator>;
 };
 
 export type DeckInput = {
@@ -612,7 +619,16 @@ export type DeckInput = {
   readonly cards?: Maybe<ReadonlyArray<Maybe<CardInput>>>;
 };
 
-export type DeckSortBy = "name" | "cardCount" | "rating" | "subscriberCount";
+export type DeckSortInput = {
+  readonly sortBy?: Maybe<DeckSortOptions>;
+  readonly sortDirection?: Maybe<SortDirection>;
+};
+
+export type DeckSortOptions =
+  | "name"
+  | "cardCount"
+  | "rating"
+  | "subscriberCount";
 
 export type DisplayType = "Public" | "Unlisted" | "Private";
 
@@ -1245,6 +1261,14 @@ export type HelpPageWhereUniqueInput = {
   readonly slug?: Maybe<Scalars["String"]>;
 };
 
+export type IdComparator = {
+  readonly eq?: Maybe<Scalars["ID"]>;
+  readonly ne?: Maybe<Scalars["ID"]>;
+  readonly in?: Maybe<ReadonlyArray<Scalars["ID"]>>;
+  readonly nin?: Maybe<ReadonlyArray<Scalars["ID"]>>;
+  readonly all?: Maybe<ReadonlyArray<Scalars["ID"]>>;
+};
+
 export type Identity = {
   readonly userId: Scalars["ID"];
   readonly provider: Scalars["String"];
@@ -1296,7 +1320,10 @@ export type Issue = {
 };
 
 export type IssueRepliesArgs = {
-  select?: Maybe<IssueReplySelectInput>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  filter?: Maybe<IssueReplyFilterInput>;
+  sort?: Maybe<IssueReplySortInput>;
 };
 
 export type IssueFilterInput = {
@@ -1323,13 +1350,6 @@ export type IssueReply = {
 export type IssueReplyFilterInput = {
   readonly by?: Maybe<Scalars["ID"]>;
   readonly postedAt?: Maybe<DateComparator>;
-};
-
-export type IssueReplySelectInput = {
-  readonly limit?: Maybe<Scalars["Int"]>;
-  readonly offset?: Maybe<Scalars["Int"]>;
-  readonly filter?: Maybe<IssueReplyFilterInput>;
-  readonly sort?: Maybe<IssueReplySortInput>;
 };
 
 export type IssueReplySortBy = "postedAt";
@@ -1802,8 +1822,12 @@ export type NumberComparator = {
   readonly gt?: Maybe<Scalars["Int"]>;
   readonly lt?: Maybe<Scalars["Int"]>;
   readonly eq?: Maybe<Scalars["Int"]>;
+  readonly ne?: Maybe<Scalars["Int"]>;
   readonly gte?: Maybe<Scalars["Int"]>;
   readonly lte?: Maybe<Scalars["Int"]>;
+  readonly in?: Maybe<ReadonlyArray<Scalars["Int"]>>;
+  readonly nin?: Maybe<ReadonlyArray<Scalars["Int"]>>;
+  readonly all?: Maybe<ReadonlyArray<Scalars["Int"]>>;
 };
 
 export type Page = Node & {
@@ -2577,7 +2601,10 @@ export type QueryNodeArgs = {
 };
 
 export type QueryUsersArgs = {
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
   filter?: Maybe<UserFilterInput>;
+  sort?: Maybe<UserSortInput>;
 };
 
 export type QueryUserArgs = {
@@ -2589,7 +2616,10 @@ export type QueryLanguageArgs = {
 };
 
 export type QueryDecksArgs = {
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
   filter?: Maybe<DeckFilterInput>;
+  sort?: Maybe<DeckSortInput>;
 };
 
 export type QueryDeckArgs = {
@@ -2640,13 +2670,14 @@ export type Review = {
 export type ReviewFields = "meaning" | "pronunciation" | "translation";
 
 export type ReviewFilterInput = {
-  readonly limit?: Maybe<Scalars["Int"]>;
-  readonly offset?: Maybe<Scalars["Int"]>;
-  readonly deck?: Maybe<Scalars["ID"]>;
-  readonly toBeReviewedBy?: Maybe<Scalars["Date"]>;
+  readonly deck?: Maybe<IdComparator>;
+  readonly nextReviewAt?: Maybe<DateComparator>;
+  readonly box?: Maybe<NumberComparator>;
+};
+
+export type ReviewSortInput = {
   readonly sortBy?: Maybe<ReviewSortOptions>;
   readonly sortDirection?: Maybe<SortDirection>;
-  readonly boxes?: Maybe<ReadonlyArray<Maybe<Scalars["Int"]>>>;
 };
 
 export type ReviewSortOptions = "nextReviewAt" | "box";
@@ -2679,8 +2710,12 @@ export type SortDirection = "asc" | "desc";
 
 export type Status = "DRAFT" | "PUBLISHED" | "ARCHIVED";
 
-export type SubscriberFilterInput = {
-  readonly limit?: Maybe<Scalars["Int"]>;
+export type StringComparator = {
+  readonly eq?: Maybe<Scalars["String"]>;
+  readonly ne?: Maybe<Scalars["String"]>;
+  readonly in?: Maybe<ReadonlyArray<Scalars["String"]>>;
+  readonly nin?: Maybe<ReadonlyArray<Scalars["String"]>>;
+  readonly all?: Maybe<ReadonlyArray<Scalars["String"]>>;
 };
 
 export type User = {
@@ -2699,9 +2734,6 @@ export type User = {
   readonly subscribedDecks: ReadonlyArray<Deck>;
   readonly reviewQueue: ReadonlyArray<Review>;
   readonly reviewsCount: Scalars["Int"];
-  readonly nextReview?: Maybe<Review>;
-  readonly lessonQueue: ReadonlyArray<Review>;
-  readonly lessonsCount: Scalars["Int"];
   readonly totalRating: Scalars["Int"];
   readonly totalSubscribers: Scalars["Int"];
   readonly badges: ReadonlyArray<Maybe<Scalars["String"]>>;
@@ -2712,14 +2744,13 @@ export type User = {
 };
 
 export type UserReviewQueueArgs = {
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
   filter?: Maybe<ReviewFilterInput>;
+  sort?: Maybe<ReviewSortInput>;
 };
 
 export type UserReviewsCountArgs = {
-  filter?: Maybe<ReviewFilterInput>;
-};
-
-export type UserLessonQueueArgs = {
   filter?: Maybe<ReviewFilterInput>;
 };
 
@@ -2742,7 +2773,6 @@ export type UserSubscriptionFeedArgs = {
 };
 
 export type UserFilterInput = {
-  readonly limit?: Maybe<Scalars["Int"]>;
   readonly search?: Maybe<Scalars["String"]>;
 };
 
@@ -2755,6 +2785,17 @@ export type UserInput = {
   readonly introStep?: Maybe<Scalars["Int"]>;
   readonly nativeLanguage?: Maybe<Scalars["ID"]>;
 };
+
+export type UserSortInput = {
+  readonly sortBy?: Maybe<UserSortOptions>;
+  readonly sortDirection?: Maybe<SortDirection>;
+};
+
+export type UserSortOptions =
+  | "username"
+  | "totalLikes"
+  | "totalFavorites"
+  | "followerCount";
 import { AppContext } from "../common/server";
 
 import {
@@ -2883,17 +2924,23 @@ export type ResolversTypes = {
   HelpPageEdge: HelpPageEdge;
   AggregateHelpPage: AggregateHelpPage;
   UserFilterInput: UserFilterInput;
+  UserSortInput: UserSortInput;
+  UserSortOptions: UserSortOptions;
+  SortDirection: SortDirection;
   User: User;
   Identity: Identity;
   Language: Language;
   Deck: Deck;
   CardFilterInput: CardFilterInput;
-  SortDirection: SortDirection;
+  CardSortInput: CardSortInput;
   CardSortingOptions: CardSortingOptions;
   Card: Card;
-  SubscriberFilterInput: SubscriberFilterInput;
   ReviewFilterInput: ReviewFilterInput;
+  IDComparator: IdComparator;
+  DateComparator: DateComparator;
   Date: Scalars["Date"];
+  NumberComparator: NumberComparator;
+  ReviewSortInput: ReviewSortInput;
   ReviewSortOptions: ReviewSortOptions;
   Review: Review;
   ReviewFields: ReviewFields;
@@ -2903,16 +2950,15 @@ export type ResolversTypes = {
   PostSortOption: PostSortOption;
   Post: Post;
   DeckFilterInput: DeckFilterInput;
-  DeckSortBy: DeckSortBy;
+  StringComparator: StringComparator;
+  DeckSortInput: DeckSortInput;
+  DeckSortOptions: DeckSortOptions;
   Issue: Issue;
-  IssueReplySelectInput: IssueReplySelectInput;
   IssueReplyFilterInput: IssueReplyFilterInput;
-  DateComparator: DateComparator;
   IssueReplySortInput: IssueReplySortInput;
   IssueReplySortBy: IssueReplySortBy;
   IssueReply: IssueReply;
   IssueFilterInput: IssueFilterInput;
-  NumberComparator: NumberComparator;
   IssueSortingInput: IssueSortingInput;
   IssueSortBy: IssueSortBy;
   Mutation: {};
@@ -4254,18 +4300,6 @@ export type UserResolvers<
     ContextType,
     UserReviewsCountArgs
   >;
-  nextReview?: Resolver<
-    Maybe<ResolversTypes["Review"]>,
-    ParentType,
-    ContextType
-  >;
-  lessonQueue?: Resolver<
-    ReadonlyArray<ResolversTypes["Review"]>,
-    ParentType,
-    ContextType,
-    UserLessonQueueArgs
-  >;
-  lessonsCount?: Resolver<ResolversTypes["Int"], ParentType, ContextType>;
   totalRating?: Resolver<ResolversTypes["Int"], ParentType, ContextType>;
   totalSubscribers?: Resolver<ResolversTypes["Int"], ParentType, ContextType>;
   badges?: Resolver<

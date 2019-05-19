@@ -55,25 +55,24 @@ const resolvers: Resolvers = {
         }
     },
     Deck: {
-        cards: async ({id}, {filter}, _, info) => {
-            filter = filter || {}
+        cards: async ({id}, {limit, offset, filter = {}, sort = {}}, _, info) => {
+            const {search} = filter!
+            const {sortBy = "meaning", sortDirection = "asc"} = sort!
             const condition: any = {deck: id}
-            if(filter.search) {
-                const search = escapeRegExp(filter.search)
+            if(search) {
+                const escapedSearch = escapeRegExp(search)
                 condition.$or = [
                     //{$text: {$search: filter.search}},
-                    {meaning: new RegExp(search, "i")},
-                    {pronunciation: new RegExp(search, "i")},
-                    {translation: new RegExp(search, "i")}
+                    {meaning: new RegExp(escapedSearch, "i")},
+                    {pronunciation: new RegExp(escapedSearch, "i")},
+                    {translation: new RegExp(escapedSearch, "i")}
                 ]
             }
-            let query = DBCard.find(condition)
+            let query = DBCard.find(condition).sort({[sortBy as string]: sortDirection})
             query = project(DBCard, query, info)!
-            if(filter.limit) query = query.limit(filter.limit)
-            if(filter.offset) query = query.skip(filter.offset)
-            const cards = await query.sort({[filter.sortBy || "meaning"]: (filter.sortDirection || "asc") === "asc" ? 1 : -1}) as any
-            log(cards)
-            return cards
+            if(limit) query = query.limit(limit)
+            if(offset) query = query.skip(offset)
+            return await project(DBCard, query, info) as any
         }
     }
 }

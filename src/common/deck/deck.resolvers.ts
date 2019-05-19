@@ -3,6 +3,7 @@ import {oc} from "ts-optchain"
 import {Resolvers} from "../../generated/graphql"
 import AuthError, {ErrorType} from "../AuthError"
 import DBCard from "../card/card.model"
+import {convertEqualityComparator} from "../comparators"
 import DBLanguage from "../language/language.model"
 import {getTextLang} from "../language/textLanguage"
 import makeLogger from "../logging"
@@ -22,22 +23,24 @@ const resolvers: Resolvers = {
                 throw new AuthError(ErrorType.Unauthenticated)
             return await project(DBDeck, DBDeck.findById(id), info) as any
         },
-        decks: async (_, {filter}, {user}, info) => {
+        decks: async (_, {limit, offset = 0, filter = {}, sort = {}}, {user}, info) => {
             if(!user)
                 throw new AuthError(ErrorType.Unauthenticated)
-            filter = filter || {}
+            const {id, nativeLanguage, tags, search, language, owner, subscribers} = filter!
+            const {sortBy = "name", sortDirection = "asc"} = sort!
             const conditions: any = {}
 
-            if(filter.languages) conditions.language = {$in: filter.languages}
-            if(filter.nativeLanguage) conditions.nativeLanguage = filter.nativeLanguage
-            if(filter.search) conditions.$text = {$search: filter.search}
-            if(filter.owner) conditions.owner = filter.owner
-            if(filter.tags) conditions.tags = {$all: filter.tags}
-            if(filter.excludeOwnedBy) conditions.owner = {$nin: filter.excludeOwnedBy}
-            if(filter.excludeSubscribedBy) conditions.subscribers = {$nin: filter.excludeSubscribedBy}
+            if(language) conditions.language = convertEqualityComparator(language)
+            if(nativeLanguage) conditions.nativeLanguage = convertEqualityComparator(nativeLanguage)
+            if(search) conditions.$text = {$search: search}
+            if(owner) conditions.owner = convertEqualityComparator(owner)
+            if(tags) conditions.tags = convertEqualityComparator(tags)
+            if(owner) conditions.owner = convertEqualityComparator(owner)
+            if(subscribers) conditions.subscribers = convertEqualityComparator(subscribers)
+            if(id) conditions._id = convertEqualityComparator(id)
 
-            let decksQuery = DBDeck.find(conditions).sort({[filter.sortBy || "name"]: filter.sortDirection || "asc"}).skip(filter.offset || 0)
-            if(filter.limit) decksQuery = decksQuery.limit(filter.limit)
+            let decksQuery = DBDeck.find(conditions).sort({[sortBy as string]: sortDirection}).skip(offset!)
+            if(limit) decksQuery = decksQuery.limit(limit)
 
             return await project(DBDeck, decksQuery, info) as any
         }

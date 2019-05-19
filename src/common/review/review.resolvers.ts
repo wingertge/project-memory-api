@@ -1,6 +1,7 @@
 import {Resolvers} from "../../generated/graphql"
 import AuthError, {ErrorType} from "../AuthError"
 import {DbCard} from "../card/card.model"
+import {convertComparator, convertEqualityComparator} from "../comparators"
 import makeLogger from "../logging"
 import project from "../project"
 import {scheduleNextReview} from "../reviewScheduling"
@@ -9,7 +10,7 @@ import debug from "debug"
 
 const log = debug("api:resolvers:review")
 log.log = console.log.bind(console)
-const logger = makeLogger("reviewResolvers")
+const logger = makeLogger("review.resolvers")
 
 const resolvers: Resolvers = {
     Query: {
@@ -26,50 +27,35 @@ const resolvers: Resolvers = {
         }
     },
     User: {
-        nextReview: async ({id}, _, a, info) => {
-            //for now, just take the oldest review
-            const review = await project(DBReview, DBReview.find({user: id, archived: false, nextReviewAt: {$lt: new Date()}}).sort({nextReviewAt: 1}).limit(1), info)
-            return review.length > 0 ? review[0] as any : null
-        },
-        reviewQueue: async ({id}, {filter}, _, info) => {
-            const conditions: any = {user: id, archived: false}
-            filter = filter || {}
-            if(filter.deck) conditions.deck = filter.deck
-            if(filter.toBeReviewedBy) conditions.nextReviewAt = {$lt: filter.toBeReviewedBy}
-            if(filter.boxes) conditions.box = {$in: filter.boxes}
-            else conditions.box = {$gt: 0}
+        reviewQueue: async ({id}, {limit, offset, filter = {}, sort = {}}, _, info) => {
+            const conditions: any = {user: id, $or: [{archived: false}, {archived: {$exists: false}}]}
+            const {box, deck, nextReviewAt} = filter!
+            const {sortBy = "nextReviewAt", sortDirection = "asc"} = sort!
+            if(deck) conditions.deck = convertEqualityComparator(deck)
+            if(nextReviewAt) conditions.nextReviewAt = convertComparator(nextReviewAt)
+            if(box) conditions.box = convertComparator(box)
 
-            let query = project(DBReview, DBReview.find(conditions), info)
-            if(filter.sortBy || filter.sortDirection)
-                query = query.sort({[filter.sortBy || "nextReviewAt"]: filter.sortDirection || "asc"})
-            if(filter.limit) query = query.limit(filter.limit)
-            if(filter.offset) query = query.skip(filter.offset)
-            const result = await query
+            let query = DBReview.find(conditions).sort({[sortBy as string]: sortDirection})
+            if(limit) query = query.limit(limit)
+            if(offset) query = query.skip(offset)
+            const result = await project(DBReview, query, info)
             logger.debug(result)
             return result as any
         },
         reviewsCount: async ({id}, {filter}) => {
-            const conditions: any = {user: id, archived: false}
-            filter = filter || {}
-            if(filter.deck) conditions.deck = filter.deck
-            if(filter.toBeReviewedBy) conditions.nextReviewAt = {$lt: filter.toBeReviewedBy}
-            if(filter.boxes) conditions.box = {$in: filter.boxes}
-            else conditions.box = {$gt: 0}
+            const {box, deck, nextReviewAt} = filter!
+            const conditions: any = {user: id, $or: [{archived: false}, {archived: {$exists: false}}]}
+            if(deck) conditions.deck = convertEqualityComparator(deck)
+            if(nextReviewAt) conditions.nextReviewAt = convertComparator(nextReviewAt)
+            if(box) conditions.box = convertComparator(box)
+            if(conditions.nextReviewAt) {
+                logger.debug(conditions)
+                logger.debug(conditions.nextReviewAt.$lte instanceof Date)
+            }
+            logger.debug(conditions)
 
             return await DBReview.countDocuments(conditions)
-        },
-        lessonQueue: async ({id}, {filter}, _, info) => {
-            const conditions: any = {user: id, box: 0, archived: false}
-            filter = filter || {}
-            if(filter.deck) conditions.deck = filter.deck
-            let query = project(DBReview, DBReview.find(conditions), info)
-            if(filter.limit) query = query.limit(filter.limit)
-            if(filter.offset) query = query.skip(filter.offset)
-            const reviews = await query
-            log(reviews)
-            return reviews as any
-        },
-        lessonsCount: async ({id}) => await DBReview.countDocuments({user: id, box: 0, archived: false})
+        }
     },
     Mutation: {
         submitReview: async (_, {id, field, correct}, {user}, info) => {

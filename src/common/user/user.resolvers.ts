@@ -29,17 +29,20 @@ const resolvers: Resolvers = {
                 const newUser = await new Auth().findUserById(id)
                 return await project(DBUser, DBUser.findByIdAndUpdate(id, {...newUser, isSocial: isSocial(newUser)}, {new: true, upsert: true}), info) as any
             }
-            logger.debug(dbUser)
+            //logger.debug(dbUser)
             return (dbUser || {id}) as User
         },
-        users: async (_, {filter}, {user}, info) => {
+        users: async (_, {limit, offset, filter = {}, sort = {}}, {user}, info) => {
             if(!user) return []
-            filter = filter || {}
-            if(!filter.search && !filter.limit) return []
-            if(filter.search && filter.search.length < 3) return []
+            const {search} = filter!
+            const {sortBy = "username", sortDirection = "asc"} = sort!
+            if(!search && !limit) return []
+            if(search && search.length < 3) return []
 
-            const find = filter.search ? {$or: [{username: new RegExp(escapeRegExp(filter.search), "i")}, {email: filter.search}]} : {}
-            const q = filter.limit ? DBUser.find(find).limit(filter.limit) : DBUser.find(find)
+            const find = search ? {$or: [{username: new RegExp(escapeRegExp(search), "i")}, {email: search}]} : {}
+            let q = DBUser.find(find).sort({[sortBy as string]: sortDirection})
+            if(limit) q = q.limit(limit)
+            if(offset) q = q.skip(offset)
 
             logger.debug("Starting user search")
             const users = await project(DBUser, q, info) as any

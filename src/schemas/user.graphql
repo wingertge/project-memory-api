@@ -12,11 +12,8 @@ type User {
     languages: [Language!]!
     ownedDecks: [Deck!]!
     subscribedDecks: [Deck!]!
-    reviewQueue(filter: ReviewFilterInput): [Review!]!
+    reviewQueue(limit: Int, offset: Int, filter: ReviewFilterInput, sort: ReviewSortInput): [Review!]!
     reviewsCount(filter: ReviewFilterInput): Int!
-    nextReview: Review
-    lessonQueue(filter: ReviewFilterInput): [Review!]!
-    lessonsCount: Int!
     totalRating: Int!
     totalSubscribers: Int!
     badges: [String]!
@@ -36,8 +33,19 @@ type Identity {
 }
 
 input UserFilterInput {
-    limit: Int
     search: String
+}
+
+input UserSortInput {
+    sortBy: UserSortOptions
+    sortDirection: SortDirection
+}
+
+enum UserSortOptions {
+    username
+    totalLikes
+    totalFavorites
+    followerCount
 }
 
 input UserInput {

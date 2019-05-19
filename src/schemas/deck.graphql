@@ -4,9 +4,9 @@ type Deck {
     owner: User!
     language: Language!
     nativeLanguage: Language!
-    cards(filter: CardFilterInput): [Card!]!
+    cards(limit: Int, offset: Int, filter: CardFilterInput, sort: CardSortInput): [Card!]!
     cardCount: Int!
-    subscribers(filter: SubscriberFilterInput): [User!]!
+    subscribers(limit: Int, offset: Int, filter: UserFilterInput, sort: UserSortInput): [User!]!
     subscriberCount: Int!
     rating: Int!
     isLikedBy(userID: ID!): Boolean!
@@ -14,24 +14,21 @@ type Deck {
 }
 
 input DeckFilterInput {
-    limit: Int
-    offset: Int
-    sortBy: DeckSortBy
-    sortDirection: SortDirection
     search: String
-    owner: ID
-    languages: [ID!]
-    nativeLanguage: ID
-    tags: [String!]
-    excludeOwnedBy: [ID!]
-    excludeSubscribedBy: [ID!]
+    owner: IDComparator
+    language: IDComparator
+    nativeLanguage: IDComparator
+    tags: StringComparator
+    subscribers: IDComparator
+    id: IDComparator
 }
 
-input SubscriberFilterInput {
-    limit: Int
+input DeckSortInput {
+    sortBy: DeckSortOptions
+    sortDirection: SortDirection
 }
 
-enum DeckSortBy {
+enum DeckSortOptions {
     name
     cardCount
     rating

@@ -14,13 +14,13 @@ schema {
 scalar Upload
 
 type Query {
-    users(filter: UserFilterInput): [User]
+    users(limit: Int, offset: Int, filter: UserFilterInput, sort: UserSortInput): [User]
     user(id: ID!): User
 
     languages: [Language]
     language(languageCode: String!): Language
 
-    decks(filter: DeckFilterInput): [Deck]
+    decks(limit: Int, offset: Int, filter: DeckFilterInput, sort: DeckSortInput): [Deck]
     deck(id: ID!): Deck
     tags(search: String!, limit: Int, offset: Int): [String!]!
 
@@ -91,14 +91,38 @@ input NumberComparator {
     gt: Int
     lt: Int
     eq: Int
+    ne: Int
     gte: Int
     lte: Int
+    in: [Int!]
+    nin: [Int!]
+    all: [Int!]
 }
 
 input DateComparator {
     gt: Date
     lt: Date
     eq: Date
+    ne: Date
     gte: Date
     lte: Date
+    in: [Date!]
+    nin: [Date!]
+    all: [Date!]
+}
+
+input IDComparator {
+    eq: ID
+    ne: ID
+    in: [ID!]
+    nin: [ID!]
+    all: [ID!]
+}
+
+input StringComparator {
+    eq: String
+    ne: String
+    in: [String!]
+    nin: [String!]
+    all: [String!]
 }
