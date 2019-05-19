@@ -6,8 +6,8 @@ import {validateIssue} from "../validators"
 import DBIssue from "./issue.model"
 import DBIssueReply from "./issuereply.model"
 
-const convertIssueFilter = ({by, title, textSearch, replyCount, postedAt, lastActivity}: IssueFilterInput) => {
-    const find: any = {}
+const convertIssueFilter = (userId: string, {by, title, textSearch, replyCount, postedAt, lastActivity}: IssueFilterInput) => {
+    const find: any = {"reports.by": {$ne: userId}}
     if(by) find.by = by
     if(title) find.title = title
     if(textSearch) find.$text = {$search: textSearch}
@@ -27,21 +27,21 @@ export const issueResolvers: Resolvers = {
             if(!user) throw new AuthError(ErrorType.Unauthenticated)
             const {sortDirection = "desc", sortBy = "lastActivity"} = sort || {}
 
-            let q = DBIssue.find(convertIssueFilter(filter || {})).sort({[sortBy as string]: sortDirection})
+            let q = DBIssue.find(convertIssueFilter(user.id, filter || {})).sort({[sortBy as string]: sortDirection})
             if(limit) q = q.limit(limit)
             if(offset) q = q.skip(offset)
             return await project(DBIssue, q, info) as any
         },
         issuesCount: async (_, {filter}, {user}) => {
             if(!user) throw new AuthError(ErrorType.Unauthenticated)
-            return await DBIssue.countDocuments(convertIssueFilter(filter || {}))
+            return await DBIssue.countDocuments(convertIssueFilter(user.id, filter || {}))
         }
     },
     Issue: {
-        replies: async ({id}, {limit, offset, filter = {}, sort = {}}, _, info) => {
+        replies: async ({id}, {limit, offset, filter = {}, sort = {}}, {user}, info) => {
             const {by, postedAt} = filter!
             const {sortBy = "postedAt", sortDirection = "asc"} = sort!
-            const find: any = {issue: id}
+            const find: any = {issue: id, "reports.by": {$ne: user.id}}
             if(postedAt) find.postedAt = convertComparator(postedAt)
             if(by) find.by = by
             let query = DBIssueReply.find(find).sort({[sortBy as string]: sortDirection})
