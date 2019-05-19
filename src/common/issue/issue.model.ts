@@ -13,6 +13,7 @@ export interface DbIssue extends Document {
     by: string | DbUser
     postedAt: Date
     lastActivity: Date
+    editedOn?: Date
 }
 
 const schema = new Schema({
@@ -49,7 +50,8 @@ const schema = new Schema({
     lastActivity: {
         type: Date,
         required: true
-    }
+    },
+    editedOn: Date
 })
 
 schema.index({title: "text", content: "text", "repliesContent.content": "text"})

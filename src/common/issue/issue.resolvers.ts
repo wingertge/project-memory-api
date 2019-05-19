@@ -74,7 +74,7 @@ export const issueResolvers: Resolvers = {
         editIssue: async (_, {id, input}, {user}, info) => {
             if(!user) throw new AuthError(ErrorType.Unauthenticated)
             validateIssue(input)
-            const result = await project(DBIssue, DBIssue.findOneAndUpdate({_id: id, by: user.id}, {...input}, {new: true}), info)
+            const result = await project(DBIssue, DBIssue.findOneAndUpdate({_id: id, by: user.id}, {...input, editedOn: new Date()}, {new: true}), info)
             if(!result) throw new AuthError(ErrorType.Unauthorized)
             return result as any
         },
@@ -104,12 +104,13 @@ export const issueResolvers: Resolvers = {
         },
         editIssueReply: async (_, {id, content}, {user}, info) => {
             if(!user) throw new AuthError(ErrorType.Unauthenticated)
-            const reply = await DBIssueReply.findOneAndUpdate({_id: id, by: user.id}, {content}).select("issue")
+            const reply = await DBIssueReply.findOne({_id: id, by: user.id}).select("issue")
             if(!reply) throw new AuthError(ErrorType.Unauthorized)
-            return await project(DBIssue, DBIssue.findOneAndUpdate({
+            await DBIssue.findOneAndUpdate({
                 _id: reply.issue,
                 "repliesContent.replyId": id
-            }, {"repliesContent.$.content": content}), info) as any
+            }, {"repliesContent.$.content": content}).select("_id")
+            return await project(DBIssueReply, DBIssueReply.findOneAndUpdate({_id: id, by: user.id}, {content, editedOn: new Date()}, {new: true}), info) as any
         },
         deleteIssueReply: async (_, {id}, {user}, info) => {
             if(!user) throw new AuthError(ErrorType.Unauthenticated)

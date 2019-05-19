@@ -8,7 +8,8 @@ export interface DbIssueReply extends Document {
     content: string
     by: string | DbUser
     postedAt: Date
-    issue: string | DbIssue
+    issue: string | DbIssue,
+    editedOn?: Date
 }
 
 const schema = new Schema({
@@ -25,6 +26,7 @@ const schema = new Schema({
         type: Date,
         required: true
     },
+    editedOn: Date,
     issue: {
         type: ObjectId,
         ref: "Issue",

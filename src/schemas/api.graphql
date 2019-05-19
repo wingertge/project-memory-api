@@ -76,7 +76,7 @@ type Mutation {
     editIssue(id: ID!, input: IssueInput!): Issue
     deleteIssue(id: ID!): Issue
     replyToIssue(id: ID!, content: String!): Issue
-    editIssueReply(id: ID!, content: String!): Issue
+    editIssueReply(id: ID!, content: String!): IssueReply
     deleteIssueReply(id: ID!): Issue
 }
 
