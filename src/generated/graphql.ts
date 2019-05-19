@@ -1317,6 +1317,8 @@ export type Issue = {
   readonly by: User;
   readonly postedAt: Scalars["Date"];
   readonly lastActivity: Scalars["Date"];
+  readonly editedOn?: Maybe<Scalars["Date"]>;
+  readonly isReportedBy: Scalars["Boolean"];
 };
 
 export type IssueRepliesArgs = {
@@ -1324,6 +1326,10 @@ export type IssueRepliesArgs = {
   offset?: Maybe<Scalars["Int"]>;
   filter?: Maybe<IssueReplyFilterInput>;
   sort?: Maybe<IssueReplySortInput>;
+};
+
+export type IssueIsReportedByArgs = {
+  id: Scalars["ID"];
 };
 
 export type IssueFilterInput = {
@@ -1345,6 +1351,12 @@ export type IssueReply = {
   readonly content: Scalars["String"];
   readonly by: User;
   readonly postedAt: Scalars["Date"];
+  readonly editedOn?: Maybe<Scalars["Date"]>;
+  readonly isReportedBy: Scalars["Boolean"];
+};
+
+export type IssueReplyIsReportedByArgs = {
+  id: Scalars["ID"];
 };
 
 export type IssueReplyFilterInput = {
@@ -1564,8 +1576,10 @@ export type Mutation = {
   readonly editIssue?: Maybe<Issue>;
   readonly deleteIssue?: Maybe<Issue>;
   readonly replyToIssue?: Maybe<Issue>;
-  readonly editIssueReply?: Maybe<Issue>;
+  readonly editIssueReply?: Maybe<IssueReply>;
   readonly deleteIssueReply?: Maybe<Issue>;
+  readonly reportIssue?: Maybe<Issue>;
+  readonly reportIssueReply?: Maybe<IssueReply>;
 };
 
 export type MutationCreateAssetArgs = {
@@ -1808,6 +1822,18 @@ export type MutationEditIssueReplyArgs = {
 
 export type MutationDeleteIssueReplyArgs = {
   id: Scalars["ID"];
+};
+
+export type MutationReportIssueArgs = {
+  id: Scalars["ID"];
+  reason: ReportReason;
+  message?: Maybe<Scalars["String"]>;
+};
+
+export type MutationReportIssueReplyArgs = {
+  id: Scalars["ID"];
+  reason: ReportReason;
+  message?: Maybe<Scalars["String"]>;
 };
 
 export type MutationType = "CREATED" | "UPDATED" | "DELETED";
@@ -3467,6 +3493,13 @@ export type IssueResolvers<
   by?: Resolver<ResolversTypes["User"], ParentType, ContextType>;
   postedAt?: Resolver<ResolversTypes["Date"], ParentType, ContextType>;
   lastActivity?: Resolver<ResolversTypes["Date"], ParentType, ContextType>;
+  editedOn?: Resolver<Maybe<ResolversTypes["Date"]>, ParentType, ContextType>;
+  isReportedBy?: Resolver<
+    ResolversTypes["Boolean"],
+    ParentType,
+    ContextType,
+    IssueIsReportedByArgs
+  >;
 };
 
 export type IssueReplyResolvers<
@@ -3477,6 +3510,13 @@ export type IssueReplyResolvers<
   content?: Resolver<ResolversTypes["String"], ParentType, ContextType>;
   by?: Resolver<ResolversTypes["User"], ParentType, ContextType>;
   postedAt?: Resolver<ResolversTypes["Date"], ParentType, ContextType>;
+  editedOn?: Resolver<Maybe<ResolversTypes["Date"]>, ParentType, ContextType>;
+  isReportedBy?: Resolver<
+    ResolversTypes["Boolean"],
+    ParentType,
+    ContextType,
+    IssueReplyIsReportedByArgs
+  >;
 };
 
 export interface JsonScalarConfig
@@ -3860,7 +3900,7 @@ export type MutationResolvers<
     MutationReplyToIssueArgs
   >;
   editIssueReply?: Resolver<
-    Maybe<ResolversTypes["Issue"]>,
+    Maybe<ResolversTypes["IssueReply"]>,
     ParentType,
     ContextType,
     MutationEditIssueReplyArgs
@@ -3870,6 +3910,18 @@ export type MutationResolvers<
     ParentType,
     ContextType,
     MutationDeleteIssueReplyArgs
+  >;
+  reportIssue?: Resolver<
+    Maybe<ResolversTypes["Issue"]>,
+    ParentType,
+    ContextType,
+    MutationReportIssueArgs
+  >;
+  reportIssueReply?: Resolver<
+    Maybe<ResolversTypes["IssueReply"]>,
+    ParentType,
+    ContextType,
+    MutationReportIssueReplyArgs
   >;
 };
 

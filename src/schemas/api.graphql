@@ -78,6 +78,8 @@ type Mutation {
     replyToIssue(id: ID!, content: String!): Issue
     editIssueReply(id: ID!, content: String!): IssueReply
     deleteIssueReply(id: ID!): Issue
+    reportIssue(id: ID!, reason: ReportReason!, message: String): Issue
+    reportIssueReply(id: ID!, reason: ReportReason!, message: String): IssueReply
 }
 
 enum SortDirection {

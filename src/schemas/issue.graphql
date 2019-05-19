@@ -4,6 +4,7 @@ type IssueReply {
     by: User!
     postedAt: Date!
     editedOn: Date
+    isReportedBy(id: ID!): Boolean!
 }
 
 type Issue {
@@ -16,6 +17,7 @@ type Issue {
     postedAt: Date!
     lastActivity: Date!
     editedOn: Date
+    isReportedBy(id: ID!): Boolean!
 }
 
 input IssueReplySortInput {

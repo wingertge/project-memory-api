@@ -31,6 +31,23 @@ const schema = new Schema({
         type: ObjectId,
         ref: "Issue",
         required: true
+    },
+    reports: [{
+        by: {
+            type: ObjectId,
+            ref: "User",
+            required: true
+        },
+        reason: {
+            type: String,
+            required: true
+        },
+        message: String
+    }],
+    reportCount: {
+        type: Number,
+        required: true,
+        default: 0
     }
 })
 

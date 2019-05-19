@@ -48,6 +48,16 @@ export const issueResolvers: Resolvers = {
             if(limit) query = query.limit(limit)
             if(offset) query = query.skip(offset)
             return await project(DBIssueReply, query, info) as any
+        },
+        isReportedBy: async ({id}, {id: userId}) => {
+            const result = await DBIssue.find({_id: id, "reports.by": userId}).select("_id")
+            return result.length > 0
+        }
+    },
+    IssueReply: {
+        isReportedBy: async ({id}, {id: userId}) => {
+            const result = await DBIssueReply.find({_id: id, "reports.by": userId}).select("_id")
+            return result.length > 0
         }
     },
     Mutation: {
@@ -117,6 +127,23 @@ export const issueResolvers: Resolvers = {
             const reply = await DBIssueReply.findOneAndDelete({_id: id, by: user.id}).select("issue")
             if(!reply) throw new AuthError(ErrorType.Unauthorized)
             const result = await project(DBIssue, DBIssue.findByIdAndUpdate(reply.issue, {$pull: {replies: id, repliesContent: {replyId: id}}, $inc: {replyCount: -1}}), info)
+            return result as any
+        },
+        reportIssue: async (_, {id, reason, message}, {user}, info) => {
+            if(!user) throw new AuthError(ErrorType.Unauthenticated)
+            const result = await project(DBIssue, DBIssue.findOneAndUpdate({
+                _id: id,
+                "reports.by": {$ne: user.id}
+            }, {$push: {reports: {by: user.id, reason, message}}, $inc: {reportCount: 1}}, {new: true}), info)
+            if(!result) throw new Error("Already reported that issue")
+            return result as any
+        },
+        reportIssueReply: async (_, {id, reason, message}, {user}, info) => {
+            const result = await project(DBIssueReply, DBIssueReply.findOneAndUpdate({
+                _id: id,
+                "reports.by": {$ne: user.id}
+            }, {$push: {reports: {by: user.id, reason, message}}, $inc: {reportCount: 1}}, {new: true}), info)
+            if(!result) throw new Error("Already reported that issue reply")
             return result as any
         }
     }

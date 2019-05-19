@@ -51,7 +51,24 @@ const schema = new Schema({
         type: Date,
         required: true
     },
-    editedOn: Date
+    editedOn: Date,
+    reports: [{
+        by: {
+            type: ObjectId,
+            ref: "User",
+            required: true
+        },
+        reason: {
+            type: String,
+            required: true
+        },
+        message: String
+    }],
+    reportCount: {
+        type: Number,
+        required: true,
+        default: 0
+    }
 })
 
 schema.index({title: "text", content: "text", "repliesContent.content": "text"})
