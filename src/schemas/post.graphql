@@ -36,10 +36,3 @@ enum PostSortOption {
     reposts
     createdAt
 }
-
-enum ReportReason {
-    inappropriate
-    copyright
-    spam
-    hatespeech
-}

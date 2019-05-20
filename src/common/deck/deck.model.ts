@@ -54,12 +54,9 @@ const schema = new Schema({
         required: true,
         default: 0
     },
-    ratings: [{
-        upvote: Boolean,
-        user: {
-            type: ObjectId,
-            ref: "User"
-        }
+    likes: [{
+        type: ObjectId,
+        ref: "User"
     }],
     rating: {
         type: Number,

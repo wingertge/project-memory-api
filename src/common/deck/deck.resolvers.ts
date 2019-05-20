@@ -6,7 +6,7 @@ import DBCard from "../card/card.model"
 import {convertEqualityComparator} from "../comparators"
 import DBLanguage from "../language/language.model"
 import {getTextLang} from "../language/textLanguage"
-import makeLogger from "../logging"
+//import makeLogger from "../logging"
 import project from "../project"
 import DBReview from "../review/review.model"
 import DBUser from "../user/user.model"
@@ -14,7 +14,7 @@ import {validateDeck} from "../validators"
 import DBDeck from "./deck.model"
 import ObjectId = Types.ObjectId
 
-const logger = makeLogger("resolvers.deck")
+//const logger = makeLogger("resolvers.deck")
 
 const resolvers: Resolvers = {
     Query: {
@@ -75,49 +75,14 @@ const resolvers: Resolvers = {
             return await project(DBUser, DBUser.findByIdAndUpdate(id, userUpdate, {new: true}), info) as any
         },
         changeLikeStatus: async (_, {id, userID, value}, {user}, info) => {
-            if(!user || user.id !== userID) throw new AuthError(ErrorType.Unauthorized)
-            const deck = await DBDeck.findById(id).select("owner")
-            const currentDeck = await DBDeck.findOne({_id: id, "ratings.user": userID}).select("ratings.$")
-            logger.debug(currentDeck)
-            let change
-            if(currentDeck) {
-                if(typeof value === "undefined")
-                    change = currentDeck.ratings[0].upvote ? -1 : 1
-                else if(value)
-                    change = currentDeck.ratings[0].upvote ? 0 : 2
-                else
-                    change = currentDeck.ratings[0].upvote ? -2 : 0
+            if(!user) throw new AuthError(ErrorType.Unauthenticated)
+            if(user.id !== userID) throw new AuthError(ErrorType.Unauthorized)
+            if(value) {
+                await DBDeck.updateOne({_id: id, likes: {$ne: userID}}, {$push: {likes: userID}, $inc: {rating: 1}})
             } else {
-                change = typeof value !== "undefined" ? value ? 1 : -1 : 0
+                await DBDeck.updateOne({_id: id, likes: userID}, {$pull: {likes: userID}, $inc: {rating: -1}})
             }
-            logger.debug(change)
-            if(typeof value === "undefined" || value === null) {
-                let dbDeck: any = await project(DBDeck, DBDeck.updateOne({_id: id, "ratings.user": userID}, {$pull: {ratings: {user: userID}}}, {new: true}), info)
-                if(currentDeck) {
-                    dbDeck = await project(DBDeck, DBDeck.findByIdAndUpdate(id, {$inc: {rating: change}}, {new: true}), info)
-                    await DBUser.findByIdAndUpdate(deck!.owner, {$inc: {totalRating: change}})
-                }
-                logger.debug(dbDeck)
-                return dbDeck
-            } else {
-                let dbDeck = await project(DBDeck, DBDeck.updateOne({_id: id, "ratings.user": {$ne: userID}}, {
-                    $push: {
-                        ratings: {
-                            user: userID,
-                            upvote: value
-                        }
-                    }
-                }), info)
-                if(dbDeck.matchedCount === 0) {
-                    await project(DBDeck, DBDeck.updateOne({_id: id, "ratings.user": userID}, {$set: {"ratings.$.upvote": value}}), info)
-                }
-
-                dbDeck = await project(DBDeck, DBDeck.findByIdAndUpdate(id, {$inc: {rating: change}}, {new: true}), info)
-                await DBUser.findByIdAndUpdate(deck!.owner, {$inc: {totalRating: change}})
-
-                logger.debug(dbDeck)
-                return dbDeck
-            }
+            return await project(DBDeck, DBDeck.findById(id), info) as any
         },
         addDeck: async (_, {input}, {user}, info) => {
             const userId = oc(input).owner()
@@ -170,8 +135,8 @@ const resolvers: Resolvers = {
     },
     Deck: {
         isLikedBy: async ({id}, {userID}) => {
-            const user = await DBDeck.find({_id: id, ratings: {$elemMatch: {user: userID}}})
-            return user.length > 0
+            const count = await DBDeck.countDocuments({_id: id, likes: userID})
+            return count > 0
         }
     }
 }
