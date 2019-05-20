@@ -10,7 +10,7 @@ import DBPost from "./post.model"
 const filteredQuery = (userId: string, currentUserId: string, filter: PostFilterInput, sort: PostSortInput, limit: Maybe<number>, offset: Maybe<number>) => {
     const {type} = filter
     const {sortBy, sortDirection} = sort
-    const find: any = {by: userId, "reports.by": {$ne: currentUserId}}
+    const find: any = {by: userId, "reports.by": {$ne: currentUserId}, $or: [{hidden: false}, {by: currentUserId}]}
     if(type) find.type = type
     let q = DBPost.find(find).sort({[sortBy || "createdAt"]: sortDirection || "desc"})
     if(limit) q = q.limit(limit)
@@ -67,7 +67,8 @@ export const postResolvers: Resolvers = {
                     type,
                     by: user.id,
                     content,
-                    originalPost
+                    originalPost,
+                    hidden: false
                 }).save()
             } else {
                 logger.debug("Ignoring double post")

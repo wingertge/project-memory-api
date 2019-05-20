@@ -95,7 +95,12 @@ const userSchema = new Schema({
     following: [{
         type: ObjectId,
         ref: "User"
-    }]
+    }],
+    hidden: {
+        type: Boolean,
+        required: true,
+        default: false
+    }
 })
 
 userSchema.pre("remove", function(this: DbUser, next) {

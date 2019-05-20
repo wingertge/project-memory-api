@@ -7,7 +7,7 @@ import DBIssue from "./issue.model"
 import DBIssueReply from "./issuereply.model"
 
 const convertIssueFilter = (userId: string, {by, title, textSearch, replyCount, postedAt, lastActivity}: IssueFilterInput) => {
-    const find: any = {"reports.by": {$ne: userId}}
+    const find: any = {"reports.by": {$ne: userId}, $or: [{hidden: false}, {by: userId}]}
     if(by) find.by = by
     if(title) find.title = title
     if(textSearch) find.$text = {$search: textSearch}
@@ -41,7 +41,7 @@ export const issueResolvers: Resolvers = {
         replies: async ({id}, {limit, offset, filter = {}, sort = {}}, {user}, info) => {
             const {by, postedAt} = filter!
             const {sortBy = "postedAt", sortDirection = "asc"} = sort!
-            const find: any = {issue: id, "reports.by": {$ne: user.id}}
+            const find: any = {issue: id, "reports.by": {$ne: user.id}, $or: [{hidden: false}, {by: user.id}]}
             if(postedAt) find.postedAt = convertComparator(postedAt)
             if(by) find.by = by
             let query = DBIssueReply.find(find).sort({[sortBy as string]: sortDirection})
@@ -77,7 +77,8 @@ export const issueResolvers: Resolvers = {
                 content,
                 by: user.id,
                 postedAt: new Date(),
-                lastActivity: new Date()
+                lastActivity: new Date(),
+                hidden: false
             }).save()
             return await project(DBIssue, DBIssue.findById(issue.id), info) as any
         },
@@ -108,7 +109,8 @@ export const issueResolvers: Resolvers = {
                 content,
                 by: user.id,
                 postedAt: new Date(),
-                issue: id
+                issue: id,
+                hidden: false
             }).save()
             return await project(DBIssue, DBIssue.findByIdAndUpdate(id, {$push: {replies: reply.id, repliesContent: {replyId: reply.id, content}}, $set: {lastActivity: new Date()}, $inc: {replyCount: 1}}), info) as any
         },

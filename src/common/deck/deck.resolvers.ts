@@ -28,7 +28,7 @@ const resolvers: Resolvers = {
                 throw new AuthError(ErrorType.Unauthenticated)
             const {id, nativeLanguage, tags, search, language, owner, subscribers} = filter!
             const {sortBy = "name", sortDirection = "asc"} = sort!
-            const conditions: any = {}
+            const conditions: any = {$or: [{hidden: false}, {owner: user.id}]}
 
             if(language) conditions.language = convertEqualityComparator(language)
             if(nativeLanguage) conditions.nativeLanguage = convertEqualityComparator(nativeLanguage)
@@ -110,7 +110,7 @@ const resolvers: Resolvers = {
                 }))
                 DBReview.insertMany(reviews)
             }
-            const deck = await new DBDeck({...input, nameLanguage: getTextLang(nativeLang!), _id: deckId, cardCount}).save()
+            const deck = await new DBDeck({...input, nameLanguage: getTextLang(nativeLang!), _id: deckId, cardCount, hidden: false}).save()
             const result = await DBUser.updateOne({_id: userId, $or: [{ownedDecksCount: {$lte: 50}}, {ownedDecksCount: {$exists: false}}]}, {$push: {ownedDecks: deck._id}, $inc: {ownedDecksCount: 1}})
             if(result.nModified === 0) throw new Error("You can't create more than 50 decks")
             return await project(DBUser, DBUser.findById(userId), info) as any

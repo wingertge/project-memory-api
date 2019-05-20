@@ -60,7 +60,12 @@ const schema = new Schema({
         required: true,
         default: 0
     },
-    editedOn: Date
+    editedOn: Date,
+    hidden: {
+        type: Boolean,
+        required: true,
+        default: false
+    }
 })
 
 export const DBPost = model<DbPost>("Post", schema)

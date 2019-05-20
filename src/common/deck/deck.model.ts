@@ -68,7 +68,12 @@ const schema = new Schema({
         required: true
     },
     tags: [String],
-    nameLanguage: String
+    nameLanguage: String,
+    hidden: {
+        type: Boolean,
+        required: true,
+        default: false
+    }
 })
 
 schema.index("owner")

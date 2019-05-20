@@ -48,6 +48,11 @@ const schema = new Schema({
         type: Number,
         required: true,
         default: 0
+    },
+    hidden: {
+        type: Boolean,
+        required: true,
+        default: false
     }
 })
 

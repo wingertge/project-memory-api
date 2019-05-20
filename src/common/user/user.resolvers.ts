@@ -27,7 +27,7 @@ const resolvers: Resolvers = {
             if(!dbUser && user.id === id) {
                 logger.debug(`Initialising user ${id}`)
                 const newUser = await new Auth().findUserById(id)
-                return await project(DBUser, DBUser.findByIdAndUpdate(id, {...newUser, isSocial: isSocial(newUser)}, {new: true, upsert: true}), info) as any
+                return await project(DBUser, DBUser.findByIdAndUpdate(id, {...newUser, isSocial: isSocial(newUser), hidden: false}, {new: true, upsert: true}), info) as any
             }
             //logger.debug(dbUser)
             return (dbUser || {id}) as User
@@ -39,8 +39,12 @@ const resolvers: Resolvers = {
             if(!search && !limit) return []
             if(search && search.length < 3) return []
 
-            const find = search ? {$or: [{username: new RegExp(escapeRegExp(search), "i")}, {email: search}]} : {}
-            let q = DBUser.find(find).sort({[sortBy as string]: sortDirection})
+            const $or: any[] = [{hidden: false}, {_id: user.id}]
+            if(search) {
+                $or.push({username: new RegExp(escapeRegExp(search), "i")})
+                $or.push({email: search})
+            }
+            let q = DBUser.find({$or}).sort({[sortBy as string]: sortDirection})
             if(limit) q = q.limit(limit)
             if(offset) q = q.skip(offset)
 
