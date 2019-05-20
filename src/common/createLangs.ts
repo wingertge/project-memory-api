@@ -1,0 +1,180 @@
+/*
+const langs = [{
+    name: "Simplified Chinese",
+    nativeName: "汉语",
+    languageCode: "zh-CHS",
+    hasConverter: false,
+    requiresIME: true,
+    hasPronunciation: true
+}, {
+    name: "Traditional Chinese",
+    nativeName: "漢語",
+    languageCode: "zh-CHT",
+    hasConverter: false,
+    requiresIME: true,
+    hasPronunciation: true
+}, {
+    name: "Spanish",
+    nativeName: "Español",
+    languageCode: "es",
+    hasConverter: false,
+    requiresIME: false,
+    hasPronunciation: false
+}, {
+    name: "French",
+    nativeName: "Français",
+    languageCode: "fr",
+    hasConverter: false,
+    requiresIME: false,
+    hasPronunciation: false
+}, {
+    name: "Italian",
+    nativeName: "Italiano",
+    languageCode: "it",
+    hasConverter: false,
+    requiresIME: false,
+    hasPronunciation: false
+}, {
+    name: "Russian",
+    nativeName: "русский язык",
+    languageCode: "ru",
+    hasConverter: false,
+    requiresIME: true,
+    hasPronunciation: true
+}, {
+    name: "Portuguese",
+    nativeName: "português",
+    languageCode: "pt",
+    hasConverter: false,
+    requiresIME: false,
+    hasPronunciation: false
+}, {
+    name: "Turkish",
+    nativeName: "Türkçe",
+    languageCode: "tr",
+    hasConverter: false,
+    requiresIME: false,
+    hasPronunciation: false
+}, {
+    name: "Dutch",
+    nativeName: "Nederlands",
+    languageCode: "nl",
+    hasConverter: false,
+    requiresIME: false,
+    hasPronunciation: false
+}, {
+    name: "Swedish",
+    nativeName: "Svenska",
+    languageCode: "sv",
+    hasConverter: false,
+    requiresIME: false,
+    hasPronunciation: false
+}, {
+    name: "Greek",
+    nativeName: "ελληνικά",
+    languageCode: "el",
+    hasConverter: false,
+    requiresIME: true,
+    hasPronunciation: true
+}, {
+    name: "Irish",
+    nativeName: "Gaeilge",
+    languageCode: "ga",
+    hasConverter: false,
+    requiresIME: false,
+    hasPronunciation: false
+}, {
+    name: "Polish",
+    nativeName: "Polszczyzna",
+    languageCode: "pl",
+    hasConverter: false,
+    requiresIME: false,
+    hasPronunciation: false
+}, {
+    name: "Hebrew",
+    nativeName: "עִבְרִית‎",
+    languageCode: "he",
+    hasConverter: false,
+    requiresIME: true,
+    hasPronunciation: true
+}, {
+    name: "Hindi",
+    nativeName: "हिन्दी",
+    languageCode: "hi",
+    hasConverter: false,
+    requiresIME: true,
+    hasPronunciation: true
+}, {
+    name: "Norwegian",
+    nativeName: "Norsk",
+    languageCode: "nb",
+    hasConverter: false,
+    requiresIME: false,
+    hasPronunciation: false
+}, {
+    name: "Danish",
+    nativeName: "Dansk",
+    languageCode: "da",
+    hasConverter: false,
+    requiresIME: false,
+    hasPronunciation: false
+}, {
+    name: "Romanian",
+    nativeName: "Limba română",
+    languageCode: "ro",
+    hasConverter: false,
+    requiresIME: false,
+    hasPronunciation: false
+}, {
+    name: "Czech",
+    nativeName: "Čeština",
+    languageCode: "cs",
+    hasConverter: false,
+    requiresIME: false,
+    hasPronunciation: false
+}, {
+    name: "Swahili",
+    nativeName: "Kiswahili",
+    languageCode: "sw",
+    hasConverter: false,
+    requiresIME: false,
+    hasPronunciation: false
+}, {
+    name: "Hungarian",
+    nativeName: "Magyar nyelv",
+    languageCode: "hu",
+    hasConverter: false,
+    requiresIME: false,
+    hasPronunciation: false
+}, {
+    name: "Ukrainian",
+    nativeName: "українська мова ukrajinśka mova",
+    languageCode: "uk",
+    hasConverter: false,
+    requiresIME: true,
+    hasPronunciation: true
+}, {
+    name: "Ukrainian",
+    nativeName: "українська мова",
+    languageCode: "uk",
+    hasConverter: false,
+    requiresIME: true,
+    hasPronunciation: true
+}, {
+    name: "Indonesian",
+    nativeName: "Bahasa Indonesia",
+    languageCode: "id",
+    hasConverter: false,
+    requiresIME: false,
+    hasPronunciation: false
+}, {
+    name: "Arabic",
+    nativeName: "العَرَبِيَّة‎",
+    languageCode: "ar",
+    hasConverter: false,
+    requiresIME: true,
+    hasPronunciation: true
+}]
+const langModels = langs.map(lang => new DBLanguage(...lang))
+DBLanguage.insertMany(langModels)
+*/
