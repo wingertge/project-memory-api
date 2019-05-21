@@ -5,7 +5,6 @@ import DBDeck from "../deck/deck.model"
 import project from "../project"
 import {escapeRegExp, validateCard} from "../validators"
 import DBCard from "./card.model"
-import DBUser from "../user/user.model"
 import DBReview from "../review/review.model"
 
 const log = debug("api:topicResolvers:card")
@@ -28,7 +27,7 @@ const resolvers: Resolvers = {
             await assertPermission(input.deck, user)
             validateCard(input)
             const card = await new DBCard({...input}).save()
-            await DBDeck.findByIdAndUpdate(card.deck, {$push: {cards: card._id}, $inc: {cardCount: 1}}).select("_id subscribers owner").then(dbDeck => {
+            await DBDeck.findByIdAndUpdate(card.deck, {$inc: {cardCount: 1}}).select("_id subscribers owner").then(dbDeck => {
                 console.log(dbDeck)
                 const reviews = (dbDeck!.subscribers! as string[]).map(sub => new DBReview({
                     card: card._id,
@@ -59,10 +58,6 @@ const resolvers: Resolvers = {
         deleteCards: async (_, {deck, ids}, {user}, info) => {
             await assertPermission(deck, user)
             await DBCard.deleteMany({_id: {$in: ids}})
-            const reviewsToDelete = await DBReview.find({card: {$in: ids}}).select("_id user")
-            const users = reviewsToDelete.map(review => review.user)
-            const deletedIds = reviewsToDelete.map(review => review.id)
-            await DBUser.updateMany({_id: {$in: users}}, {$pull: {reviewQueue: deletedIds}})
             await DBReview.deleteMany({card: {$in: ids}})
             return await project(DBDeck, DBDeck.findByIdAndUpdate(deck, {
                 $inc: {cardCount: -ids.length}

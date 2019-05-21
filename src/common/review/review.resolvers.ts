@@ -62,7 +62,7 @@ const resolvers: Resolvers = {
             if(!user)
                 throw new AuthError(ErrorType.Unauthenticated)
 
-            const reviewsCount = await DBReview.countDocuments({user: user.id, nextReviewAt: {$lt: new Date()}})
+            const reviewsCount = await DBReview.countDocuments({user: user.id, nextReviewAt: {$lte: new Date()}})
             const addedDelay = Math.floor(Math.random() * reviewsCount)
             const newDate = new Date(new Date().getTime() + addedDelay * 1000)
             const update: any = {$addToSet: {reviewedFields: field}, nextReviewAt: newDate}
@@ -79,12 +79,13 @@ const resolvers: Resolvers = {
                 throw new AuthError(ErrorType.Unauthorized)
             }
 
-            const hasPronunciation = !!(review.card as DbCard).pronunciation
+            const card = review.card as DbCard
+            const hasPronunciation = card.pronunciation && card.pronunciation !== ""
             const reviewedFields = review.reviewedFields
-            log(reviewedFields)
+            logger.debug(reviewedFields)
             if(reviewedFields.length === 3 || (reviewedFields.length === 2 && !hasPronunciation)) {
                 const nextReviewAt = scheduleNextReview(review.correct ? review.box + 1 : review.box - 1)
-                log(nextReviewAt)
+                logger.debug(nextReviewAt.toISOString())
                 return await project(DBReview, DBReview.findByIdAndUpdate(id, {$set: {reviewedFields: [], nextReviewAt, correct: true}, $inc: {box: review.correct ? 1 : -1}}, {new: true}), info)
             }
             return await project(DBReview, DBReview.findById(id), info) as any
