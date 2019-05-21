@@ -112,7 +112,7 @@ export const issueResolvers: Resolvers = {
                 issue: id,
                 hidden: false
             }).save()
-            return await project(DBIssue, DBIssue.findByIdAndUpdate(id, {$push: {replies: reply.id, repliesContent: {replyId: reply.id, content}}, $set: {lastActivity: new Date()}, $inc: {replyCount: 1}}), info) as any
+            return await project(DBIssue, DBIssue.findByIdAndUpdate(id, {$push: {repliesContent: {replyId: reply.id, content}}, $set: {lastActivity: new Date()}, $inc: {replyCount: 1}}), info) as any
         },
         editIssueReply: async (_, {id, content}, {user}, info) => {
             if(!user) throw new AuthError(ErrorType.Unauthenticated)
@@ -128,7 +128,7 @@ export const issueResolvers: Resolvers = {
             if(!user) throw new AuthError(ErrorType.Unauthenticated)
             const reply = await DBIssueReply.findOneAndDelete({_id: id, by: user.id}).select("issue")
             if(!reply) throw new AuthError(ErrorType.Unauthorized)
-            const result = await project(DBIssue, DBIssue.findByIdAndUpdate(reply.issue, {$pull: {replies: id, repliesContent: {replyId: id}}, $inc: {replyCount: -1}}), info)
+            const result = await project(DBIssue, DBIssue.findByIdAndUpdate(reply.issue, {$pull: {repliesContent: {replyId: id}}, $inc: {replyCount: -1}}), info)
             return result as any
         },
         reportIssue: async (_, {id, reason, message}, {user}, info) => {

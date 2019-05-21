@@ -25,10 +25,6 @@ const schema = new Schema({
         type: String,
         required: true
     },
-    replies: [{
-        type: ObjectId,
-        ref: "IssueReply"
-    }],
     repliesContent: [{
         replyId: ObjectId,
         content: String

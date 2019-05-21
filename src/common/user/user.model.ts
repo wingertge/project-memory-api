@@ -77,10 +77,6 @@ const userSchema = new Schema({
         type: ObjectId,
         ref: "Deck"
     }],
-    feed: [{
-        type: ObjectId,
-        ref: "Post"
-    }],
     badges: [String],
     totalRating: {
         type: Number,
