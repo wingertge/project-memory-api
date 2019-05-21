@@ -27,8 +27,24 @@ const resolvers: Resolvers = {
         createCard: async (_, {input}, {user}, info) => {
             await assertPermission(input.deck, user)
             validateCard(input)
-            await new DBCard({...input}).save()
-            return await project(DBDeck, DBDeck.findByIdAndUpdate(input.deck, {$inc: {cardCount: 1}}), info) as any
+            const card = await new DBCard({...input}).save()
+            await DBDeck.findByIdAndUpdate(card.deck, {$push: {cards: card._id}, $inc: {cardCount: 1}}).select("_id subscribers owner").then(dbDeck => {
+                console.log(dbDeck)
+                const reviews = (dbDeck!.subscribers! as string[]).map(sub => new DBReview({
+                    card: card._id,
+                    box: 0,
+                    user: sub,
+                    deck: dbDeck!.id
+                }))
+                reviews.push(new DBReview({
+                    card: card._id,
+                    box: 0,
+                    user: dbDeck!.owner,
+                    deck: dbDeck!.id
+                }))
+                DBReview.insertMany(reviews)
+            })
+            return await project(DBDeck, DBDeck.findById(input.deck), info) as any
         },
         editCard: async (_, {id, input}, {user}, info) => {
             log(id)

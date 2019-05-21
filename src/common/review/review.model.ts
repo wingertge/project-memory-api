@@ -46,16 +46,6 @@ const schema = new Schema({
     }
 })
 
-schema.pre<DbReview>("save", function(this: DbReview, next) {
-    User.findByIdAndUpdate(this.user, {$push: {reviewQueue: this._id}}).exec()
-    next()
-})
-
-schema.pre<DbReview>("remove", function(this: DbReview, next) {
-    User.findByIdAndUpdate(this.user, {$pull: {reviewQueue: this._id}}).exec()
-    next()
-})
-
 schema.index("user")
 
 export const DBReview = model<DbReview>("Review", schema)

@@ -1,6 +1,5 @@
 import {model, Schema, Document} from "mongoose"
 import {Card} from "../../generated/graphql"
-import Review from "../review/review.model"
 import Deck, {DbDeck} from "../deck/deck.model"
 import ObjectId = Schema.Types.ObjectId
 
@@ -22,33 +21,6 @@ const schema = new Schema({
         type: ObjectId,
         ref: "Deck"
     }
-})
-
-schema.pre("remove", function(this: DbCard, next) {
-    console.log(this._id)
-    Review.remove({card: this._id}).exec()
-    next()
-})
-
-schema.pre("save", function(this: DbCard, next) {
-    console.log(this)
-    Deck.findByIdAndUpdate(this.deck, {$push: {cards: this._id}, $inc: {cardCount: 1}}).select("_id subscribers owner").then(dbDeck => {
-        console.log(dbDeck)
-        const reviews = (dbDeck!.subscribers! as string[]).map(sub => new Review({
-            card: this._id,
-            box: 0,
-            user: sub,
-            deck: dbDeck!.id
-        }))
-        reviews.push(new Review({
-            card: this._id,
-            box: 0,
-            user: dbDeck!.owner,
-            deck: dbDeck!.id
-        }))
-        Review.insertMany(reviews)
-    })
-    next()
 })
 
 schema.index("deck")
