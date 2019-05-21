@@ -51,7 +51,7 @@ const resolvers: Resolvers = {
                 throw new AuthError(ErrorType.Unauthorized)
             const userUpdate = value ? {$push: {subscribedDecks: deckID}} : {$pull: {subscribedDecks: deckID}}
             const deckUpdate = value ? {$push: {subscribers: id}, $inc: {subscriberCount: 1}} : {$pull: {subscribers: id}, $inc: {subscriberCount: -1}}
-            const deck = await DBDeck.findByIdAndUpdate(deckID, deckUpdate).select("owner cards")
+            const deck = await DBDeck.findByIdAndUpdate(deckID, deckUpdate).select("owner")
             await DBUser.findByIdAndUpdate(deck!.owner, {$inc: {totalSubscribers: value ? 1 : -1}})
             if(value) {
                 await DBReview.updateMany(
@@ -59,7 +59,9 @@ const resolvers: Resolvers = {
                     {archived: false}
                 )
                 const existing = await DBReview.find({user: id, deck: deckID}).select("card")
-                const reviews = (deck!.cards as string[])
+                const cards = await DBCard.find({deck: deckID}).select("_id")
+                const reviews = cards
+                    .map(card => card.id as string)
                     .filter(cardId => !existing.some(existing => existing.card.toString() === cardId.toString()))
                     .map(cardId => new DBReview({
                         box: 0,
