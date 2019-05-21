@@ -28,7 +28,7 @@ const resolvers: Resolvers = {
             await assertPermission(input.deck, user)
             validateCard(input)
             await new DBCard({...input}).save()
-            return await project(DBDeck, DBDeck.findById(input.deck), info) as any
+            return await project(DBDeck, DBDeck.findByIdAndUpdate(input.deck, {$inc: {cardCount: 1}}), info) as any
         },
         editCard: async (_, {id, input}, {user}, info) => {
             log(id)
@@ -49,7 +49,6 @@ const resolvers: Resolvers = {
             await DBUser.updateMany({_id: {$in: users}}, {$pull: {reviewQueue: deletedIds}})
             await DBReview.deleteMany({card: {$in: ids}})
             return await project(DBDeck, DBDeck.findByIdAndUpdate(deck, {
-                $pullAll: {cards: ids},
                 $inc: {cardCount: -ids.length}
             }, {new: true}), info) as any
         }
