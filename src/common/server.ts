@@ -164,13 +164,14 @@ export const createApp = async (rootSchema: string) => {
         .use(jwtCheck)
         .use(cookieParser(process.env.COOKIE_SIGNING_SECRET!))
         .use((err, req, res, next) => {
-            if(err.name === "UnauthorizedError") {
+            if(err && err.name === "UnauthorizedError") {
                 res.status(200).send(JSON.stringify({
                     errors: [{message: err.message}]
                 }))
                 log(err)
                 return
             }
+            logger.error(err)
             next()
         })
         .use(cloudFunctionFix)

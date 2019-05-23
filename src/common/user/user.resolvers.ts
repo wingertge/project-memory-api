@@ -27,6 +27,7 @@ const resolvers: Resolvers = {
             if(!dbUser && user.id === id) {
                 logger.debug(`Initialising user ${id}`)
                 const newUser = await new Auth().findUserById(id)
+                logger.debug("Fetched user from auth0")
                 return await project(DBUser, DBUser.findByIdAndUpdate(id, {...newUser, isSocial: isSocial(newUser), hidden: false}, {new: true, upsert: true}), info) as any
             }
             //logger.debug(dbUser)
