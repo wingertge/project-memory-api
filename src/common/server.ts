@@ -168,10 +168,9 @@ export const createApp = async (rootSchema: string) => {
                 res.status(200).send(JSON.stringify({
                     errors: [{message: err.message}]
                 }))
-                log(err)
+                logger.error(err)
                 return
             }
-            logger.error(err)
             next()
         })
         .use(cloudFunctionFix)
